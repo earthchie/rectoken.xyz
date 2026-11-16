@@ -41,7 +41,7 @@ const ogImage =
     ? `/og/whitepaper-${lang}.png`
     : doc.slug === 'compliance'
       ? `/og/compliance-${lang}.png`
-      : '/og/default.png';
+      : `/og/default${lang === 'th' ? '-th' : ''}.png`;
 ---
 
 <BaseLayout title={title} description={description} locale={lang} ogImage={ogImage}>
