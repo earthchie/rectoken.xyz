@@ -5,7 +5,7 @@ verified I-RECs on the ThaiFi network.
 
 The site is a fully static Astro build with bilingual routing (`/en`, `/th`), Pagefind full-text
 search, light and dark themes, live on-chain data, and a MetaMask wallet layer. A small Cloudflare
-Pages Function handles redemption requests without exposing any secret to the browser.
+Worker handles redemption requests without exposing any secret to the browser.
 
 ## Stack
 
@@ -58,14 +58,14 @@ src/
     projects.json                          project registry snapshot (12 projects)
     content.ts                             long-form page content (about, token, compliance, ...)
     whitepaper.ts, compliance.ts, home.ts, faq.ts, legal.ts, price.ts, reports.ts
-  i18n/{en,th}.json                        shared UI strings (212 keys each)
+  i18n/{en,th}.json                        shared UI strings (223 keys each)
   layouts/BaseLayout.astro                 SEO, OG, theme pre-paint, JSON-LD
   pages/en/**, src/pages/th/**             route files (thin wrappers)
   scripts/                                 browser-side wallet, data, swap, check, search
+  server/redeem.ts                         redemption intake handler
   styles/                                  design tokens + components + motion
-functions/
-  api/redeem.ts                            redemption intake (Pages Function)
-  check/[address].ts                       legacy /check/<address> redirect
+  worker.ts                                Worker entry: /api/redeem and /check/*
+wrangler.toml                              Workers Static Assets config
 public/
   _headers, _redirects, og/, price/, pagefind/
 scripts/
@@ -136,22 +136,28 @@ update automatically.
 
 These are public reads; no API key is required. Values are point-in-time, not a streaming feed.
 
-## Redemption function
+## Redemption endpoint
 
-`functions/api/redeem.ts` is deployed automatically by Cloudflare Pages when the build output is
-`dist`. It validates input, verifies Turnstile when configured, and sends a notification email via
-Brevo. If `BREVO_API_KEY` is missing it returns `503` and the UI offers an email fallback - it never
-pretends the request was stored.
+`src/worker.ts` is the Worker entry point. It serves two paths and hands everything else to the
+static assets in `dist`:
 
-Set these in the Pages project (never commit them):
+| Path | Behaviour |
+|---|---|
+| `POST /api/redeem` | validates input, verifies Turnstile when configured, sends email via Brevo |
+| `GET /check/<address>` | legacy deep link, redirects to `/en/check/?address=…` (or `/th/`) |
+
+If `BREVO_API_KEY` is missing it returns `503` and the UI offers an email fallback - it never
+pretends the request was stored. Set these on the Worker (never commit them):
 
 ```
 BREVO_API_KEY=
 REDEEM_TO_EMAIL=info@blockedge.earth
 REDEEM_FROM_EMAIL=noreply@blockedge.earth
 CLOUDFLARE_TURNSTILE_SECRET_KEY=
-PUBLIC_TURNSTILE_SITE_KEY=
 ```
+
+`PUBLIC_TURNSTILE_SITE_KEY` is read by Astro at build time, so it belongs in the build variables
+rather than the Worker runtime secrets.
 
 ## Security note
 
@@ -160,22 +166,27 @@ PUBLIC_TURNSTILE_SITE_KEY=
 > browser. **Rotate the exposed key** if it was ever active, and purge it from the old repository’s
 > git history. The local reference clone in this workspace had its git metadata and the key redacted.
 
-## Deployment (Cloudflare Pages)
+## Deployment (Cloudflare Workers Static Assets)
 | Setting | Value |
 |---|---|
 | Build command | `npm run build` |
-| Output directory | `dist` |
+| Deploy command | `npx wrangler deploy` |
 | Node version | 22 |
 
-`public/_headers` adds CSP and security headers; `public/_redirects` preserves legacy routes
-(`/buy-sell` → `/en/trade`, `/privacy-policy` → `/en/legal/privacy`, etc.). The `/check/<address>`
-deep link is handled by a Pages Function that redirects to `/en/check/?address=…` (or `/th/`).
+`wrangler.toml` declares `[assets] directory = "./dist"`, the `ASSETS` binding and
+`run_worker_first` for `/api/*` and `/check*`, so only those paths run Worker code. Everything else
+is served from `dist` with `public/_headers` (CSP and security headers) and `public/_redirects`
+(`/buy-sell` → `/th/trade`, `/privacy-policy` → `/th/legal/privacy`, etc.) applied.
 
-Other static hosts work too; without Pages Functions the redemption form falls back to email and
-the legacy deep-link redirect is unavailable. To test the Function, CSP and redirects locally:
+Do not add `pages_build_output_dir`: it switches Wrangler into Pages mode, which fails with
+`Missing entry-point to Worker script or to assets directory` before any asset is uploaded.
+
+Other static hosts work too; without the Worker the redemption form falls back to email and the
+legacy deep-link redirect is unavailable. To test the Worker, CSP and redirects locally:
 
 ```bash
-npx wrangler pages dev dist --port 8788
+npm run build
+npx wrangler dev --port 8788
 ```
 
 ## Content provenance

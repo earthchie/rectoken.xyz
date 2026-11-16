@@ -1,23 +1,18 @@
 /**
- * Cloudflare Pages Function - redemption request intake.
+ * Redemption request intake.
  *
- * Environment variables (set in the Pages project, never in the repo):
+ * Environment variables (set on the Worker, never in the repo):
  *   BREVO_API_KEY                  Brevo transactional email key
  *   CLOUDFLARE_TURNSTILE_SECRET_KEY Turnstile secret (optional but recommended)
  *   REDEEM_TO_EMAIL                inbox that receives requests
  *   REDEEM_FROM_EMAIL              verified sender address
  */
 
-type Env = {
+export type RedeemEnv = {
   BREVO_API_KEY?: string;
   CLOUDFLARE_TURNSTILE_SECRET_KEY?: string;
   REDEEM_TO_EMAIL?: string;
   REDEEM_FROM_EMAIL?: string;
-};
-
-type Context = {
-  request: Request;
-  env: Env;
 };
 
 const MAX_LENGTH = {
@@ -72,10 +67,7 @@ async function verifyTurnstile(secret: string, token: string, ip: string | null)
   }
 }
 
-async function sendEmail(
-  apiKey: string,
-  payload: Record<string, unknown>
-): Promise<boolean> {
+async function sendEmail(apiKey: string, payload: Record<string, unknown>): Promise<boolean> {
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
@@ -88,7 +80,7 @@ async function sendEmail(
   return res.ok;
 }
 
-export const onRequestPost = async ({ request, env }: Context): Promise<Response> => {
+export async function handleRedeem(request: Request, env: RedeemEnv): Promise<Response> {
   if (!request.headers.get('content-type')?.includes('application/json')) {
     return json({ success: false, message: 'Unsupported content type' }, 415);
   }
@@ -253,11 +245,4 @@ export const onRequestPost = async ({ request, env }: Context): Promise<Response
             'A completion email will be sent when the process is finished',
           ],
   });
-};
-
-export const onRequestOptions = async (): Promise<Response> => {
-  return new Response(null, {
-    status: 204,
-    headers: { allow: 'POST, OPTIONS' },
-  });
-};
+}

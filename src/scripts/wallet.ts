@@ -3,6 +3,9 @@
  * Uses an injected EIP-1193 provider (MetaMask). No secrets, no backend.
  */
 
+import { rpc } from './chain';
+import { CHAINS } from '@data/site';
+
 export type WalletChain = {
   id: number;
   hexId: string;
@@ -256,23 +259,17 @@ export async function sendTransaction(tx: {
   })) as string;
 }
 
-/** Wait for a receipt by polling the public RPC. */
-export async function waitForReceipt(rpcUrl: string, hash: string, timeoutMs = 120_000): Promise<any> {
+/** Wait for a receipt by polling the public RPC of a configured chain. */
+export async function waitForReceipt(chainId: number, hash: string, timeoutMs = 120_000): Promise<any> {
+  const chain = Object.values(CHAINS).find((entry) => entry.id === chainId);
+  if (!chain) throw new Error('UNKNOWN_CHAIN');
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
-    const res = await fetch(rpcUrl, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'eth_getTransactionReceipt',
-        params: [hash],
-      }),
-    });
-    const json = await res.json();
-    if (json.result) return json.result;
-    await new Promise((r) => setTimeout(r, 2000));
+    const receipt = await rpc<any>(chain.rpc, 'eth_getTransactionReceipt', [hash], 15_000).catch(
+      () => null
+    );
+    if (receipt) return receipt;
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
   return null;
 }

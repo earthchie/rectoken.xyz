@@ -3,6 +3,8 @@
  * Only public, read-only RPC calls are made from here.
  */
 
+import { safeEndpoint } from './net';
+
 export class RpcError extends Error {
   constructor(message: string, public code?: number) {
     super(message);
@@ -18,10 +20,11 @@ export async function rpc<T = unknown>(
   params: unknown[] = [],
   timeout = DEFAULT_TIMEOUT
 ): Promise<T> {
+  const endpoint = safeEndpoint(url);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
   try {
-    const res = await fetch(url, {
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),

@@ -302,7 +302,7 @@ export function initTrade(lang: string): void {
         gas: '0x15f90',
       });
       setStatus(lang === 'th' ? 'ส่งคำสั่งอนุมัติแล้ว…' : 'Approval submitted…');
-      const receipt = await waitForReceipt(CHAINS.optimism.rpc, hash);
+      const receipt = await waitForReceipt(CHAINS.optimism.id, hash);
       if (receipt?.status === '0x1') {
         allowance = await getAllowance(CHAINS.optimism.rpc, from().address, address, UNISWAP.router);
         toast?.(
@@ -353,7 +353,7 @@ export function initTrade(lang: string): void {
         'success'
       );
 
-      const receipt = await waitForReceipt(CHAINS.optimism.rpc, hash);
+      const receipt = await waitForReceipt(CHAINS.optimism.id, hash);
       if (receipt?.status === '0x1') {
         toast?.(
           lang === 'th' ? 'ยืนยันการแลกเปลี่ยนแล้ว' : 'Swap confirmed',

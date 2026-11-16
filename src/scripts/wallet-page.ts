@@ -258,7 +258,7 @@ export function initWalletPage(lang: string): void {
       closeModal();
       form.reset();
 
-      const receipt = await waitForReceipt(chain.rpc, hash);
+      const receipt = await waitForReceipt(chain.id, hash);
       if (receipt?.status === '0x1') {
         toast?.(
           lang === 'th' ? 'ยืนยันการโอนแล้ว' : 'Transfer confirmed',

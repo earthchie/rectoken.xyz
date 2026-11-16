@@ -1,6 +1,7 @@
 import snapshot from '@data/projects.json';
 import { CHAINS, CONTRACTS, MARKET, SITE } from '@data/site';
 import { getBalanceOf, getNativeBalance, getTotalSupply, fromUnitsSafe } from './chain';
+import { safeEndpoint } from './net';
 
 export type Project = {
   address: string;
@@ -29,10 +30,11 @@ let projectCache: Promise<Project[]> | null = null;
 let statsCache: { at: number; value: Awaited<ReturnType<typeof computeStats>> } | null = null;
 
 async function fetchJson<T>(url: string, timeout = 10_000): Promise<T> {
+  const endpoint = safeEndpoint(url);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
   try {
-    const res = await fetch(url, { signal: controller.signal });
+    const res = await fetch(endpoint, { signal: controller.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return (await res.json()) as T;
   } finally {
