@@ -1,0 +1,56 @@
+---
+import { Search, CornerDownLeft } from '@lucide/astro';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { t, type Locale } from '@i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const searchPage = getRelativeLocaleUrl(locale, 'search');
+---
+
+<div
+  class="search-modal"
+  data-search-modal
+  data-open="false"
+  data-locale={locale}
+  data-empty={t('search.noResults', locale)}
+  data-missing={t('search.indexMissing', locale)}
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="search-modal-title"
+>
+  <div class="search-dialog" role="document">
+    <h2 id="search-modal-title" class="sr-only">{t('search.title', locale)}</h2>
+    <div class="search-input-wrap">
+      <Search size={18} stroke-width={1.8} aria-hidden="true" />
+      <input
+        type="search"
+        class="search-input"
+        data-search-input
+        placeholder={t('search.placeholder', locale)}
+        autocomplete="off"
+        spellcheck="false"
+        aria-label={t('search.placeholder', locale)}
+      />
+      <kbd class="search-kbd" title={locale === 'th' ? 'กด Esc เพื่อปิดการค้นหา' : undefined}>ESC</kbd>
+      {locale === 'th' && <span class="sr-only">เพื่อปิดการค้นหา</span>}
+    </div>
+    <div class="search-body" data-search-results>
+      <p class="search-empty">{t('search.hint', locale)}</p>
+    </div>
+    <div class="search-foot">
+      <span class="search-foot-keys">
+        <kbd class="search-kbd">↑↓</kbd> {locale === 'th' ? 'เลือกผลการค้นหา' : 'navigate'}
+        <kbd class="search-kbd">↵</kbd> {locale === 'th' ? 'เปิดผลการค้นหา' : 'open'}
+      </span>
+      <a href={searchPage} data-search-all>{locale === 'th' ? 'ไปยังหน้าค้นหา' : t('search.viewAll', locale)}</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initSearch } from '@scripts/search';
+  initSearch();
+</script>

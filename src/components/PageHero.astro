@@ -1,0 +1,103 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowRight } from '@lucide/astro';
+import type { Locale } from '@i18n/utils';
+
+interface Crumb {
+  label: string;
+  path?: string;
+}
+
+interface Action {
+  label: string;
+  href: string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'inverse';
+  external?: boolean;
+}
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  locale: Locale;
+  crumbs?: Crumb[];
+  chips?: string[];
+  actions?: Action[];
+  aside?: boolean;
+}
+
+const {
+  eyebrow,
+  title,
+  description,
+  locale,
+  crumbs = [],
+  chips = [],
+  actions = [],
+  aside = false,
+} = Astro.props;
+
+const home = getRelativeLocaleUrl(locale);
+---
+
+<section class="page-hero">
+  <div class:list={['container-page', 'page-hero-inner']}>
+    {crumbs.length > 0 && (
+      <nav class="breadcrumb" aria-label={locale === 'th' ? 'เส้นทางนำทาง' : 'Breadcrumb'}>
+        <a href={home}>{locale === 'th' ? 'หน้าหลัก' : 'Home'}</a>
+        {crumbs.map((crumb) => (
+          <>
+            <span class="sep" aria-hidden="true">/</span>
+            {crumb.path ? (
+              <a href={getRelativeLocaleUrl(locale, crumb.path.replace(/^\//, ''))}>{crumb.label}</a>
+            ) : (
+              <span aria-current="page">{crumb.label}</span>
+            )}
+          </>
+        ))}
+      </nav>
+    )}
+
+    <div class:list={[aside && 'page-hero-split']}>
+      <div>
+        {eyebrow && <p class="eyebrow" style="margin-top: 18px">{eyebrow}</p>}
+        <h1>{title}</h1>
+        {description && <p class="lede">{description}</p>}
+        {chips.length > 0 && (
+          <div class="page-hero-meta">
+            {chips.map((chip) => <span class="chip">{chip}</span>)}
+          </div>
+        )}
+        {actions.length > 0 && (
+          <div class="hero-actions page-hero-actions">
+            {actions.map((action) => (
+              <a
+                class:list={['btn', `btn-${action.variant ?? 'secondary'}`]}
+                href={action.href}
+                target={action.external ? '_blank' : undefined}
+                rel={action.external ? 'noopener noreferrer' : undefined}
+              >
+                {action.label}
+                {action.external ? <ArrowRight size={15} stroke-width={2} /> : null}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .page-hero-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: end;
+  }
+  @media (max-width: 900px) {
+    .page-hero-split { grid-template-columns: 1fr; align-items: start; }
+  }
+  .page-hero-actions { margin-top: 28px; }
+</style>

@@ -1,0 +1,34 @@
+# build output
+dist/
+.astro/
+public/pagefind/
+
+# dependencies
+node_modules/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment
+.env
+.env.*
+!.env.example
+.dev.vars*
+
+# editor
+.vscode/
+.DS_Store
+
+# local tooling / agent state
+.wrangler/
+.mimosa/
+.zcode/
+.og-cache/
+
+# research / reference material (not part of the site)
+research/
+source-repo/

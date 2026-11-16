@@ -1,0 +1,61 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { otherLocale, type Locale } from '@i18n/utils';
+
+interface Props {
+  locale: Locale;
+  label?: boolean;
+}
+const { locale, label = false } = Astro.props;
+
+const hasLocale = /^\/(en|th)(?=\/|$)/.test(Astro.url.pathname);
+const current = hasLocale
+  ? Astro.url.pathname.replace(/^\/(en|th)(?=\/|$)/, '') || '/'
+  : '/';
+const slug = current === '/' ? '' : current.replace(/^\//, '').replace(/\/$/, '');
+const target = otherLocale(locale);
+const href = getRelativeLocaleUrl(target, slug) + Astro.url.search;
+const targetLabel = target === 'th' ? 'ไทย' : 'EN';
+---
+
+<a
+  class="lang-switch"
+  href={href}
+  hreflang={target}
+  lang={target}
+  aria-label={`${label ? '' : ''}${locale === 'th' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย'}`}
+>
+  <span class="lang-current">{locale === 'th' ? 'TH' : 'EN'}</span>
+  <span class="lang-divider" aria-hidden="true">/</span>
+  <span class="lang-target">{targetLabel}</span>
+</a>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 38px;
+    padding: 0 9px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+  }
+  .lang-switch:hover {
+    background: var(--surface-2);
+    border-color: var(--line);
+    color: var(--ink);
+  }
+  .lang-current { color: var(--ink); font-weight: 600; }
+  .lang-divider { opacity: 0.4; }
+  .lang-target { color: var(--ink-3); }
+  @media (max-width: 1259px) {
+    .lang-divider,
+    .lang-target { display: none; }
+  }
+</style>

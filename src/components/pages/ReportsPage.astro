@@ -1,0 +1,155 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowRight, FileText, Calendar, CheckCircle } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import SectionHead from '@components/SectionHead.astro';
+import { REPORTS, REPORTS_ABOUT, REPORTS_TH } from '@data/reports';
+import type { Locale } from '@i18n/utils';
+import { formatDateIso } from '@utils/format';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+const about = lang === 'th' ? REPORTS_TH : REPORTS_ABOUT;
+---
+
+<BaseLayout
+  title={lang === 'th' ? 'รายงานรายเดือน' : 'Monthly reports'}
+  description={lang === 'th' ? 'รายงานพอร์ต REC รายเดือนและสถานะการกระทบยอด' : 'Monthly REC portfolio reports and reconciliation status.'}
+  locale={lang}
+>
+  <PageHero
+    eyebrow={lang === 'th' ? 'ความโปร่งใส' : 'Transparency'}
+    title={lang === 'th' ? 'รายงานรายเดือน' : 'REC monthly reports'}
+    description={lang === 'th' ? 'รายงานพอร์ตและตัวชี้วัดผลการดำเนินงานที่เผยแพร่รายเดือน' : 'Portfolio reports and performance metrics published monthly.'}
+    locale={lang}
+    chips={[`${REPORTS.length} ${lang === 'th' ? 'ฉบับ' : 'report'}`, lang === 'th' ? 'รายเดือน' : 'Monthly', 'PDF']}
+    actions={[
+      { label: lang === 'th' ? 'แดชบอร์ดเรียลไทม์' : 'Live dashboard', href: l('data'), variant: 'primary' },
+      { label: lang === 'th' ? 'โครงการ' : 'Projects', href: l('projects') },
+    ] as any}
+  />
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="report-summary">
+        <div><span class="kpi-label">{lang === 'th' ? 'เผยแพร่แล้ว' : 'Published'}</span><span class="kpi-value">{REPORTS.length}</span></div>
+        <div><span class="kpi-label">{lang === 'th' ? 'ฉบับล่าสุด' : 'Latest'}</span><span class="summary-value">{REPORTS[0]?.period[lang]}</span></div>
+        <div><span class="kpi-label">{lang === 'th' ? 'หมวดรายงาน' : 'Report sections'}</span><span class="summary-value">10</span></div>
+        <div><span class="kpi-label">{lang === 'th' ? 'รอบถัดไป' : 'Next cycle'}</span><span class="summary-value">{lang === 'th' ? 'รายเดือน' : 'Monthly'}</span></div>
+      </div>
+
+      <div class="report-list">
+        {REPORTS.map((report) => (
+          <article class="report-card">
+            <div class="report-card-main">
+              <div class="report-icon"><FileText size={22} stroke-width={1.7} /></div>
+              <div>
+                <div class="report-meta">
+                  <span class="chip chip-brand">{report.period[lang]}</span>
+                  {report.carryForward && <span class="chip">{lang === 'th' ? 'ไม่มีการเคลื่อนไหว' : 'No movement'}</span>}
+                  <span class="report-date"><Calendar size={12} /> {lang === 'th' ? 'เผยแพร่' : 'Published'} {formatDateIso(report.published, lang)}</span>
+                  <span class="report-date">{lang === 'th' ? `${report.sections} หมวด` : `${report.sections} sections`}</span>
+                </div>
+                <h2>{lang === 'th' ? report.titleTh : report.title}</h2>
+                <p>{lang === 'th' ? report.descriptionTh : report.description}</p>
+              </div>
+            </div>
+            <div class="report-actions">
+              <a class="btn btn-primary" href={l(report.href)}>
+                {lang === 'th' ? 'อ่านรายงาน' : 'Read report'}
+                <ArrowRight size={15} stroke-width={1.9} />
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="report-about">
+        <div>
+          <p class="eyebrow">{lang === 'th' ? 'ขอบเขต' : 'Scope'}</p>
+          <h2 class="h3" style="margin-top:10px">{about.title}</h2>
+          <p class="lede" style="margin-top:10px;font-size:1rem">{about.lead}</p>
+          <ul class="check-list" style="margin-top:20px">
+            {about.bullets.map((bullet) => (
+              <li><CheckCircle size={15} stroke-width={2} />{bullet}</li>
+            ))}
+          </ul>
+          <p class="report-closing">{about.closing}</p>
+        </div>
+        <div class="recon-card">
+          <p class="kpi-label">{lang === 'th' ? 'การกระทบยอด' : 'Reconciliation'}</p>
+          <h3>{lang === 'th' ? 'รายไตรมาส' : 'Quarterly'}</h3>
+          <p>
+            {lang === 'th'
+              ? 'จำนวนโทเคนที่หมุนเวียนเทียบกับ I-REC ที่ล็อกไว้ โดยเผยแพร่ภายใน 7 วันทำการหลังสิ้นรอบ'
+              : 'Circulating token supply against locked I-RECs, published within 7 business days of period end.'}
+          </p>
+          <a class="link-arrow" href={l('compliance/controls')}>
+            {lang === 'th' ? 'อ่านกรอบการควบคุม' : 'Read the control framework'}
+            <ArrowRight size={14} stroke-width={2} />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="cta-band">
+        <p class="eyebrow" style="color:var(--band-ink-2)">{lang === 'th' ? 'ข้อมูลสด' : 'Live data'}</p>
+        <h2 class="display-sm" style="margin-top:12px">{lang === 'th' ? 'ดูตัวเลขล่าสุดได้ที่แดชบอร์ด' : 'Live figures are available on the dashboard.'}</h2>
+        <p>{lang === 'th' ? 'เปิดแดชบอร์ดเพื่อดูจำนวนโทเคน รายการไถ่ถอน และยอดคงเหลือที่โอนข้ามเชนล่าสุด' : 'Open the dashboard to read the latest supply, retirements and bridged balances.'}</p>
+        <div class="hero-actions">
+          <a class="btn btn-inverse" href={l('data')}>{lang === 'th' ? 'เปิดแดชบอร์ด' : 'Open the dashboard'}</a>
+          <a class="btn btn-secondary" href={l('documents')}>{lang === 'th' ? 'คลังเอกสาร' : 'Document library'}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .report-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+  @media (max-width: 720px) { .report-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .report-summary > div { background: var(--surface); padding: 18px 20px; display: flex; flex-direction: column; gap: 5px; }
+  .report-summary .kpi-value { font-size: 1.8rem; }
+  .summary-value { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; }
+
+  .report-list { margin-top: 20px; display: grid; gap: 12px; }
+  .report-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    transition: border-color 0.25s ease;
+  }
+  .report-card:hover { border-color: var(--brand); }
+  .report-card-main { display: flex; gap: 16px; align-items: flex-start; }
+  .report-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); background: var(--brand-soft); color: var(--brand); flex-shrink: 0; }
+  .report-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 8px; }
+  .report-date { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.03em; color: var(--ink-3); }
+  .report-card h2 { font-size: 1.05rem; letter-spacing: -0.02em; }
+  .report-card p { margin-top: 4px; font-size: 1rem; line-height: 1.6; color: var(--ink-3); max-width: 70ch; }
+  .report-actions { display: flex; flex-wrap: wrap; gap: 8px; flex-shrink: 0; }
+
+  .report-about { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(24px, 4vw, 48px); align-items: start; }
+  @media (max-width: 900px) { .report-about { grid-template-columns: 1fr; } }
+  .report-closing { margin-top: 18px; font-size: 1rem; color: var(--ink-3); }
+  .recon-card { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+  .recon-card h3 { margin-top: 8px; font-size: 1.4rem; }
+  .recon-card p { margin-top: 6px; font-size: 1rem; line-height: 1.6; color: var(--ink-3); }
+  .recon-card .link-arrow { margin-top: 18px; }
+</style>

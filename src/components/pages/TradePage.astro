@@ -1,0 +1,210 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowDownUp, Settings2, ExternalLink, TriangleAlert, Info, ArrowRight } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import Icon from '@components/Icon.astro';
+import { MARKET, SITE } from '@data/site';
+import type { Locale } from '@i18n/utils';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+---
+
+<BaseLayout
+  title={lang === 'th' ? 'ซื้อ / ขาย REC' : 'Buy / sell REC'}
+  description={lang === 'th' ? 'แลกเปลี่ยน USDT และ REC บน Optimism ผ่าน Uniswap V3' : 'Swap between USDT and REC on Optimism through Uniswap V3.'}
+  locale={lang}
+>
+  <PageHero
+    eyebrow={lang === 'th' ? 'เข้าร่วม' : 'Participate'}
+    title={lang === 'th' ? 'ซื้อ / ขาย REC' : 'Buy / sell REC'}
+    description={lang === 'th' ? 'แลกเปลี่ยน USDT และ REC บน Optimism ผ่าน Uniswap V3 คุณเป็นผู้ลงนามธุรกรรมเองทุกครั้ง' : 'Swap between USDT and REC on Optimism through Uniswap V3. You sign every transaction yourself.'}
+    locale={lang}
+    chips={['Uniswap V3', 'Optimism', 'USDT / REC', lang === 'th' ? 'บนเชน' : 'On-chain']}
+    actions={[
+      { label: lang === 'th' ? 'ราคาและตลาด' : 'Price & market', href: l('price'), variant: 'primary' },
+      { label: lang === 'th' ? 'กระเป๋า' : 'Wallet', href: l('wallet') },
+    ] as any}
+  />
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="callout callout-warning">
+        <TriangleAlert size={18} />
+        <p>
+          <strong>{lang === 'th' ? 'การแลกเปลี่ยนบนเชนไม่สามารถย้อนกลับได้' : 'On-chain swaps are irreversible.'}</strong>{' '}
+          {lang === 'th'
+            ? 'คุณรับผิดชอบค่าแก๊ส ค่าคลาดเคลื่อนราคา และความเสี่ยงของตลาด ตรวจสอบเครือข่ายและจำนวนก่อนยืนยันทุกครั้ง'
+            : 'You are responsible for gas, slippage and market risk. Check the network and amount before confirming.'}
+        </p>
+      </div>
+
+      <div class="trade-layout">
+        <div class="swap-shell">
+          <div class="swap-card" data-swap>
+            <div class="swap-head">
+              <h2 class="h3">{lang === 'th' ? 'แลกเปลี่ยน' : 'Swap'}</h2>
+              <button type="button" class="icon-btn" data-settings-toggle aria-label={lang === 'th' ? 'ตั้งค่า' : 'Settings'}>
+                <Settings2 size={17} stroke-width={1.8} />
+              </button>
+            </div>
+
+            <div class="swap-settings" data-settings-panel hidden>
+              <div class="swap-settings-head">
+                <span id="slippage-label">{lang === 'th' ? 'ค่าคลาดเคลื่อนที่ยอมรับ' : 'Slippage tolerance'}</span>
+                <strong data-slippage-label>0.5%</strong>
+              </div>
+              <input type="range" min="0.1" max="5" step="0.1" value="0.5" data-slippage class="swap-range" aria-labelledby="slippage-label" />
+              <div class="swap-range-labels"><span>0.1%</span><span>5%</span></div>
+            </div>
+
+            <div class="swap-field">
+              <div class="swap-field-head">
+                <span>{lang === 'th' ? 'จาก' : 'From'}</span>
+                <span class="swap-balance">{lang === 'th' ? 'ยอดคงเหลือ' : 'Balance'}: <b data-swap-from-balance>0</b> <span data-swap-from-symbol>USDT</span></span>
+              </div>
+              <div class="swap-row">
+                <input class="swap-input" data-swap-amount inputmode="decimal" placeholder="0.0" autocomplete="off" aria-label={lang === 'th' ? 'จำนวนที่แลก' : 'Amount to swap'} />
+                <button type="button" class="swap-max" data-swap-max>{lang === 'th' ? 'สูงสุด' : 'MAX'}</button>
+                <span class="swap-token"><span class="token-dot" data-swap-from-dot>U</span><span data-swap-from-token>USDT</span></span>
+              </div>
+            </div>
+
+            <button type="button" class="swap-flip" data-swap-flip aria-label={lang === 'th' ? 'สลับทิศทาง' : 'Switch direction'}>
+              <ArrowDownUp size={16} stroke-width={2} />
+            </button>
+
+            <div class="swap-field">
+              <div class="swap-field-head">
+                <span>{lang === 'th' ? 'เป็น' : 'To'}</span>
+                <span class="swap-balance">{lang === 'th' ? 'ยอดคงเหลือ' : 'Balance'}: <b data-swap-to-balance>0</b> <span data-swap-to-symbol>REC</span></span>
+              </div>
+              <div class="swap-row">
+                <input class="swap-input" data-swap-receive readonly placeholder="0.0" aria-label={lang === 'th' ? 'จำนวนที่ได้รับ' : 'Amount received'} />
+                <span class="swap-token"><span class="token-dot" data-swap-to-dot>R</span><span data-swap-to-token>REC</span></span>
+              </div>
+            </div>
+
+            <div class="swap-quote" data-swap-quote hidden>
+              <div class="swap-quote-row"><span>{lang === 'th' ? 'เส้นทาง' : 'Route'}</span><span data-quote-route>USDT → REC</span></div>
+              <div class="swap-quote-row"><span>{lang === 'th' ? 'ค่าธรรมเนียมพูล' : 'Pool fee'}</span><span>0.30%</span></div>
+              <div class="swap-quote-row"><span>{lang === 'th' ? 'ได้รับขั้นต่ำ' : 'Minimum received'}</span><span data-quote-min>-</span></div>
+              <div class="swap-quote-row"><span>{lang === 'th' ? 'ค่าคลาดเคลื่อน' : 'Slippage'}</span><span data-quote-slippage>0.5%</span></div>
+            </div>
+
+            <button type="button" class="btn btn-primary swap-submit" data-swap-submit>
+              {lang === 'th' ? 'เชื่อมต่อกระเป๋า' : 'Connect wallet'}
+            </button>
+            <p class="swap-status" data-swap-status aria-live="polite"></p>
+            <p class="swap-powered">{lang === 'th' ? 'ใช้ Uniswap V3 บน Optimism' : 'Powered by Uniswap V3 on Optimism'}</p>
+          </div>
+        </div>
+
+        <aside class="trade-aside">
+          <div class="trade-aside-card">
+            <p class="eyebrow">{lang === 'th' ? 'ก่อนแลก' : 'Before you swap'}</p>
+            <ul class="check-list" style="margin-top:14px">
+              <li><Icon name="Check" size={14} />{lang === 'th' ? 'ตรวจสอบว่ากระเป๋าอยู่บน Optimism (เชน 10)' : 'Make sure your wallet is on Optimism (chain 10).'}</li>
+              <li><Icon name="Check" size={14} />{lang === 'th' ? 'เตรียม ETH สำหรับค่าแก๊ส' : 'Keep ETH for gas fees.'}</li>
+              <li><Icon name="Check" size={14} />{lang === 'th' ? 'ตรวจสอบราคาและค่าคลาดเคลื่อนก่อนยืนยัน' : 'Check the quote and slippage before confirming.'}</li>
+              <li><Icon name="Check" size={14} />{lang === 'th' ? 'การแลกเปลี่ยนไม่สามารถย้อนกลับได้' : 'A swap cannot be reversed.'}</li>
+            </ul>
+            <p class="trade-mobile-note">
+              {lang === 'th'
+                ? 'บนมือถือ ให้เปิด rectoken.xyz ภายในเบราว์เซอร์ของแอป MetaMask เพื่อเชื่อมต่อกระเป๋า'
+                : 'On mobile, open rectoken.xyz inside the MetaMask app browser to connect your wallet.'}
+            </p>
+          </div>
+
+          <div class="trade-aside-card">
+            <p class="eyebrow">{lang === 'th' ? 'ตลาดอื่น' : 'Other markets'}</p>
+            <p class="trade-aside-body">
+              {lang === 'th'
+                ? `${MARKET.bitkub.note.th} ราคาบนศูนย์ซื้อขายอาจแตกต่างจากราคา OTC และราคาบน DEX`
+                : `${MARKET.bitkub.note.en} Exchange prices may differ from the OTC reference and DEX quotes.`}
+            </p>
+            <div class="aside-links">
+              <a class="link-arrow" href={SITE.external.bitkub} target="_blank" rel="noopener noreferrer">
+                Bitkub <ExternalLink size={12} />
+              </a>
+              <a class="link-arrow" href={l('price')}>
+                {lang === 'th' ? 'ราคาและตลาด' : 'Price & market'}
+                <ArrowRight size={12} stroke-width={2} />
+              </a>
+            </div>
+          </div>
+
+          <div class="trade-aside-card trade-aside-note">
+            <Info size={16} />
+            <p>
+              {lang === 'th'
+                ? 'หน้านี้ไม่ใช่คำแนะนำการลงทุน REC Token เป็นยูทิลิตี้โทเคน ไม่ใช่เครื่องมือทางการเงิน'
+                : 'This page is not investment advice. REC Token is a utility token, not a financial instrument.'}
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { initTrade } from '@scripts/trade';
+  initTrade(document.documentElement.lang === 'th-TH' ? 'th' : 'en');
+</script>
+
+<style>
+  .trade-layout { display: grid; grid-template-columns: minmax(0, 460px) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: start; margin-top: 24px; }
+  @media (max-width: 980px) { .trade-layout { grid-template-columns: 1fr; } }
+
+  .swap-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .swap-settings { margin-bottom: 14px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); }
+  .swap-settings-head { display: flex; justify-content: space-between; gap: 12px; font-size: 1rem; color: var(--ink-3); margin-bottom: 8px; }
+  .swap-settings-head strong { color: var(--ink); font-family: var(--font-mono); font-size: 1rem; }
+  .swap-range { width: 100%; accent-color: var(--brand); }
+  .swap-range-labels { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); margin-top: 3px; }
+
+  .swap-balance { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); }
+  .swap-balance b { color: var(--ink-2); font-weight: 500; }
+  .swap-max {
+    padding: 3px 7px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--brand);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+  }
+  .swap-max:hover { border-color: var(--brand); }
+
+  .swap-submit { width: 100%; margin-top: 16px; min-height: 48px; }
+  .swap-status { min-height: 18px; margin-top: 10px; font-size: 1rem; color: var(--ink-3); text-align: center; }
+  .swap-status[data-kind='error'] { color: var(--danger); }
+  .swap-status[data-kind='success'] { color: var(--brand); }
+  .swap-powered { margin-top: 4px; text-align: center; font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.05em; color: var(--ink-3); text-transform: uppercase; }
+
+  .trade-aside { display: flex; flex-direction: column; gap: 14px; }
+  .trade-aside-card { padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+  .trade-aside-body { margin-top: 10px; font-size: 1rem; line-height: 1.6; color: var(--ink-3); }
+  .trade-aside-card .link-arrow { margin-top: 14px; }
+  .aside-links { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .aside-links .link-arrow { margin-top: 0; }
+  .trade-mobile-note {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-3);
+  }
+  .trade-aside-note { display: flex; gap: 10px; background: var(--surface-2); border-style: dashed; }
+  .trade-aside-note svg { flex-shrink: 0; margin-top: 2px; color: var(--ink-3); }
+  .trade-aside-note p { font-size: 1rem; line-height: 1.65; color: var(--ink-3); }
+</style>

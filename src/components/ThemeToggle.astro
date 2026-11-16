@@ -1,0 +1,30 @@
+---
+import { Sun, Moon } from '@lucide/astro';
+import { t, type Locale } from '@i18n/utils';
+
+interface Props {
+  locale: Locale;
+  compact?: boolean;
+}
+const { locale, compact = true } = Astro.props;
+---
+
+<button
+  type="button"
+  class="icon-btn theme-toggle"
+  data-theme-toggle
+  aria-label={t('theme.toggle', locale)}
+  title={t('theme.toggle', locale)}
+>
+  <Sun class="theme-icon theme-icon-sun" size={17} stroke-width={1.7} />
+  <Moon class="theme-icon theme-icon-moon" size={17} stroke-width={1.7} />
+</button>
+
+<style>
+  .theme-icon { position: absolute; transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease; }
+  .theme-toggle { position: relative; }
+  .theme-icon-sun { transform: rotate(0) scale(1); opacity: 1; }
+  .theme-icon-moon { transform: rotate(-80deg) scale(0.6); opacity: 0; }
+  :global([data-theme='dark']) .theme-icon-sun { transform: rotate(80deg) scale(0.6); opacity: 0; }
+  :global([data-theme='dark']) .theme-icon-moon { transform: rotate(0) scale(1); opacity: 1; }
+</style>

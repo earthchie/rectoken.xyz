@@ -1,0 +1,171 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Search, ArrowRight, Wallet, ExternalLink, ShieldCheck } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import Icon from '@components/Icon.astro';
+import { CHAINS, CONTRACTS } from '@data/site';
+import { t, type Locale } from '@i18n/utils';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+---
+
+<BaseLayout
+  title={lang === 'th' ? 'ตรวจสอบที่อยู่' : 'Verify an address'}
+  description={lang === 'th' ? 'ตรวจสอบยอด REC Token ของกระเป๋าใดก็ได้ โดยไม่ต้องเชื่อมต่อ' : 'Check REC token balances for any wallet, without connecting one.'}
+  locale={lang}
+>
+  <PageHero
+    eyebrow={lang === 'th' ? 'เครื่องมือสาธารณะ' : 'Public tool'}
+    title={lang === 'th' ? 'ตรวจสอบที่อยู่' : 'Verify an address'}
+    description={lang === 'th' ? 'ตรวจสอบยอด REC Token และการถือครองรายโครงการของกระเป๋าใดก็ได้ การค้นหานี้ใช้ข้อมูลสาธารณะ อ่านได้อย่างเดียว และไม่ต้องเชื่อมต่อกระเป๋า' : 'Check REC token balances and project holdings for any wallet. This lookup is public and read-only; no wallet connection is required.'}
+    locale={lang}
+    chips={[lang === 'th' ? 'อ่านอย่างเดียว' : 'Read-only', 'ThaiFi', 'Optimism', 'Kubchain']}
+    actions={[
+      { label: lang === 'th' ? 'กระเป๋าของฉัน' : 'My wallet', href: l('wallet'), variant: 'primary' },
+      { label: lang === 'th' ? 'แดชบอร์ด' : 'Dashboard', href: l('data') },
+    ] as any}
+  />
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="check-card">
+        <form class="check-form" data-check-form novalidate>
+          <label class="field-label" for="check-address">{lang === 'th' ? 'ที่อยู่กระเป๋า' : 'Wallet address'}</label>
+          <div class="check-row">
+            <div class="check-input-wrap">
+              <Search size={16} stroke-width={1.8} aria-hidden="true" />
+              <input
+                id="check-address"
+                type="text"
+                class="input"
+                data-check-input
+                placeholder="0x…"
+                spellcheck="false"
+                autocomplete="off"
+                inputmode="text"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary" data-check-submit>
+              {lang === 'th' ? 'ตรวจสอบ' : 'Check balance'}
+            </button>
+          </div>
+          <p class="field-hint check-hint">
+            <ShieldCheck size={13} />
+            {lang === 'th' ? 'อ่านจากเชนสาธารณะ ไม่มีการบันทึกหรือเชื่อมต่อกระเป๋า' : 'Read from public chain data. Nothing is stored and no wallet is connected.'}
+          </p>
+          <p class="check-error" data-check-error hidden></p>
+        </form>
+      </div>
+
+      <div class="check-result" data-check-result hidden>
+        <div class="check-result-head">
+          <div>
+            <p class="kpi-label">{lang === 'th' ? 'ผลการตรวจสอบ' : 'Result'}</p>
+            <h2 class="h3" data-check-address>-</h2>
+          </div>
+          <span class="chip chip-brand"><span class="dot dot-live"></span><span data-check-time>-</span></span>
+        </div>
+
+        <div class="balance-grid">
+          <div class="balance-card">
+            <span class="kpi-label">{lang === 'th' ? 'REC บน ThaiFi' : 'ThaiFi REC'}</span>
+            <div class="balance-value"><span data-balance="thaifi">-</span><span class="unit">REC</span></div>
+            <a href={`${CHAINS.thaifi.explorer}/address/${CONTRACTS.poolThaiFi}`} target="_blank" rel="noopener noreferrer" class="balance-link">
+              ThaiFi <ExternalLink size={11} />
+            </a>
+          </div>
+          <div class="balance-card">
+            <span class="kpi-label">{lang === 'th' ? 'เหรียญหลัก ThaiFi' : 'ThaiFi native'}</span>
+            <div class="balance-value"><span data-balance="native">-</span><span class="unit">pathUSD</span></div>
+            <span class="balance-link muted">{lang === 'th' ? 'ทศนิยม 6 ตำแหน่ง' : '6 decimals'}</span>
+          </div>
+          <div class="balance-card">
+            <span class="kpi-label">{lang === 'th' ? 'REC บน Optimism' : 'Optimism REC'}</span>
+            <div class="balance-value"><span data-balance="optimism">-</span><span class="unit">REC</span></div>
+            <a href={`${CHAINS.optimism.explorer}/token/${CONTRACTS.poolOptimism}`} target="_blank" rel="noopener noreferrer" class="balance-link">
+              Optimism <ExternalLink size={11} />
+            </a>
+          </div>
+          <div class="balance-card">
+            <span class="kpi-label">{lang === 'th' ? 'REC บน Kubchain' : 'Kubchain REC'}</span>
+            <div class="balance-value"><span data-balance="kubchain">-</span><span class="unit">REC</span></div>
+            <a href={`${CHAINS.kubchain.explorer}/address/${CONTRACTS.poolKubchain}`} target="_blank" rel="noopener noreferrer" class="balance-link">
+              Kubchain <ExternalLink size={11} />
+            </a>
+          </div>
+        </div>
+
+        <div class="holdings">
+          <div class="holdings-head">
+            <h3 class="h3">{lang === 'th' ? 'การถือครองรายโครงการ' : 'Project holdings'}</h3>
+            <span class="muted" style="font-size: 1rem">{lang === 'th' ? 'เฉพาะยอดมากกว่าศูนย์' : 'Non-zero balances only'}</span>
+          </div>
+          <div data-check-holdings></div>
+          <p class="check-empty" data-check-empty hidden>{lang === 'th' ? 'ไม่พบยอดโทเคนสำหรับที่อยู่นี้' : 'No token balances found for this address.'}</p>
+        </div>
+      </div>
+
+      <div class="check-foot">
+        <Icon name="Info" size={14} />
+        <p>
+          {lang === 'th'
+            ? 'ที่อยู่บนเครือข่ายที่ไม่ตรงกันจะแสดงยอดเป็นศูนย์ ซึ่งไม่ใช่ข้อผิดพลาด เพราะยอด REC บน ThaiFi ไม่ใช่ยอดเดียวกับบน Optimism'
+            : 'An address on the wrong network will show zero. That is not an error: REC on ThaiFi is not the same balance as REC on Optimism.'}
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { initCheck } from '@scripts/check';
+  initCheck(document.documentElement.lang === 'th-TH' ? 'th' : 'en');
+</script>
+
+<style>
+  .check-card {
+    padding: 26px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .check-form { display: flex; flex-direction: column; gap: 8px; }
+  .check-row { display: flex; gap: 10px; }
+  @media (max-width: 600px) { .check-row { flex-direction: column; } }
+  .check-input-wrap { position: relative; flex: 1; }
+  .check-input-wrap svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
+  .check-input-wrap .input { padding-left: 38px; font-family: var(--font-mono); font-size: 1rem; }
+  .check-hint { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .check-hint svg { color: var(--brand); }
+  .check-error { color: var(--danger); font-size: 1rem; margin-top: 4px; }
+
+  .check-result { margin-top: 20px; animation: panel-in 0.4s cubic-bezier(0.22,1,0.36,1); }
+  .check-result-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+  .check-result-head h2 { font-family: var(--font-mono); font-size: 1rem; word-break: break-all; margin-top: 4px; }
+
+  .balance-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+  @media (max-width: 900px) { .balance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { .balance-grid { grid-template-columns: 1fr; } }
+  .balance-card { background: var(--surface); padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .balance-value { display: flex; align-items: baseline; gap: 5px; font-family: var(--font-display); font-size: 1.45rem; font-weight: 620; letter-spacing: -0.03em; min-width: 0; overflow-wrap: anywhere; }
+  .balance-value .unit { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); letter-spacing: 0.05em; }
+  .balance-link { display: inline-flex; align-items: center; gap: 4px; margin-top: auto; font-family: var(--font-mono); font-size: 14px; color: var(--brand); }
+  .balance-link.muted { color: var(--ink-3); }
+
+  .holdings { margin-top: 20px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+  .holdings-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .holding-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .holding-row:first-child { border-top: 0; }
+  .holding-name { font-size: 1rem; font-weight: 550; }
+  .holding-meta { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); margin-top: 2px; }
+  .holding-value { font-family: var(--font-display); font-size: 1rem; font-weight: 620; font-variant-numeric: tabular-nums; }
+  .holding-value small { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); margin-left: 3px; }
+  .check-empty { padding: 18px 0; color: var(--ink-3); font-size: 1rem; text-align: center; }
+  .check-foot { display: flex; gap: 8px; margin-top: 18px; font-size: 1rem; color: var(--ink-3); line-height: 1.6; }
+  .check-foot svg { flex-shrink: 0; margin-top: 3px; }
+</style>

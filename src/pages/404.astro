@@ -1,0 +1,34 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowRight } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="ไม่พบหน้าที่ต้องการ"
+  description="ไม่พบหน้าที่คุณกำลังค้นหา หน้านี้อาจถูกย้ายหรือไม่มีอยู่แล้ว"
+  locale="th"
+  noIndex
+>
+  <section class="section">
+    <div class="container-page not-found">
+      <p class="eyebrow">404</p>
+      <h1 class="display-sm" style="margin-top:16px">ไม่พบหน้าที่ต้องการ</h1>
+      <p class="lede" style="margin-top:16px;max-width:52ch">
+        ไม่พบหน้าที่คุณกำลังค้นหา หน้านี้อาจถูกย้ายหรือไม่มีอยู่แล้ว คุณสามารถกลับไปยังหน้าหลักหรือค้นหาข้อมูลในเว็บไซต์ได้
+      </p>
+      <div class="hero-actions" style="margin-top:28px">
+        <a class="btn btn-primary" href={getRelativeLocaleUrl('th')}>
+          กลับหน้าหลัก
+          <ArrowRight size={15} stroke-width={2} />
+        </a>
+        <a class="btn btn-secondary" href={getRelativeLocaleUrl('en')}>English home</a>
+        <a class="btn btn-ghost" href={getRelativeLocaleUrl('th', 'search')}>ค้นหา</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found { padding-block: clamp(48px, 10vw, 120px); max-width: 760px; }
+</style>

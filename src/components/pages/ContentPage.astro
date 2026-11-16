@@ -1,0 +1,538 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowRight } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import Toc from '@components/Toc.astro';
+import ContentBlock from '@components/ContentBlock.astro';
+import Icon from '@components/Icon.astro';
+import { SITE } from '@data/site';
+import type { PageDoc } from '@data/content';
+import type { Locale } from '@i18n/utils';
+
+interface Props {
+  lang: Locale;
+  doc: PageDoc;
+  title?: string;
+  description?: string;
+}
+
+const { lang, doc } = Astro.props;
+
+const pick = (value: { en: string; th: string }) => value?.[lang] ?? value?.en ?? '';
+const title = pick(doc.hero.title);
+const description = pick(doc.hero.description);
+
+const actions = (doc.actions ?? []).map((action) => ({
+  ...action,
+  label: pick(action.label),
+  href:
+    action.href.startsWith('http') || action.href.startsWith('#')
+      ? action.href
+      : getRelativeLocaleUrl(lang, action.href),
+}));
+
+const tocItems = doc.blocks
+  .filter((block: any) => block.id && block.title)
+  .map((block: any) => ({ id: block.id, label: pick(block.title) }));
+
+const ogImage =
+  doc.slug === 'whitepaper'
+    ? `/og/whitepaper-${lang}.png`
+    : doc.slug === 'compliance'
+      ? `/og/compliance-${lang}.png`
+      : '/og/default.png';
+---
+
+<BaseLayout title={title} description={description} locale={lang} ogImage={ogImage}>
+  <PageHero
+    eyebrow={pick(doc.hero.eyebrow)}
+    title={title}
+    description={description}
+    locale={lang}
+    chips={(doc.hero.chips ?? []).map(pick)}
+    actions={actions as any}
+  />
+
+  {doc.hero.warning && (
+    <div class="container-page" style="margin-top:22px">
+      <div class="callout callout-warning">
+        <Icon name="TriangleAlert" size={16} />
+        <p>{pick(doc.hero.warning)}</p>
+      </div>
+    </div>
+  )}
+
+  <section class="section-tight">
+    <div class="container-page with-rail">
+      <div class="doc-body">
+        {doc.blocks.map((block) => <ContentBlock block={block} lang={lang} />)}
+      </div>
+      <Toc locale={lang} title={lang === 'th' ? 'ในหน้านี้' : 'On this page'} items={tocItems} />
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="doc-cta">
+        <div class="doc-cta-copy">
+          <div class="doc-cta-kicker">
+            <span class="doc-pulse" aria-hidden="true"></span>
+            {lang === 'th' ? 'ต้นฉบับหลัก · เวอร์ชัน 1.0' : 'Primary source · Version 1.0'}
+          </div>
+          <h2 class="h3">{lang === 'th' ? 'ตรวจสอบข้อมูลจากไวท์เปเปอร์' : 'Check every claim against the whitepaper.'}</h2>
+          <p>
+            {lang === 'th'
+              ? 'ไวท์เปเปอร์ 48 หน้านี้เป็นเอกสารอ้างอิงหลักสำหรับเนื้อหาหน้านี้ ครอบคลุมการออกแบบโทเคน การกำกับดูแล ความเสี่ยง และกระบวนการแลกคืน'
+              : 'The 48-page document is the authoritative source for this page: token design, governance, risk factors and the redemption process.'}
+          </p>
+          <div class="doc-cta-actions">
+            <a class="btn btn-primary" href={getRelativeLocaleUrl(lang, 'whitepaper')}>
+              {lang === 'th' ? 'เปิดไวท์เปเปอร์' : 'Open the whitepaper'}
+              <ArrowRight size={15} stroke-width={2} />
+            </a>
+            <a class="btn btn-secondary" href={SITE.whitepaper.url} target="_blank" rel="noopener noreferrer">
+              {lang === 'th' ? 'ดาวน์โหลด PDF' : 'Download PDF'}
+            </a>
+          </div>
+          <div class="doc-cta-meta">
+            <span>48 {lang === 'th' ? 'หน้า' : 'pages'}</span>
+            <span>PDF</span>
+            <span>I-REC</span>
+            <span>ThaiFi</span>
+          </div>
+        </div>
+
+        <div class="doc-cta-visual" aria-hidden="true">
+          <div class="doc-glow"></div>
+          <div class="doc-stack">
+            <span class="doc-sheet doc-sheet-3"></span>
+            <span class="doc-sheet doc-sheet-2"></span>
+            <span class="doc-sheet doc-sheet-1"></span>
+            <div class="doc-cover">
+              <div class="doc-cover-top">
+                <span class="doc-cover-brand">RECTOKEN</span>
+                <span class="doc-cover-badge">v1.0</span>
+              </div>
+              <div class="doc-cover-label">WHITEPAPER</div>
+              <div class="doc-cover-title">REC Token</div>
+              <div class="doc-cover-sub">Tokenisation of I-RECs</div>
+              <div class="doc-cover-lines">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <div class="doc-cover-foot">
+                <span>48 pages</span>
+                <span>BlockEdge</span>
+              </div>
+              <span class="doc-scan"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .doc-body { min-width: 0; }
+  .doc-body :global(.block) { padding-block: 30px; border-bottom: 1px solid var(--line); }
+  .doc-body :global(.block:first-child) { padding-top: 0; }
+  .doc-body :global(.block:last-child) { border-bottom: 0; }
+  .doc-body :global(.block-intro) {
+    margin-top: 10px;
+    max-width: 72ch;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink-3);
+  }
+  .doc-body :global(.block-grid.cols-2) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .doc-body :global(.block-grid.cols-3) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 900px) {
+    .doc-body :global(.block-grid.cols-2),
+    .doc-body :global(.block-grid.cols-3) { grid-template-columns: 1fr; }
+  }
+  .doc-body :global(.table-note) {
+    margin-top: 10px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-3);
+  }
+  .doc-body :global(.step-list) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .doc-body :global(.step-list-item) {
+    display: flex;
+    gap: 14px;
+    background: var(--surface);
+    padding: 20px;
+  }
+  .doc-body :global(.step-list-item h4) {
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 5px;
+  }
+  .doc-body :global(.step-list-item p) {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-3);
+  }
+  .doc-body :global(.block-callout) { margin-block: 24px; }
+  .doc-body :global(.contract-row) { grid-template-columns: 180px minmax(0, 1fr) auto; }
+  .doc-body :global(.contract-label) { display: flex; flex-direction: column; gap: 3px; }
+  .doc-body :global(.contract-label small) {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-3);
+    opacity: 0.9;
+  }
+  @media (max-width: 760px) {
+    .doc-body :global(.contract-row) { grid-template-columns: 1fr auto; }
+  }
+  .doc-body :global(.team-grid) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 700px) { .doc-body :global(.team-grid) { grid-template-columns: 1fr; } }
+  .doc-body :global(.team-card) {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .doc-body :global(.team-monogram) {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 650;
+    flex-shrink: 0;
+  }
+  .doc-body :global(.team-card h3) { font-size: 1rem; }
+  .doc-body :global(.team-role) {
+    margin-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+  .doc-body :global(.team-bio) {
+    margin-top: 7px;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-3);
+  }
+  .doc-body :global(.def-cat) {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .doc-body :global(.risk-categories) { display: grid; gap: 28px; margin-top: 24px; }
+  .doc-body :global(.risk-category) {
+    border-top: 1px solid var(--line-strong);
+    padding-top: 18px;
+  }
+  .doc-body :global(.risk-head) { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .doc-body :global(.risk-no) {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--brand);
+    letter-spacing: 0.06em;
+  }
+  .doc-body :global(.risk-head h3) { font-size: 1.1rem; }
+  .doc-body :global(.risk-items) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  @media (max-width: 800px) { .doc-body :global(.risk-items) { grid-template-columns: 1fr; } }
+  .doc-body :global(.risk-item) { background: var(--surface); padding: 16px 18px; }
+  .doc-body :global(.risk-item:last-child:nth-child(odd)) { grid-column: 1 / -1; }
+  .doc-body :global(.risk-item h4) { font-size: 1rem; margin-bottom: 4px; }
+  .doc-body :global(.risk-item p) { font-size: 1rem; line-height: 1.65; color: var(--ink-3); }
+  .doc-body :global(.framework-grid) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 22px;
+  }
+  @media (max-width: 800px) { .doc-body :global(.framework-grid) { grid-template-columns: 1fr; } }
+  .doc-body :global(.framework-card) {
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .doc-body :global(.framework-head) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .doc-body :global(.framework-head h3) { font-size: 1rem; letter-spacing: -0.01em; }
+  .doc-body :global(.framework-card:last-child:nth-child(odd)) { grid-column: 1 / -1; }
+  .doc-body :global(.framework-card p) { font-size: 1rem; line-height: 1.65; color: var(--ink-2); }
+  .doc-body :global(.framework-caveat) {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-3) !important;
+    font-family: var(--font-mono);
+    font-size: 14px !important;
+    letter-spacing: 0.02em;
+  }
+  .doc-body :global(.doc-grid) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .doc-body :global(.doc-grid.cols-3) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 900px) { .doc-body :global(.doc-grid.cols-3) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 700px) { .doc-body :global(.doc-grid) { grid-template-columns: 1fr; } }
+
+  .doc-cta {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+    padding: clamp(28px, 4.4vw, 52px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(620px circle at 92% -8%, var(--brand-soft), transparent 58%),
+      radial-gradient(520px circle at 4% 110%, var(--surface-3), transparent 62%),
+      var(--surface);
+    overflow: hidden;
+  }
+  .doc-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: var(--gradient-headline);
+    opacity: 0.85;
+  }
+  .doc-cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: linear-gradient(115deg, transparent 45%, black 100%);
+    opacity: 0.5;
+  }
+  .doc-cta-copy { position: relative; z-index: 1; }
+  .doc-cta-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+  .doc-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 0 var(--ring);
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+  .doc-cta h2 { margin-top: 14px; font-size: clamp(1.45rem, 2.4vw, 2.05rem); max-width: 22ch; }
+  .doc-cta-copy > p {
+    margin-top: 12px;
+    max-width: 58ch;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink-3);
+  }
+  .doc-cta-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .doc-cta-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .doc-cta-meta span {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .doc-cta-visual {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    min-height: 300px;
+    perspective: 900px;
+  }
+  .doc-glow {
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--brand-soft), transparent 68%);
+    filter: blur(8px);
+  }
+  .doc-stack {
+    position: relative;
+    width: 220px;
+    height: 280px;
+    transform-style: preserve-3d;
+  }
+  .doc-sheet {
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .doc-sheet-3 { transform: rotate(-9deg) translate(-14px, 10px); opacity: 0.55; }
+  .doc-sheet-2 { transform: rotate(-5deg) translate(-8px, 6px); opacity: 0.8; }
+  .doc-sheet-1 { transform: rotate(-2deg) translate(-3px, 3px); }
+  .doc-cover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid rgba(198, 242, 78, 0.32);
+    border-radius: 10px;
+    background:
+      radial-gradient(220px circle at 85% 0%, rgba(198, 242, 78, 0.18), transparent 65%),
+      linear-gradient(155deg, #0b1610 0%, #102015 55%, #1a3520 100%);
+    color: #f0f7ea;
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transform: rotate(2deg);
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
+  }
+  .doc-stack:hover .doc-cover {
+    transform: rotate(0deg) translateY(-6px);
+    box-shadow: 0 40px 70px -30px rgba(0, 0, 0, 0.8);
+  }
+  .doc-cover-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .doc-cover-brand {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+  }
+  .doc-cover-badge {
+    padding: 2px 6px;
+    border: 1px solid rgba(198, 242, 78, 0.4);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: #d9ff6a;
+  }
+  .doc-cover-label {
+    margin-top: 26px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    color: #d9ff6a;
+  }
+  .doc-cover-title {
+    margin-top: 8px;
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 680;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+  }
+  .doc-cover-sub {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #a5b99a;
+  }
+  .doc-cover-lines { display: grid; gap: 7px; margin-top: auto; }
+  .doc-cover-lines span {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(240, 247, 234, 0.16);
+  }
+  .doc-cover-lines span:nth-child(1) { width: 82%; }
+  .doc-cover-lines span:nth-child(2) { width: 64%; }
+  .doc-cover-lines span:nth-child(3) { width: 74%; }
+  .doc-cover-lines span:nth-child(4) { width: 42%; }
+  .doc-cover-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(198, 242, 78, 0.18);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: #a5b99a;
+  }
+  .doc-scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -40px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, rgba(217, 255, 106, 0.22), transparent);
+    animation: doc-scan 4.5s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes doc-scan {
+    0% { transform: translateY(0); opacity: 0; }
+    12% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { transform: translateY(360px); opacity: 0; }
+  }
+  @media (max-width: 860px) {
+    .doc-cta { grid-template-columns: 1fr; }
+    .doc-cta-visual { order: -1; min-height: 250px; }
+    .doc-stack { width: 190px; height: 242px; }
+    .doc-cover { padding: 16px; }
+    .doc-cover-title { font-size: 25px; }
+  }
+</style>

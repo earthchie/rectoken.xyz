@@ -1,0 +1,14 @@
+---
+import ContentPage from '@components/pages/ContentPage.astro';
+import { CONTENT_PAGES } from '@data/content';
+
+export function getStaticPaths() {
+  return Object.keys(CONTENT_PAGES).map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const doc = CONTENT_PAGES[slug as string];
+if (!doc) throw new Error(`Unknown content page: ${slug}`);
+---
+
+<ContentPage lang="en" doc={doc} />

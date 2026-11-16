@@ -1,0 +1,331 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Search, ArrowRight, ExternalLink, X, MapPin, ShieldCheck } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import Icon from '@components/Icon.astro';
+import snapshot from '@data/projects.json';
+import { CHAINS } from '@data/site';
+import { t, type Locale } from '@i18n/utils';
+import { formatNumber } from '@utils/format';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+
+const projects = snapshot.projects;
+const totalSupply = projects.reduce((sum, p) => sum + Number(p.supplySnapshot || 0), 0);
+const provinces = [...new Set(projects.map((p) => p.province))];
+const vintages = [...new Set(projects.map((p) => p.vintage))];
+const countryLabel = (country: string) => lang === 'th' && country === 'Vietnam' ? 'เวียดนาม' : country;
+const technologyLabel = (technology: string) => lang === 'th' && technology === 'Hydro-electric' ? 'พลังน้ำ' : technology;
+
+const labels = {
+  title: lang === 'th' ? 'โครงการที่แปลงเป็นโทเคน' : 'Tokenised projects',
+  lede:
+    lang === 'th'
+      ? 'ใบรับรองจากโครงการพลังน้ำในเอเชียตะวันออกเฉียงใต้เป็นสินทรัพย์อ้างอิงของ Central Pool แต่ละโครงการมีรหัส I-REC และลิงก์ตรวจสอบแหล่งกำเนิดจาก REDEX'
+      : 'Hydropower projects in Southeast Asia backing the Central Pool. Every project has an I-REC project ID and a REDEX origin-check link.',
+};
+---
+
+<BaseLayout title={labels.title} description={labels.lede} locale={lang} ogImage={`/og/projects-${lang}.png`}>
+  <PageHero
+    eyebrow={lang === 'th' ? 'ความโปร่งใส' : 'Transparency'}
+    title={labels.title}
+    description={labels.lede}
+    locale={lang}
+    chips={[`${projects.length} ${lang === 'th' ? 'โครงการ' : 'projects'}`, countryLabel('Vietnam'), technologyLabel('Hydro-electric'), lang === 'th' ? 'วินเทจ 2024' : 'Vintage 2024']}
+    actions={[
+      { label: lang === 'th' ? 'แดชบอร์ดเรียลไทม์' : 'Live dashboard', href: l('data'), variant: 'primary' },
+      { label: lang === 'th' ? 'รายงานรายเดือน' : 'Monthly reports', href: l('reports') },
+    ] as any}
+  />
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="project-summary">
+        <div class="summary-cell">
+          <span class="kpi-label">{lang === 'th' ? 'โครงการทั้งหมด' : 'Total projects'}</span>
+          <span class="kpi-value" data-project-count>{projects.length}</span>
+        </div>
+        <div class="summary-cell">
+          <span class="kpi-label">{lang === 'th' ? 'จำนวนโทเคนรวม' : 'Combined supply'}</span>
+          <span class="kpi-value" data-project-total>{formatNumber(totalSupply, lang, { maximumFractionDigits: 2 })}</span>
+        </div>
+        <div class="summary-cell">
+          <span class="kpi-label">{lang === 'th' ? 'เทคโนโลยี' : 'Technology'}</span>
+          <span class="summary-value">{technologyLabel('Hydro-electric')}</span>
+        </div>
+        <div class="summary-cell">
+          <span class="kpi-label">{lang === 'th' ? 'มาตรฐาน' : 'Standard'}</span>
+          <span class="summary-value">I-REC</span>
+        </div>
+      </div>
+
+      <div class="project-toolbar">
+        <label class="project-search">
+          <Search size={16} stroke-width={1.8} aria-hidden="true" />
+          <input
+            type="search"
+            placeholder={lang === 'th' ? 'ค้นหาโครงการ รหัส หรือจังหวัด' : 'Search project, ID or province'}
+            data-project-search
+            aria-label={lang === 'th' ? 'ค้นหาโครงการ' : 'Search projects'}
+          />
+        </label>
+        <div class="project-filters" role="group" aria-label={lang === 'th' ? 'ตัวกรองจังหวัด' : 'Province filter'}>
+          <button type="button" class="filter-chip" data-province="all" aria-pressed="true">{lang === 'th' ? 'ทุกจังหวัด' : 'All provinces'}</button>
+          {provinces.map((province) => (
+            <button type="button" class="filter-chip" data-province={province} aria-pressed="false">{province}</button>
+          ))}
+        </div>
+      </div>
+
+      <p class="project-count-line" aria-live="polite">
+        <span data-project-visible>{projects.length}</span>
+        {lang === 'th' ? 'โครงการ' : 'projects'}
+        <span class="muted">· {lang === 'th' ? 'จำนวนโทเคนอ่านแบบเรียลไทม์จากเชน' : 'supply read live from chain'}</span>
+      </p>
+
+      <div class="project-grid" data-project-grid data-lang={lang}>
+        {projects.map((project) => (
+          <button
+            type="button"
+            class="project-card"
+            data-project-card
+            data-address={project.address}
+            data-name={`${project.name} ${project.projectId} ${project.province}`}
+            data-province={project.province}
+            data-vintage={project.vintage}
+          >
+            <div class="project-card-top">
+              <h3>{project.name}</h3>
+              <span class="chip">{project.projectId}</span>
+            </div>
+            <div class="meta">
+              <span><b>{lang === 'th' ? 'ที่ตั้ง' : 'Location'}</b> {project.province}, {countryLabel(project.country)}</span>
+              <span><b>{lang === 'th' ? 'วินเทจ' : 'Vintage'}</b> {project.vintage}</span>
+            </div>
+            <div class="meta" style="margin-top:5px">
+              <span><b>{lang === 'th' ? 'ประเภท' : 'Type'}</b> {technologyLabel(project.technology)}</span>
+              <span><b>{lang === 'th' ? 'มาตรฐาน' : 'Standard'}</b> I-REC</span>
+            </div>
+            <div class="project-card-foot">
+              <div>
+                <span class="project-supply">
+                  <span data-project-supply={project.address}>{formatNumber(Number(project.supplySnapshot), lang, { maximumFractionDigits: 2 })}</span>
+                  <small>REC · {lang === 'th' ? 'จำนวนโทเคนรวม' : 'total supply'}</small>
+                </span>
+              </div>
+              <span class="project-open" aria-hidden="true"><ArrowRight size={15} stroke-width={2} /></span>
+            </div>
+            <div class="project-address">
+              <span>{project.address.slice(0, 10)}…{project.address.slice(-6)}</span>
+              <span class="dot dot-live"></span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div class="project-empty" data-project-empty hidden>
+        <p>{lang === 'th' ? 'ไม่พบโครงการที่ตรงกับตัวกรอง' : 'No projects match your filters.'}</p>
+      </div>
+
+      <p class="project-source">
+        <Icon name="Info" size={14} />
+        {lang === 'th'
+          ? 'ข้อมูลโครงการมาจากเมทาดาทาสาธารณะ ส่วนจำนวนโทเคนอ่านจาก ThaiFi ค่า ณ วันที่ 16 พ.ย. 2026 อาจเปลี่ยนแปลงได้'
+          : 'Project metadata is public; supply is read from ThaiFi. Snapshot values dated 16 Nov 2026 may change.'}
+      </p>
+    </div>
+  </section>
+
+  <div class="modal" data-project-modal data-open="false" role="dialog" aria-modal="true" aria-labelledby="project-modal-title">
+    <div class="modal-panel" role="document">
+      <div class="modal-head">
+        <div>
+          <p class="kpi-label">{lang === 'th' ? 'รายละเอียดโครงการ' : 'Project details'}</p>
+          <h2 id="project-modal-title" class="h3" data-modal-title>-</h2>
+        </div>
+        <button type="button" class="icon-btn" data-modal-close aria-label={lang === 'th' ? 'ปิด' : 'Close'}>
+          <X size={18} stroke-width={1.8} />
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div>
+            <div class="modal-visual" data-modal-visual>
+              <span class="modal-visual-mark" data-modal-visual-mark>I-REC</span>
+              <img class="modal-image" data-modal-image alt="" loading="lazy" hidden />
+            </div>
+            <p class="modal-desc" data-modal-desc>-</p>
+          </div>
+          <dl class="modal-facts">
+            <div><dt>{lang === 'th' ? 'รหัสโครงการ' : 'Project ID'}</dt><dd data-modal-id>-</dd></div>
+            <div><dt>{lang === 'th' ? 'จังหวัด' : 'Province'}</dt><dd data-modal-province>-</dd></div>
+            <div><dt>{lang === 'th' ? 'วินเทจ' : 'Vintage'}</dt><dd data-modal-vintage>-</dd></div>
+            <div><dt>{lang === 'th' ? 'จำนวนโทเคน' : 'Total supply'}</dt><dd data-modal-supply>-</dd></div>
+            <div><dt>{lang === 'th' ? 'สัญญา' : 'Contract'}</dt><dd class="address" data-modal-contract>-</dd></div>
+          </dl>
+        </div>
+        <div class="modal-actions">
+          <a class="btn btn-primary" data-modal-verify href="#" target="_blank" rel="noopener noreferrer">
+            <ShieldCheck size={15} stroke-width={1.9} />
+            {lang === 'th' ? 'ตรวจสอบใบรับรอง' : 'Verify certificate'}
+          </a>
+          <a class="btn btn-secondary" data-modal-explorer href="#" target="_blank" rel="noopener noreferrer">
+            <ExternalLink size={15} stroke-width={1.9} />
+            {lang === 'th' ? 'ดูบนเครื่องมือสำรวจบล็อกเชน' : 'View on explorer'}
+          </a>
+        </div>
+        <p class="modal-note">
+          <MapPin size={13} />
+          {lang === 'th' ? 'ลิงก์ตรวจสอบแหล่งกำเนิดชี้ไปยัง REDEX ใช้รหัสโครงการและช่วงใบรับรอง' : 'The origin-check link points to REDEX using the project ID and certificate range.'}
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initProjects } from '@scripts/projects';
+  initProjects(document.querySelector('[data-project-grid]')?.getAttribute('data-lang') || 'en');
+</script>
+
+<style>
+  .project-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  @media (max-width: 820px) { .project-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .summary-cell { background: var(--surface); padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; }
+  .summary-cell .kpi-value { font-size: 1.7rem; }
+  .summary-value { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+
+  .project-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 24px;
+    padding-block: 14px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .project-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: min(340px, 100%);
+    padding: 0 12px;
+    height: 40px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+  .project-search svg { color: var(--ink-3); flex-shrink: 0; }
+  .project-search input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .project-filters { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .project-count-line {
+    margin-top: 13px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    color: var(--ink-3);
+  }
+  .project-count-line .muted { opacity: 0.7; }
+
+  .project-grid { margin-top: 16px; }
+  .project-card { gap: 0; }
+  .project-card .meta span { display: block; }
+  .project-open {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--ink-3);
+    transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+  .project-card:hover .project-open { border-color: var(--brand); color: var(--brand); transform: translateX(2px); }
+  .project-address {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-family: var(--font-data);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+
+  .project-empty {
+    margin-top: 20px;
+    padding: 40px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-md);
+    text-align: center;
+    color: var(--ink-3);
+    font-size: 1rem;
+  }
+
+  .project-source {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+    font-size: 1rem;
+    color: var(--ink-3);
+    line-height: 1.6;
+  }
+  .project-source svg { flex-shrink: 0; margin-top: 3px; }
+
+  .modal-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 24px; }
+  @media (max-width: 700px) { .modal-grid { grid-template-columns: 1fr; } }
+  .modal-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 10;
+    margin-bottom: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background:
+      radial-gradient(300px circle at 30% 20%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 70%),
+      var(--surface-2);
+  }
+  .modal-visual-mark {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    letter-spacing: 0.18em;
+    color: var(--brand);
+    opacity: 0.7;
+  }
+  .modal-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .modal-desc { font-size: 1rem; line-height: 1.65; color: var(--ink-2); }
+  .modal-facts { display: grid; gap: 10px; margin: 0; }
+  .modal-facts dt { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
+  .modal-facts dd { margin: 2px 0 0; font-size: 1rem; color: var(--ink); }
+  .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .modal-note { display: flex; gap: 7px; margin-top: 16px; font-size: 1rem; color: var(--ink-3); }
+  .modal-note svg { flex-shrink: 0; margin-top: 2px; }
+</style>

@@ -1,0 +1,152 @@
+---
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource/ibm-plex-sans-thai/400.css';
+import '@fontsource/ibm-plex-sans-thai/500.css';
+import '@fontsource/ibm-plex-sans-thai/600.css';
+import '@fontsource/ibm-plex-sans-thai/700.css';
+import '@styles/base.css';
+import '@styles/animations.css';
+
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import SearchModal from '@components/SearchModal.astro';
+import { SITE } from '@data/site';
+import { htmlLang, type Locale } from '@i18n/utils';
+
+export interface Props {
+  title: string;
+  description: string;
+  locale?: Locale;
+  ogImage?: string;
+  noIndex?: boolean;
+  wide?: boolean;
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description,
+  locale = (Astro.currentLocale as Locale) || 'th',
+  ogImage,
+  noIndex = false,
+  bodyClass = '',
+} = Astro.props;
+
+const ogAsset = ogImage ?? `/og/default${locale === 'th' ? '-th' : ''}.png`;
+
+const fullTitle = title.includes('RECTOKEN') || title.includes('REC Token') ? title : `${title} - RECTOKEN`;
+const canonical = new URL(Astro.url.pathname, SITE.domain).toString();
+const ogUrl = ogAsset.startsWith('http') ? ogAsset : new URL(ogAsset, SITE.domain).toString();
+const lang = htmlLang(locale);
+
+// hreflang alternates: same path, other locale
+const path = Astro.url.pathname;
+const withoutLocale = path.replace(/^\/(en|th)(?=\/|$)/, '') || '/';
+const altPath = withoutLocale === '/' ? '/' : withoutLocale.replace(/\/$/, '');
+const suffix = altPath === '/' ? '/' : `${altPath}/`;
+const isNotFound = path.startsWith('/404');
+const enHref = isNotFound ? `${SITE.domain}/en/` : `${SITE.domain}/en${suffix}`;
+const thHref = isNotFound ? `${SITE.domain}/th/` : `${SITE.domain}/th${suffix}`;
+const xDefaultHref = thHref;
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'BlockEdge Co., Ltd.',
+  alternateName: 'RECTOKEN',
+  url: SITE.domain,
+  email: SITE.email,
+  identifier: SITE.regNo,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '39/129 Moo 7, Baan Suan, Mueng Chonburi',
+    addressLocality: 'Chonburi',
+    postalCode: '20000',
+    addressCountry: 'TH',
+  },
+  sameAs: Object.values(SITE.social),
+};
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'RECTOKEN',
+  url: SITE.domain,
+  inLanguage: ['en', 'th'],
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE.domain}/${locale}/search?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+const jsonLd = { '@context': 'https://schema.org', '@graph': [orgJsonLd, websiteJsonLd] };
+---
+
+<!doctype html>
+<html lang={lang} class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={enHref} />
+    <link rel="alternate" hreflang="th" href={thHref} />
+    <link rel="alternate" hreflang="x-default" href={xDefaultHref} />
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="RECTOKEN by BlockEdge" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={locale === 'th' ? 'th_TH' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#070f0a" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://rpc.thaifi.com" crossorigin />
+    <link rel="dns-prefetch" href="https://asset.blockedge.co" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Apply theme before first paint to avoid a flash. -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('rectoken-theme');
+          var theme = stored === 'light' || stored === 'dark' ? stored : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.classList.remove('no-js');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">{locale === 'th' ? 'ข้ามไปยังเนื้อหา' : 'Skip to content'}</a>
+    <div class="scroll-progress" aria-hidden="true" data-scroll-progress></div>
+    <Header locale={locale} />
+    <main id="main" data-pagefind-body data-pagefind-filter={`locale:${locale}`}>
+      <slot />
+    </main>
+    <Footer locale={locale} />
+    <SearchModal locale={locale} />
+    <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="false"></div>
+
+    <script>
+      import '@scripts/ui';
+    </script>
+  </body>
+</html>

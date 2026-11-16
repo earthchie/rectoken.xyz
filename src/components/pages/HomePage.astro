@@ -1,0 +1,1527 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  ShieldCheck,
+  FileText,
+  FileBarChart,
+  Megaphone,
+  Scale,
+} from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SectionHead from '@components/SectionHead.astro';
+import Icon from '@components/Icon.astro';
+import { SITE, REGULATOR_PROFILES, CONTRACTS, CHAINS } from '@data/site';
+import {
+  HERO,
+  ASSET_SECTION,
+  REGULATOR_SECTION,
+  LIFECYCLE,
+  STANDARDS,
+  WHY,
+  USER_STEPS,
+  CTA,
+  COMPARISON,
+} from '@data/home';
+import procurement from '@data/projects.json';
+import { t, pick, type Locale } from '@i18n/utils';
+import { formatNumber, shortAddress } from '@utils/format';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+const snapshotSupply = procurement.projects.reduce(
+  (sum, p) => sum + Number(p.supplySnapshot || 0),
+  0
+);
+const snapshotCount = procurement.projects.length;
+const provinceMap = new Map<string, number>();
+for (const project of procurement.projects) {
+  provinceMap.set(project.province, (provinceMap.get(project.province) || 0) + 1);
+}
+const provinceCounts = [...provinceMap.entries()].sort((a, b) => b[1] - a[1]);
+const maxProvince = Math.max(...provinceCounts.map(([, count]) => count), 1);
+
+const docs = [
+  {
+    icon: 'FileText',
+    title: lang === 'th' ? 'ไวท์เปเปอร์ v1.0' : 'Whitepaper v1.0',
+    body:
+      lang === 'th'
+        ? 'เอกสารต้นฉบับ 48 หน้า ครอบคลุมโทเคโนมิกส์ การกำกับดูแล ความเสี่ยง และกระบวนการแลกคืน'
+        : 'The 48-page source document covering tokenomics, governance, risk and redemption.',
+    href: l('whitepaper'),
+    meta: lang === 'th' ? '48 หน้า · PDF' : '48 pages · PDF',
+  },
+  {
+    icon: 'FileBarChart',
+    title: lang === 'th' ? 'รายงานพอร์ต' : 'Portfolio reports',
+    body:
+      lang === 'th'
+        ? 'ข้อมูลรายเดือนเกี่ยวกับจำนวนโทเคน องค์ประกอบสินทรัพย์ การไถ่ถอน และสถานะการกระทบยอด'
+        : 'Monthly supply, asset composition, retirement and reconciliation status.',
+    href: l('reports'),
+    meta: lang === 'th' ? 'รายเดือน' : 'Monthly',
+  },
+  {
+    icon: 'Megaphone',
+    title: lang === 'th' ? 'ประกาศอย่างเป็นทางการ' : 'Official announcements',
+    body:
+      lang === 'th'
+        ? 'แถลงการณ์เกี่ยวกับความรับผิดของผู้ออกโทเคนและนิยามของเหตุการณ์ไม่พึงประสงค์'
+        : 'The issuer liability statement and the definition of an Adverse Incident.',
+    href: l('announcement'),
+    meta: lang === 'th' ? 'แถลงการณ์' : 'Statement',
+  },
+  {
+    icon: 'Scale',
+    title: lang === 'th' ? 'การกำกับดูแล' : 'Regulatory overview',
+    body:
+      lang === 'th'
+        ? 'ข้อมูลผู้ออกโทเคน การจำแนกประเภท การควบคุม การดูแลทรัพย์สิน และสิทธิ์ตามกรอบการรายงาน'
+        : 'Issuer, classification, controls, custody and framework eligibility.',
+    href: l('compliance'),
+    meta: lang === 'th' ? 'ศูนย์ข้อมูล' : 'Evidence hub',
+  },
+];
+---
+
+<BaseLayout
+  title={lang === 'th' ? 'REC Token - ใบรับรองพลังงานหมุนเวียนบนบล็อกเชน' : 'REC Token - Verified renewable energy certificates, on-chain'}
+  description={pick(HERO.lede, lang)}
+  locale={lang}
+  ogImage={`/og/home-${lang}.png`}
+>
+  <!-- ============================== HERO ============================== -->
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="container-page hero-layout">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">
+          <span class="dot"></span>
+          {pick(HERO.eyebrow, lang)}
+        </p>
+        <h1>
+          {lang === 'th' ? (
+            <>เมกะวัตต์ชั่วโมง<br />ที่ตรวจสอบแล้ว</>
+          ) : (
+            <>The verified<br /><span class="hero-nowrap">megawatt-hour,</span></>
+          )}
+          <br />
+          <em>{lang === 'th' ? 'บนบล็อกเชน' : 'on-chain.'}</em>
+        </h1>
+        <p class="hero-lede">{pick(HERO.lede, lang)}</p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href={l('whitepaper')}>
+            {lang === 'th' ? 'อ่านไวท์เปเปอร์' : 'Read the whitepaper'}
+            <ArrowRight size={16} stroke-width={2} aria-hidden="true" />
+          </a>
+          <a class="btn btn-secondary btn-lg" href={l('compliance')}>
+            {lang === 'th' ? 'ศูนย์ข้อมูลกำกับดูแล' : 'Regulatory overview'}
+          </a>
+        </div>
+        <a class="hero-inline-link" href={l('data')}>
+          {lang === 'th' ? 'เปิดแดชบอร์ดเรียลไทม์' : 'Open the live dashboard'}
+          <ArrowUpRight size={14} stroke-width={2} aria-hidden="true" />
+        </a>
+
+        <ul class="hero-meta">
+          {HERO.meta.map((item) => (
+            <li class="hero-meta-item">
+              <Check size={13} stroke-width={2.4} aria-hidden="true" />
+              {pick(item, lang)}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <aside class="instrument" aria-label={lang === 'th' ? 'ข้อมูลการออกโทเคน' : 'Issuance monitor'} data-live-stats>
+        <div class="instrument-head">
+          <span class="instrument-title">
+            <span class="dot dot-live"></span>
+            {lang === 'th' ? (
+              <span>ติดตามสถานะโทเคน<wbr /><span class="nowrap">แบบเรียลไทม์</span></span>
+            ) : (
+              'Issuance monitor'
+            )}
+          </span>
+          <span class="instrument-live">
+            <span class="dot"></span>
+            {lang === 'th' ? 'สด' : 'Live'}<span class="live-chain"> · ThaiFi</span>
+          </span>
+        </div>
+
+        <div class="instrument-body">
+          <div class="instrument-equation">
+            <strong>1 REC</strong>
+            <span class="eq-mark" aria-hidden="true">=</span>
+            <strong>1 MWh</strong>
+            <span>
+              {lang === 'th' ? 'ใช้ I-REC เป็นสินทรัพย์อ้างอิง' : 'I-REC as reference asset'}<br />
+              {lang === 'th' ? 'ไถ่ถอนแบบ FIFO ตามวินเทจ' : 'FIFO redemption by vintage'}
+            </span>
+          </div>
+
+          <div class="instrument-grid">
+            <div class="instrument-cell">
+              <span class="kpi-label">{lang === 'th' ? 'จำนวนพูลโทเคน' : 'Pool token supply'}</span>
+              <div class="kpi-value">
+                <span data-stat="pool" data-stat-format="compact">-</span>
+                <span class="unit">REC</span>
+              </div>
+            </div>
+            <div class="instrument-cell">
+              <span class="kpi-label">{lang === 'th' ? 'ไถ่ถอนแล้ว' : 'Retired'}</span>
+              <div class="kpi-value">
+                <span data-stat="retired" data-stat-format="compact">-</span>
+                <span class="unit">REC</span>
+              </div>
+            </div>
+            <div class="instrument-cell">
+              <span class="kpi-label">{lang === 'th' ? 'โทเคนรายโครงการ' : 'Project tokens'}</span>
+              <div class="kpi-value">
+                <span data-stat="project-supply" data-stat-format="compact">
+                  {formatNumber(snapshotSupply, lang, { maximumFractionDigits: 0 })}
+                </span>
+                <span class="unit">REC</span>
+              </div>
+            </div>
+            <div class="instrument-cell">
+              <span class="kpi-label">{lang === 'th' ? 'โครงการ' : 'Projects'}</span>
+              <div class="kpi-value">
+                <span data-stat="project-count" data-stat-format="int">{snapshotCount}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="instrument-foot">
+            <span data-stat="updated">chain 17 · rpc.thaifi.com</span>
+            <a href={l('data')}>
+              {lang === 'th' ? 'เปิดแดชบอร์ด' : 'Open dashboard'}
+              <ArrowRight size={11} stroke-width={2.4} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================== TRUST STRIP ============================== -->
+  <div class="trust-strip" aria-label={lang === 'th' ? 'มาตรฐานและพันธมิตร' : 'Standards and partners'}>
+    <div class="marquee">
+      <div class="marquee-track">
+        {[
+          ['I-REC', 'I-TRACK'],
+          ['Evident', lang === 'th' ? 'ทะเบียนอย่างเป็นทางการ' : 'Official registry'],
+          ['REDEX', 'ReHash'],
+          ['Valix Consulting', lang === 'th' ? 'ตรวจสอบสัญญา' : 'Contract audit'],
+          ['Baker & McKenzie', lang === 'th' ? 'ที่ปรึกษากฎหมาย' : 'Legal counsel'],
+          ['ThaiFi', 'Chain 17'],
+          [lang === 'th' ? 'กระทบยอดรายไตรมาส' : 'Quarterly reconciliation', '1:1'],
+          ['NetZero Carbon', lang === 'th' ? 'ผู้รวบรวมสินทรัพย์' : 'Asset aggregator'],
+        ].map(([name, note]) => (
+          <span class="trust-item">
+            <span class="dot"></span>
+            <strong>{name}</strong>
+            {note}
+          </span>
+        ))}
+        {[
+          ['I-REC', 'I-TRACK'],
+          ['Evident', lang === 'th' ? 'ทะเบียนอย่างเป็นทางการ' : 'Official registry'],
+          ['REDEX', 'ReHash'],
+          ['Valix Consulting', lang === 'th' ? 'ตรวจสอบสัญญา' : 'Contract audit'],
+          ['Baker & McKenzie', lang === 'th' ? 'ที่ปรึกษากฎหมาย' : 'Legal counsel'],
+          ['ThaiFi', 'Chain 17'],
+          [lang === 'th' ? 'กระทบยอดรายไตรมาส' : 'Quarterly reconciliation', '1:1'],
+          ['NetZero Carbon', lang === 'th' ? 'ผู้รวบรวมสินทรัพย์' : 'Asset aggregator'],
+        ].map(([name, note]) => (
+          <span class="trust-item" aria-hidden="true">
+            <span class="dot"></span>
+            <strong>{name}</strong>
+            {note}
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== ASSET ============================== -->
+  <section class="section" id="asset">
+    <div class="container-page">
+      <SectionHead
+        index={ASSET_SECTION.index}
+        eyebrow={pick(ASSET_SECTION.eyebrow, lang)}
+        title={pick(ASSET_SECTION.title, lang)}
+        description={pick(ASSET_SECTION.lede, lang)}
+      />
+      <div class="asset-split">
+        <div class="asset-visual reveal" aria-hidden="true">
+          <div class="asset-visual-glow"></div>
+          <div class="certificate">
+            <div class="certificate-head">
+              <span class="certificate-label">I-REC</span>
+              <span class="certificate-seal"><Icon name="ShieldCheck" size={15} /></span>
+            </div>
+            <div class="certificate-title">Renewable Energy Certificate</div>
+            <div class="certificate-rows">
+              <div><span>Unit</span><strong>1 MWh</strong></div>
+              <div><span>Standard</span><strong>I-TRACK</strong></div>
+              <div><span>Registry</span><strong>Evident</strong></div>
+              <div><span>Vintage</span><strong>2024</strong></div>
+            </div>
+            <div class="certificate-code">IREC-••••-VN-2024</div>
+          </div>
+          <div class="asset-connector">
+            <span class="connector-line"></span>
+            <span class="connector-label"><Icon name="Lock" size={12} /> Locked in ReHash</span>
+            <span class="connector-line"></span>
+          </div>
+          <div class="asset-token">
+            <span class="asset-token-dot"></span>
+            <div>
+              <strong>1 REC</strong>
+              <small>Pool token · ThaiFi</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="asset-layers">
+          {ASSET_SECTION.cards.map((card, i) => (
+            <article class="asset-layer reveal" style={`--i:${i}`}>
+              <span class="asset-layer-no">0{i + 1}</span>
+              <div>
+                <div class="asset-layer-head">
+                  <h3>{pick(card.title, lang)}</h3>
+                  <span class="chip">{pick(card.tag, lang)}</span>
+                </div>
+                <p>{pick(card.body, lang)}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div class="compare-panel">
+        <div class="compare-copy">
+          <span class="chip">
+            <Icon name="Scale" size={12} />
+            {lang === 'th' ? 'การเปรียบเทียบ' : 'Comparison'}
+          </span>
+          <h3 class="h3 balance" style="margin-top:14px">{pick(COMPARISON.title, lang)}</h3>
+          <p class="compare-note">
+            {lang === 'th'
+              ? 'REC แสดงถึงการผลิตไฟฟ้าจากพลังงานหมุนเวียน 1 MWh ส่วนคาร์บอนเครดิตแสดงถึงการลดหรือกักเก็บก๊าซเรือนกระจก 1 tCO₂e โดยเครดิต T-VER เป็นเครดิตที่ได้รับการรับรองจาก อบก. ของไทย'
+              : 'A REC evidences 1 MWh of renewable electricity. A carbon credit evidences 1 tCO₂e reduced or removed. A T-VER credit is a Thai TGO-certified reduction or removal.'}
+          </p>
+          <a class="link-arrow" href={l('compliance/claims')} style="margin-top:18px">
+            {lang === 'th' ? 'อ่านขอบเขตการกล่าวอ้าง' : 'Read the claim boundaries'}
+            <ArrowRight size={14} stroke-width={2} aria-hidden="true" />
+          </a>
+        </div>
+        <div class="compare-table">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>REC Token</th>
+                <th>{lang === 'th' ? 'คาร์บอนเครดิต / T-VER' : 'Carbon credit / T-VER'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON.rows.map((row) => (
+                <tr>
+                  <td>{pick(row.label, lang)}</td>
+                  <td><strong>{pick(row.rec, lang)}</strong></td>
+                  <td>{pick(row.carbon, lang)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== REGULATORS ============================== -->
+  <section class="section section-rule" id="regulators">
+    <div class="container-page">
+      <SectionHead
+        index={REGULATOR_SECTION.index}
+        eyebrow={pick(REGULATOR_SECTION.eyebrow, lang)}
+        title={pick(REGULATOR_SECTION.title, lang)}
+        description={pick(REGULATOR_SECTION.lede, lang)}
+      />
+
+      <div data-tabs>
+        <div class="reg-tabs" role="tablist" aria-label={lang === 'th' ? 'หน่วยงานกำกับดูแล' : 'Regulators'}>
+          {REGULATOR_PROFILES.map((profile, i) => (
+            <button
+              type="button"
+              class="reg-tab"
+              role="tab"
+              id={`tab-${profile.id}`}
+              data-tab={profile.id}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              aria-controls={`panel-${profile.id}`}
+            >
+              <span class="dot" aria-hidden="true"></span>
+              {pick(profile.label, lang)}
+            </button>
+          ))}
+        </div>
+
+        {REGULATOR_PROFILES.map((profile, i) => (
+          <div
+            class="reg-panel"
+            role="tabpanel"
+            id={`panel-${profile.id}`}
+            data-tab-panel={profile.id}
+            aria-labelledby={`tab-${profile.id}`}
+            hidden={i !== 0}
+          >
+            <div class="reg-layout">
+              <div>
+                <p class="reg-short">{pick(profile.short, lang)}</p>
+                <h3 class="h3 balance" style="margin-top:10px">{pick(profile.headline, lang)}</h3>
+                <p class="lede" style="margin-top:14px;font-size:1rem">{pick(profile.body, lang)}</p>
+                <a class="link-arrow" href={l('compliance')} style="margin-top:22px">
+                  {lang === 'th' ? 'ดูหลักฐานการกำกับดูแล' : 'Open the regulatory evidence'}
+                  <ArrowRight size={14} stroke-width={2} aria-hidden="true" />
+                </a>
+
+                <div class="evidence-chain" aria-hidden="true">
+                  <span class="evidence-node">
+                    <Icon name="FileCheck2" size={15} />
+                    {lang === 'th' ? 'การเปิดเผยของผู้ออก' : 'Issuer disclosure'}
+                  </span>
+                  <span class="evidence-link"></span>
+                  <span class="evidence-node">
+                    <Icon name="ShieldCheck" size={15} />
+                    {lang === 'th' ? 'การตรวจสอบอิสระ' : 'Independent audit'}
+                  </span>
+                  <span class="evidence-link"></span>
+                  <span class="evidence-node">
+                    <Icon name="Database" size={15} />
+                    {lang === 'th' ? 'บันทึกบนเชน' : 'On-chain record'}
+                  </span>
+                </div>
+              </div>
+              <dl class="evidence-list">
+                {profile.facts.map((fact) => (
+                  <div class="evidence-row">
+                    <dt>{pick(fact.k, lang)}</dt>
+                    <dd>
+                      {pick(fact.v, lang)}
+                      <small>{pick(fact.note, lang)}</small>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== LIFECYCLE ============================== -->
+  <section class="section section-rule" id="lifecycle">
+    <div class="container-page">
+      <SectionHead
+        index={LIFECYCLE.index}
+        eyebrow={pick(LIFECYCLE.eyebrow, lang)}
+        title={pick(LIFECYCLE.title, lang)}
+        description={pick(LIFECYCLE.lede, lang)}
+      />
+      <div class="lifecycle">
+        {LIFECYCLE.steps.map((step, i) => (
+          <article class="lifecycle-step reveal" style={`--i:${i}`}>
+            <div class="lifecycle-top">
+              <span class="lifecycle-num">{step.no}</span>
+              <span class="lifecycle-icon">
+                <Icon
+                  name={
+                    ['FileCheck2', 'Lock', 'Coins', 'Network', 'ArrowLeftRight', 'Recycle'][i] ||
+                    'CircleHelp'
+                  }
+                  size={17}
+                />
+              </span>
+            </div>
+            <h4>{pick(step.title, lang)}</h4>
+            <p>{pick(step.body, lang)}</p>
+            <div class="lifecycle-tags">
+              {pick(step.who, lang).split(' / ').map((operator) => (
+                <span class="chip">{operator}</span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== LIVE DATA ============================== -->
+  <section class="section section-rule" id="transparency" data-live-stats>
+    <div class="container-page">
+      <SectionHead
+        index="04"
+        eyebrow={lang === 'th' ? 'ความโปร่งใสแบบเรียลไทม์' : 'Live transparency'}
+        title={lang === 'th' ? 'ข้อมูลเรียลไทม์ที่อ่านโดยตรงจาก ThaiFi' : 'Live data read directly from ThaiFi.'}
+        description={
+          lang === 'th'
+            ? 'จำนวนโทเคน การไถ่ถอน และการกระจายข้ามเชน ตรวจสอบโดยตรงจาก ThaiFi และบล็อกเชนสาธารณะ ทุกข้อมูลมีที่อยู่สัญญาและ explorer ให้ตรวจสอบได้'
+            : 'Pool supply, retirements and bridged balances, read directly from ThaiFi and public chains.'
+        }
+      >
+        <a class="link-arrow" href={l('data')}>
+          {lang === 'th' ? 'ดูแดชบอร์ดฉบับเต็ม' : 'Open the full dashboard'}
+          <ArrowRight size={14} stroke-width={2} aria-hidden="true" />
+        </a>
+      </SectionHead>
+
+      <div class="dash-strip">
+        <div class="dash-cell">
+          <span class="kpi-label">{lang === 'th' ? 'จำนวนพูลโทเคน' : 'Pool token supply'}</span>
+          <div class="kpi-value">
+            <span data-stat="pool" data-stat-format="full">-</span>
+            <span style="font-size: 14px;color:var(--ink-3);font-family:var(--font-data)">REC</span>
+          </div>
+          <span class="delta">{lang === 'th' ? 'ThaiFi · chain 17' : 'ThaiFi · chain 17'}</span>
+        </div>
+        <div class="dash-cell">
+          <span class="kpi-label">{lang === 'th' ? 'ไถ่ถอนแล้วทั้งหมด' : 'Total retired'}</span>
+          <div class="kpi-value">
+            <span data-stat="retired" data-stat-format="full">-</span>
+            <span style="font-size: 14px;color:var(--ink-3);font-family:var(--font-data)">REC</span>
+          </div>
+          <span class="delta">{lang === 'th' ? 'เผาถาวร · ย้อนกลับไม่ได้' : 'Burned · irreversible'}</span>
+        </div>
+        <div class="dash-cell">
+          <span class="kpi-label">{lang === 'th' ? 'โทเคนรายโครงการ' : 'Project tokens'}</span>
+          <div class="kpi-value">
+            <span data-stat="project-supply" data-stat-format="compact">-</span>
+          </div>
+          <span class="delta">
+            <span data-stat="project-count" data-stat-format="int">{snapshotCount}</span>
+            {lang === 'th' ? ' โครงการ' : ' projects'}
+          </span>
+        </div>
+        <div class="dash-cell">
+          <span class="kpi-label">{lang === 'th' ? 'จำนวนโทเคนที่โอนข้ามเชน' : 'Bridged out'}</span>
+          <div class="kpi-value">
+            <span data-stat="bridged-total" data-stat-format="compact">-</span>
+          </div>
+          <span class="delta">Optimism + Kubchain</span>
+        </div>
+      </div>
+
+      <div class="registry-block">
+        <div class="registry-head">
+          <h3 class="h3">{lang === 'th' ? 'ทะเบียนสัญญาที่ใช้งาน' : 'Active contract registry'}</h3>
+          <span class="chip"><span class="dot"></span>{lang === 'th' ? 'ตรวจสอบบนเชน' : 'Verified on-chain'}</span>
+        </div>
+        <div class="contract-list">
+          <div class="contract-row">
+            <span class="contract-label">{lang === 'th' ? 'พูลโทเคน · ThaiFi' : 'Pool token · ThaiFi'}</span>
+            <a class="address" href={`${CHAINS.thaifi.explorer}/address/${CONTRACTS.poolThaiFi}`} target="_blank" rel="noopener noreferrer">
+              {CONTRACTS.poolThaiFi}
+            </a>
+            <button type="button" class="copy-btn" data-copy={CONTRACTS.poolThaiFi} aria-label={t('common.copy', lang)} title={t('common.copy', lang)}>
+              <Icon name="Copy" size={14} />
+            </button>
+          </div>
+          <div class="contract-row">
+            <span class="contract-label">{lang === 'th' ? 'โทเคนไถ่ถอน · ThaiFi' : 'Retired token · ThaiFi'}</span>
+            <a class="address" href={`${CHAINS.thaifi.explorer}/address/${CONTRACTS.retiredToken}`} target="_blank" rel="noopener noreferrer">
+              {CONTRACTS.retiredToken}
+            </a>
+            <button type="button" class="copy-btn" data-copy={CONTRACTS.retiredToken} aria-label={t('common.copy', lang)} title={t('common.copy', lang)}>
+              <Icon name="Copy" size={14} />
+            </button>
+          </div>
+          <div class="contract-row">
+            <span class="contract-label">{lang === 'th' ? 'พูลโทเคน · Optimism' : 'Pool token · Optimism'}</span>
+            <a class="address" href={`${CHAINS.optimism.explorer}/token/${CONTRACTS.poolOptimism}`} target="_blank" rel="noopener noreferrer">
+              {CONTRACTS.poolOptimism}
+            </a>
+            <button type="button" class="copy-btn" data-copy={CONTRACTS.poolOptimism} aria-label={t('common.copy', lang)} title={t('common.copy', lang)}>
+              <Icon name="Copy" size={14} />
+            </button>
+          </div>
+          <div class="contract-row">
+            <span class="contract-label">{lang === 'th' ? 'พูลโทเคน · Kubchain' : 'Pool token · Kubchain'}</span>
+            <a class="address" href={`${CHAINS.kubchain.explorer}/address/${CONTRACTS.poolKubchain}`} target="_blank" rel="noopener noreferrer">
+              {shortAddress(CONTRACTS.poolKubchain)}
+            </a>
+            <button type="button" class="copy-btn" data-copy={CONTRACTS.poolKubchain} aria-label={t('common.copy', lang)} title={t('common.copy', lang)}>
+              <Icon name="Copy" size={14} />
+            </button>
+          </div>
+        </div>
+        <p class="registry-note">
+          <span data-stat="updated">{lang === 'th' ? 'กำลังอ่านข้อมูลจากเชน…' : 'Reading chain…'}</span>
+          <span>·</span>
+          <a href={l('token')}>{lang === 'th' ? 'ทะเบียนสัญญาฉบับเต็ม' : 'Full contract registry'}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== PROJECTS ============================== -->
+  <section class="section section-rule" id="projects">
+    <div class="container-page">
+      <SectionHead
+        index="05"
+        eyebrow={lang === 'th' ? 'โครงการ' : 'Tokenised projects'}
+        title={lang === 'th' ? 'โครงการพลังน้ำที่ตรวจสอบได้รายโครงการ' : 'Hydropower, project by project.'}
+        description={
+          lang === 'th'
+            ? 'ใบรับรองจากโครงการพลังน้ำในเอเชียตะวันออกเฉียงใต้เป็นสินทรัพย์อ้างอิงของ Central Pool แต่ละโครงการมีรหัส I-REC และลิงก์สำหรับตรวจสอบแหล่งกำเนิด'
+            : 'Southeast Asian hydropower projects backing the Central Pool. Every project has an I-REC project ID and a REDEX origin-check link.'
+        }
+      >
+        <a class="link-arrow" href={l('projects')}>
+          {lang === 'th' ? 'ดูทั้ง 12 โครงการ' : 'All 12 projects'}
+          <ArrowRight size={14} stroke-width={2} aria-hidden="true" />
+        </a>
+      </SectionHead>
+
+      <div class="project-chart reveal">
+        <div class="project-chart-head">
+          <div>
+            <span class="kpi-label">{lang === 'th' ? 'โครงการตามจังหวัด' : 'Projects by province'}</span>
+            <strong>{snapshotCount} {lang === 'th' ? 'โครงการ · เวียดนาม' : 'projects · Vietnam'}</strong>
+          </div>
+          <span class="chip">I-REC · 2024</span>
+        </div>
+        <div class="province-bars">
+          {provinceCounts.map(([province, count], i) => (
+            <div class="province-row">
+              <span class="province-name">{province}</span>
+              <span class="province-track">
+                <span class="province-fill" style={`--w:${(count / maxProvince) * 100}%;--i:${i}`}></span>
+              </span>
+              <span class="province-count">{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="project-grid">
+        {procurement.projects.slice(0, 3).map((project) => (
+          <a class="project-card" href={l('projects')}>
+            <div class="project-card-top">
+              <h3>{project.name}</h3>
+              <span class="chip">{project.projectId}</span>
+            </div>
+            <div class="meta">
+              <span><b>{lang === 'th' ? 'ที่ตั้ง' : 'Location'}</b> {project.province}, {lang === 'th' && project.country === 'Vietnam' ? 'เวียดนาม' : project.country}</span>
+              <span><b>{lang === 'th' ? 'วินเทจ' : 'Vintage'}</b> {project.vintage}</span>
+            </div>
+            <div class="meta" style="margin-top:5px">
+              <span><b>{lang === 'th' ? 'ประเภท' : 'Type'}</b> {lang === 'th' && project.technology === 'Hydro-electric' ? 'พลังน้ำ' : project.technology}</span>
+              <span><b>{lang === 'th' ? 'มาตรฐาน' : 'Standard'}</b> I-REC</span>
+            </div>
+            <div class="project-card-foot">
+              <span class="project-supply">
+                {formatNumber(Number(project.supplySnapshot), lang, { maximumFractionDigits: 2 })}
+                <small>REC · {lang === 'th' ? 'จำนวนโทเคนรวม' : 'total supply'}</small>
+              </span>
+              <span class="project-open" aria-hidden="true"><ArrowRight size={15} stroke-width={2} /></span>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <p class="home-project-note">
+        <Icon name="Info" size={14} />
+        <span>
+          {lang === 'th'
+            ? 'หน้ารายละเอียดโครงการอ่านจำนวนโทเคนจาก ThaiFi แบบเรียลไทม์ ส่วนค่าที่แสดงบนหน้านี้เป็นข้อมูล ณ วันที่ 16 พ.ย. 2026'
+            : 'Supply is read live from ThaiFi on the project pages. Values shown here are a snapshot dated 16 Nov 2026.'}
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================== STANDARDS ============================== -->
+  <section class="section section-rule" id="frameworks">
+    <div class="container-page">
+      <SectionHead
+        index={STANDARDS.index}
+        eyebrow={pick(STANDARDS.eyebrow, lang)}
+        title={pick(STANDARDS.title, lang)}
+        description={pick(STANDARDS.lede, lang)}
+      >
+        <a class="link-arrow" href={l('compliance/claims')}>
+          {lang === 'th' ? 'ดูตารางสิทธิ์ตามแต่ละกรอบ' : 'Framework eligibility table'}
+          <ArrowRight size={14} stroke-width={2} aria-hidden="true" />
+        </a>
+      </SectionHead>
+
+      <div class="framework-list">
+        {STANDARDS.items.map((item, i) => (
+          <div class="framework-row reveal" style={`--i:${i}`}>
+            <span class="framework-dot" aria-hidden="true"></span>
+            <span class="framework-index">0{i + 1}</span>
+            <span class="framework-name">{item.name}</span>
+            <span class="framework-note">{pick(item.note, lang)}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="callout callout-info" style="margin-top:24px">
+        <Icon name="Info" size={18} />
+        <p>
+          <strong>{lang === 'th' ? 'REC ไม่ใช่คาร์บอนเครดิต' : 'A REC is not a carbon credit.'}</strong>{' '}
+          {lang === 'th'
+            ? 'REC แสดงถึงการผลิตไฟฟ้าจากพลังงานหมุนเวียน 1 MWh และรองรับการรายงาน Scope 2 ส่วนคาร์บอนเครดิตและเครดิต T-VER แสดงถึงการลดหรือกักเก็บก๊าซเรือนกระจก โดย REC Token มี I-REC เป็นสินทรัพย์อ้างอิงเท่านั้น'
+            : 'A REC represents 1 MWh of renewable electricity and supports Scope 2. Carbon credits and T-VER credits represent greenhouse-gas reductions or removals. REC Tokens are backed exclusively by I-RECs.'}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== WHY ============================== -->
+  <section class="section section-rule" id="why">
+    <div class="container-page">
+      <SectionHead
+        index={WHY.index}
+        eyebrow={pick(WHY.eyebrow, lang)}
+        title={pick(WHY.title, lang)}
+      />
+      <div class="why-split">
+        <div class="why-visual reveal" aria-hidden="true">
+          <div class="why-ring">
+            <span class="why-center">1:1</span>
+            <span class="why-orbit-dot"></span>
+          </div>
+          <span class="why-label why-label-1">I-REC</span>
+          <span class="why-label why-label-2">1 MWh</span>
+          <span class="why-label why-label-3">{lang === 'th' ? 'ล็อกแล้ว' : 'Locked'}</span>
+        </div>
+        <div class="why-list">
+          {WHY.cards.map((card, i) => (
+            <article class="why-item reveal" style={`--i:${i}`}>
+              <div class="icon-box"><Icon name={card.icon} size={19} /></div>
+              <div>
+                <h3>{pick(card.title, lang)}</h3>
+                <p>{pick(card.body, lang)}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== USER STEPS ============================== -->
+  <section class="section section-rule" id="participate">
+    <div class="container-page">
+      <SectionHead
+        index={USER_STEPS.index}
+        eyebrow={pick(USER_STEPS.eyebrow, lang)}
+        title={pick(USER_STEPS.title, lang)}
+      />
+      <div class="steps-path">
+        {USER_STEPS.steps.map((step, i) => (
+          <div class="step-node reveal" style={`--i:${i}`}>
+            <span class="step-bubble">
+              <Icon name={['Wallet', 'Coins', 'ArrowLeftRight', 'Recycle'][i] || 'CircleHelp'} size={19} />
+            </span>
+            <span class="step-index">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{pick(step.title, lang)}</h3>
+            <p>{pick(step.body, lang)}</p>
+            {i === 0 && <a class="link-arrow" href={l('wallet')}>{lang === 'th' ? 'เชื่อมต่อกระเป๋า' : 'Connect a wallet'}<ArrowRight size={13} stroke-width={2} /></a>}
+            {i === 1 && <a class="link-arrow" href={l('trade')}>{lang === 'th' ? 'ไปที่หน้าซื้อขาย' : 'Go to swap'}<ArrowRight size={13} stroke-width={2} /></a>}
+            {i === 3 && <a class="link-arrow" href={l('redeem')}>{lang === 'th' ? 'เริ่มแลกคืน' : 'Start a redemption'}<ArrowRight size={13} stroke-width={2} /></a>}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== DOCUMENTS ============================== -->
+  <section class="section section-rule" id="documents">
+    <div class="container-page">
+      <SectionHead
+        index="09"
+        eyebrow={lang === 'th' ? 'เอกสาร' : 'Documents'}
+        title={lang === 'th' ? 'เอกสารหลักและการเปิดเผยข้อมูล' : 'Primary documents and disclosures.'}
+        description={
+          lang === 'th'
+            ? 'เริ่มจากไวท์เปเปอร์ แล้วศึกษารายงานรายเดือน ประกาศ และเอกสารทางกฎหมายเพิ่มเติม'
+            : 'Start with the whitepaper, then check the monthly reports, announcements and legal documents.'
+        }
+      >
+        <a class="link-arrow" href={l('documents')}>
+          {lang === 'th' ? 'คลังเอกสารทั้งหมด' : 'Full document library'}
+          <ArrowRight size={14} stroke-width={2} aria-hidden="true" />
+        </a>
+      </SectionHead>
+
+      <div class="doc-grid">
+        {docs.map((doc, i) => (
+          <a class="doc-card reveal" href={doc.href} style={`--i:${i}`}>
+            <div class="doc-card-top">
+              <div class="icon-box"><Icon name={doc.icon} size={18} /></div>
+              <span class="doc-serial">{String(i + 1).padStart(2, '0')}</span>
+              <span class="chip">{doc.meta}</span>
+            </div>
+            <h3>{doc.title}</h3>
+            <p>{doc.body}</p>
+            <span class="link-arrow">
+              {lang === 'th' ? 'เปิด' : 'Open'}
+              <ArrowRight size={13} stroke-width={2} aria-hidden="true" />
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== CTA ============================== -->
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="cta-band">
+        <p class="eyebrow" style="color:var(--band-ink-2)">{lang === 'th' ? 'เริ่มต้น' : 'Start here'}</p>
+        <h2 class="display-sm" style="margin-top:14px">{pick(CTA.title, lang)}</h2>
+        <p>{pick(CTA.body, lang)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-inverse btn-lg" href={l('whitepaper')}>
+            {lang === 'th' ? 'อ่านไวท์เปเปอร์' : 'Download the whitepaper'}
+            <ArrowRight size={16} stroke-width={2} aria-hidden="true" />
+          </a>
+          <a class="btn btn-secondary btn-lg" href={l('compliance/risk')}>
+            {lang === 'th' ? 'อ่านปัจจัยความเสี่ยง' : 'Read risk factors'}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lifecycle { position: relative; }
+  .lifecycle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 18%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--brand), transparent);
+    animation: lifecycle-scan 7s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+  @keyframes lifecycle-scan {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(660%); }
+  }
+  .lifecycle-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .lifecycle-icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--brand);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .lifecycle-step:hover .lifecycle-icon {
+    background: var(--brand-soft);
+    border-color: color-mix(in srgb, var(--brand) 35%, transparent);
+  }
+  .lifecycle-num { margin-bottom: 0; }
+
+  .project-chart {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 40px);
+    align-items: center;
+    margin-bottom: 22px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background:
+      radial-gradient(360px circle at 6% 0%, var(--brand-soft), transparent 62%),
+      linear-gradient(110deg, var(--surface), var(--surface-2));
+  }
+  .project-chart-head { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .project-chart-head > div { display: flex; flex-direction: column; gap: 6px; }
+  .project-chart-head strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 620;
+    letter-spacing: -0.025em;
+    line-height: 1.3;
+  }
+  .province-bars { display: grid; gap: 9px; }
+  .province-row {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) 30px;
+    gap: 10px;
+    align-items: center;
+  }
+  .province-name {
+    font-size: 1rem;
+    color: var(--ink-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .province-track {
+    height: 9px;
+    border-radius: 999px;
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+  .province-fill {
+    display: block;
+    width: var(--w);
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+    transform-origin: left;
+    animation: bar-grow 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+  .province-count {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink-3);
+    text-align: right;
+  }
+  @keyframes bar-grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  @media (max-width: 760px) {
+    .project-chart { grid-template-columns: 1fr; gap: 18px; }
+    .province-row { grid-template-columns: 130px minmax(0, 1fr) 24px; }
+  }
+
+  .asset-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+  }
+  @media (max-width: 900px) { .asset-split { grid-template-columns: 1fr; gap: 32px; } }
+
+  .asset-visual {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 480px;
+    padding: 32px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(380px circle at 18% 10%, var(--brand-soft), transparent 62%),
+      linear-gradient(160deg, var(--surface), var(--surface-2));
+    overflow: hidden;
+  }
+  .asset-visual::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 78%);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .asset-visual-glow {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--brand-glow, var(--brand-soft)), transparent 68%);
+    filter: blur(14px);
+    opacity: 0.8;
+  }
+  .certificate {
+    position: relative;
+    z-index: 1;
+    width: min(330px, 92%);
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+    transform: rotate(-2.5deg);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
+  }
+  .certificate::after {
+    content: '';
+    position: absolute;
+    top: 14px;
+    bottom: 14px;
+    right: 10px;
+    width: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, var(--brand), transparent);
+    opacity: 0.55;
+  }
+  .asset-visual:hover .certificate {
+    transform: rotate(0) translateY(-4px);
+    box-shadow: 0 34px 70px -34px rgba(10, 18, 32, 0.45);
+  }
+  .certificate-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .certificate-label {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    color: var(--brand);
+  }
+  .certificate-seal {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+  .certificate-title {
+    margin-top: 18px;
+    font-family: var(--font-display);
+    font-size: 1.18rem;
+    font-weight: 640;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+  }
+  .certificate-rows { display: grid; gap: 7px; margin-top: 16px; }
+  .certificate-rows div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .certificate-rows span {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .certificate-rows strong { font-size: 1rem; color: var(--ink); }
+  .certificate-code {
+    margin-top: 14px;
+    font-family: var(--font-data);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    color: var(--ink-3);
+  }
+  .asset-connector {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 58px;
+    width: 100%;
+  }
+  .connector-line {
+    width: 1px;
+    flex: 1;
+    background-image: linear-gradient(to bottom, var(--brand) 50%, transparent 50%);
+    background-size: 1px 8px;
+    animation: connector-flow 1.2s linear infinite;
+  }
+  .connector-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--brand);
+    white-space: nowrap;
+  }
+  @keyframes connector-flow { to { background-position-y: 8px; } }
+  .asset-token {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 16px;
+    border: 1px solid color-mix(in srgb, var(--brand) 32%, transparent);
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow-md);
+  }
+  .asset-token-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 5px var(--brand-soft);
+    animation: pulse-dot 2.2s ease-in-out infinite;
+  }
+  .asset-token strong { display: block; font-size: 1.05rem; letter-spacing: -0.02em; }
+  .asset-token small { display: block; font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); }
+
+  .asset-layers { border-top: 1px solid var(--line); }
+  .asset-layer {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 16px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .asset-layer-no { padding-top: 4px; font-family: var(--font-mono); font-size: 14px; color: var(--brand); }
+  .asset-layer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .asset-layer h3 { font-size: 1.05rem; letter-spacing: -0.025em; }
+  .asset-layer p { margin-top: 7px; font-size: 1rem; line-height: 1.65; color: var(--ink-3); }
+  @media (max-width: 520px) {
+    .asset-layer-head { align-items: flex-start; flex-direction: column; gap: 6px; }
+  }
+
+  .compare-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: start;
+    margin-top: 20px;
+    padding: clamp(22px, 3vw, 34px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  @media (max-width: 860px) { .compare-panel { grid-template-columns: 1fr; } }
+  .compare-note {
+    margin-top: 10px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink-3);
+    max-width: 40ch;
+  }
+  .compare-table table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+  .compare-table th {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: left;
+    padding: 0 10px 8px 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .compare-table td {
+    padding: 10px 10px 10px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-3);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .compare-table tr:last-child td { border-bottom: 0; }
+  .compare-table td:first-child {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-3);
+    white-space: nowrap;
+    width: 92px;
+  }
+  .compare-table td:nth-child(2) strong { color: var(--ink); font-weight: 560; }
+  @media (max-width: 560px) {
+    .compare-panel { padding: 18px 16px; }
+    .compare-table { overflow-x: auto; }
+    .compare-table table { font-size: 14px; }
+    .compare-table th { font-size: 14px; letter-spacing: 0.05em; padding-right: 6px; }
+    .compare-table td { padding: 9px 6px 9px 0; }
+    .compare-table td:first-child { width: 74px; white-space: normal; }
+  }
+
+  .reg-short {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+
+  .evidence-chain {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .evidence-node {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .evidence-node svg { color: var(--brand); }
+  .evidence-link {
+    position: relative;
+    flex: 1;
+    min-width: 20px;
+    height: 1px;
+    background: repeating-linear-gradient(to right, var(--line-strong) 0 3px, transparent 3px 6px);
+    overflow: hidden;
+  }
+  .evidence-link::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -20%;
+    width: 20%;
+    height: 3px;
+    background: linear-gradient(to right, transparent, var(--brand), transparent);
+    animation: evidence-flow 2.6s linear infinite;
+  }
+  .evidence-link:nth-of-type(2)::after { animation-delay: 1.3s; }
+  @keyframes evidence-flow {
+    to { left: 110%; }
+  }
+
+  .registry-block {
+    margin-top: 28px;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .registry-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .contract-list { border-top: 1px solid var(--line); }
+  .contract-row { border-bottom: 1px solid var(--line); }
+  .contract-row:last-child { border-bottom: 0; }
+  .registry-note {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .registry-note a { color: var(--brand); }
+
+  .framework-list { border-top: 1px solid var(--line-strong); }
+  .framework-row {
+    display: grid;
+    grid-template-columns: 10px 40px minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 6px;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.25s ease, padding-left 0.25s ease;
+  }
+  .framework-row:hover { background: var(--surface-2); padding-left: 14px; }
+  .framework-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+    transition: transform 0.25s ease;
+  }
+  .framework-row:hover .framework-dot { transform: scale(1.35); }
+  .framework-index { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); }
+  .framework-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+    font-weight: 640;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .framework-note { font-size: 1rem; color: var(--ink-3); text-align: right; }
+  @media (max-width: 700px) {
+    .framework-row { grid-template-columns: 10px 34px minmax(0, 1fr); gap: 12px; }
+    .framework-note { grid-column: 3; text-align: left; margin-top: -4px; }
+  }
+
+  .why-split {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+  }
+  .why-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 360px;
+  }
+  .why-ring {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 280px;
+    height: 280px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--brand-soft), transparent 68%);
+  }
+  .why-ring::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+  .why-ring::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border: 1px solid transparent;
+    border-top-color: var(--brand);
+    border-right-color: color-mix(in srgb, var(--brand) 35%, transparent);
+    border-radius: 50%;
+    animation: spin 7s linear infinite;
+  }
+  .why-center {
+    font-family: var(--font-display);
+    font-size: 4.6rem;
+    font-weight: 720;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    background: var(--gradient-headline);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .why-orbit-dot {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 5px var(--brand-soft);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+  .why-label {
+    position: absolute;
+    padding: 6px 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    color: var(--ink-2);
+    animation: float-y 5s ease-in-out infinite;
+  }
+  .why-label-1 { top: 26px; right: 2%; }
+  .why-label-2 { bottom: 46px; left: 0; animation-delay: 0.8s; }
+  .why-label-3 { bottom: 10px; right: 8%; animation-delay: 1.6s; }
+  .why-list { border-top: 1px solid var(--line); }
+  .why-item {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 16px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .why-item .icon-box {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+  .why-item h3 { font-size: 1.08rem; letter-spacing: -0.025em; }
+  .why-item p { margin-top: 6px; font-size: 1rem; line-height: 1.65; color: var(--ink-3); }
+  @media (max-width: 900px) {
+    .why-split { grid-template-columns: 1fr; gap: 28px; }
+    .why-visual { min-height: 300px; }
+    .why-ring { width: 230px; height: 230px; }
+    .why-center { font-size: 3.6rem; }
+  }
+
+  .steps-path {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    padding-top: 6px;
+  }
+  .steps-path::before {
+    content: '';
+    position: absolute;
+    top: 29px;
+    left: 20px;
+    right: calc(25% - 20px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line-strong) 12%, var(--brand) 50%, var(--line-strong) 88%, transparent);
+  }
+  .step-node {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 0 24px 24px 0;
+  }
+  .step-bubble {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--brand);
+    box-shadow: 0 0 0 6px var(--paper);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  }
+  .step-node:hover .step-bubble {
+    background: var(--brand);
+    color: var(--ink-inverse);
+    border-color: var(--brand);
+    transform: translateY(-2px) scale(1.04);
+  }
+  .step-index { font-family: var(--font-mono); font-size: 14px; color: var(--brand); }
+  .step-node h3 { font-size: 1.05rem; letter-spacing: -0.025em; }
+  .step-node p { font-size: 1rem; line-height: 1.65; color: var(--ink-3); }
+  .step-node .link-arrow { margin-top: auto; padding-top: 8px; }
+  @media (max-width: 900px) {
+    .steps-path { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
+    .steps-path::before { display: none; }
+    .step-bubble { box-shadow: none; }
+  }
+  @media (max-width: 560px) {
+    .steps-path { grid-template-columns: 1fr; }
+  }
+
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 700px) { .doc-grid { grid-template-columns: 1fr; } }
+  .doc-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 190px;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--doc-accent, var(--brand));
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    overflow: hidden;
+    transition: border-color 0.25s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease;
+  }
+  .doc-card:nth-child(1) { --doc-accent: var(--brand); }
+  .doc-card:nth-child(2) { --doc-accent: var(--info); }
+  .doc-card:nth-child(3) { --doc-accent: var(--warning); }
+  .doc-card:nth-child(4) { --doc-accent: #a78bfa; }
+  .doc-card::after {
+    content: '';
+    position: absolute;
+    right: -46px;
+    bottom: -46px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--doc-accent, var(--brand)), transparent 70%);
+    opacity: 0.09;
+    pointer-events: none;
+  }
+  .doc-card:hover {
+    border-color: var(--doc-accent, var(--brand));
+    transform: translateY(-3px) rotate(-0.2deg);
+    box-shadow: var(--shadow-md);
+  }
+  .doc-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .doc-serial {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink-3);
+    opacity: 0.6;
+  }
+  .doc-card .icon-box {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--doc-accent, var(--brand)) 12%, transparent);
+    color: var(--doc-accent, var(--brand));
+  }
+  .doc-card h3 { font-size: 1.05rem; line-height: 1.3; }
+  .doc-card p { font-size: 1rem; line-height: 1.65; color: var(--ink-3); }
+  .doc-card .link-arrow { margin-top: auto; padding-top: 16px; }
+
+  .home-project-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    margin-top: 14px;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-3);
+  }
+  .home-project-note svg { flex-shrink: 0; margin-top: 2px; }
+</style>

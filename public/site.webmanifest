@@ -1,0 +1,18 @@
+{
+  "name": "RECTOKEN by BlockEdge",
+  "short_name": "RECTOKEN",
+  "description": "ใบรับรองพลังงานหมุนเวียนที่ทวนสอบแล้ว แปลงเป็นโทเคนบนบล็อกเชน",
+  "lang": "th",
+  "start_url": "/th/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

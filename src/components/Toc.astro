@@ -1,0 +1,30 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import type { Locale } from '@i18n/utils';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description?: string;
+  items: Array<{ id: string; label: string; sub?: boolean }>;
+}
+
+const { locale, title, description, items } = Astro.props;
+---
+
+<aside class="rail" data-toc aria-label={title}>
+  <p class="rail-title">{title}</p>
+  {description && <p class="rail-desc">{description}</p>}
+  {items.map((item) => (
+    <a href={`#${item.id}`} class:list={[item.sub && 'sub']}>{item.label}</a>
+  ))}
+</aside>
+
+<style>
+  .rail-desc {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-3);
+    margin-bottom: 14px;
+  }
+</style>

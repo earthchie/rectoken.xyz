@@ -1,0 +1,30 @@
+---
+interface Props {
+  href?: string;
+  showText?: boolean;
+  sub?: string;
+  class?: string;
+}
+
+const { href, showText = true, sub = 'by BlockEdge', class: className = '' } = Astro.props;
+const Tag = href ? 'a' : 'span';
+---
+
+<Tag href={href} class:list={['brand', className]} aria-label={href ? 'RECTOKEN home' : undefined}>
+  <svg class="brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <path
+      d="M18.9 2.3 7.1 18.2h5.8l-.7 11.5L24.4 13.7h-6l.5-11.4Z"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linejoin="round"
+    />
+    <path d="M7.4 18.2h5.5" stroke="var(--accent)" stroke-width="1.7" stroke-linecap="round" />
+    <circle cx="24.3" cy="13.7" r="1.5" fill="var(--accent)" />
+  </svg>
+  {showText && (
+    <span class="brand-text">
+      <span class="brand-name">RECTOKEN</span>
+      <span class="brand-sub">{sub}</span>
+    </span>
+  )}
+</Tag>

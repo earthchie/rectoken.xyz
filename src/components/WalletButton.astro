@@ -1,0 +1,69 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Wallet, LogOut, LayoutDashboard, SearchCheck, ExternalLink } from '@lucide/astro';
+import { t, type Locale } from '@i18n/utils';
+
+interface Props {
+  locale: Locale;
+  full?: boolean;
+}
+const { locale, full = false } = Astro.props;
+
+const walletHref = getRelativeLocaleUrl(locale, 'wallet');
+const dataHref = getRelativeLocaleUrl(locale, 'data');
+const checkHref = getRelativeLocaleUrl(locale, 'check');
+---
+
+<div
+  class:list={['wallet-root', full && 'wallet-root-full']}
+  data-wallet-root
+  data-label-connect={t('wallet.connect', locale)}
+  data-label-connecting={t('wallet.connecting', locale)}
+  data-label-disconnect={t('wallet.disconnect', locale)}
+>
+  <button
+    type="button"
+    class="wallet-btn"
+    data-wallet-toggle
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    <Wallet size={14} stroke-width={1.8} aria-hidden="true" />
+    <span data-wallet-label>{t('wallet.connect', locale)}</span>
+    <span class="wallet-dot" data-wallet-dot hidden aria-hidden="true"></span>
+  </button>
+
+  <div class="wallet-menu" data-wallet-menu data-open="false" role="menu">
+    <div class="wallet-menu-meta" data-wallet-full>-</div>
+    <a href={walletHref} role="menuitem">
+      <Wallet size={14} stroke-width={1.8} aria-hidden="true" />
+      {t('wallet.wallet', locale)}
+    </a>
+    <a href={dataHref} role="menuitem">
+      <LayoutDashboard size={14} stroke-width={1.8} aria-hidden="true" />
+      {locale === 'th' ? 'แดชบอร์ดเรียลไทม์' : 'Dashboard'}
+    </a>
+    <a href={checkHref} role="menuitem">
+      <SearchCheck size={14} stroke-width={1.8} aria-hidden="true" />
+      {locale === 'th' ? 'ตรวจสอบที่อยู่' : 'Verify an address'}
+    </a>
+    <button type="button" class="danger" data-wallet-disconnect role="menuitem">
+      <LogOut size={14} stroke-width={1.8} aria-hidden="true" />
+      {t('wallet.disconnect', locale)}
+    </button>
+  </div>
+</div>
+
+<style>
+  .wallet-root { position: relative; }
+  .wallet-root-full { width: 100%; }
+  .wallet-root-full .wallet-btn { width: 100%; justify-content: center; }
+  .wallet-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+  }
+  .wallet-root-full .wallet-menu { left: 0; right: auto; min-width: 100%; }
+</style>

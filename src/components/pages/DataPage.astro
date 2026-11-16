@@ -1,0 +1,349 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { RefreshCw, ArrowRight, Activity, Database, ShieldCheck, Clock } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import SectionHead from '@components/SectionHead.astro';
+import ContractTable from '@components/ContractTable.astro';
+import Icon from '@components/Icon.astro';
+import { SITE, CONTRACTS, CHAINS } from '@data/site';
+import { t, type Locale } from '@i18n/utils';
+import { formatNumber } from '@utils/format';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+
+const labels = {
+  title: lang === 'th' ? 'แดชบอร์ดเรียลไทม์เพื่อความโปร่งใส' : 'Live transparency dashboard',
+  lede:
+    lang === 'th'
+      ? 'จำนวนโทเคน ยอดไถ่ถอน และยอดที่โอนข้ามเชน อ่านโดยตรงจาก ThaiFi และเชนสาธารณะ ทุกค่ามีที่อยู่สัญญาและเครื่องมือสำรวจบล็อกเชนให้ตรวจสอบต่อได้'
+      : 'Supply, retirements and bridged balances read directly from ThaiFi and public chains. Every value has a contract address and an explorer to verify it.',
+  source:
+    lang === 'th'
+      ? 'ข้อมูลอ่านจาก RPC สาธารณะขณะโหลดหน้า และสถานะบนเชนอาจเปลี่ยนไปเมื่อคุณอ่าน ข้อมูลนี้เป็นภาพ ณ ช่วงเวลาหนึ่ง ไม่ได้อัปเดตอย่างต่อเนื่อง'
+      : 'Values are read from public RPC at page load and may change between your read and the chain state. This is a point-in-time snapshot, not a streaming feed.',
+};
+
+const chains = [
+  {
+    name: 'ThaiFi',
+    id: lang === 'th' ? 'เชน 17' : 'chain 17',
+    role: lang === 'th' ? 'การออก การไถ่ถอน และพูลหลัก' : 'Primary issuance, retirement and pool',
+    token: CONTRACTS.poolThaiFi,
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.poolThaiFi}`,
+    native: lang === 'th' ? 'pathUSD (ทศนิยม 6 ตำแหน่ง)' : 'pathUSD (6 decimals)',
+    status: lang === 'th' ? 'ใช้งาน' : 'Active',
+  },
+  {
+    name: 'Optimism',
+    id: lang === 'th' ? 'เชน 10' : 'chain 10',
+    role: lang === 'th' ? 'สภาพคล่องที่โอนข้ามเชนและการแลกเปลี่ยน' : 'Bridged liquidity and swap',
+    token: CONTRACTS.poolOptimism,
+    explorer: `${CHAINS.optimism.explorer}/token/${CONTRACTS.poolOptimism}`,
+    native: 'ETH (18)',
+    status: lang === 'th' ? 'โอนข้ามเชน' : 'Bridged',
+  },
+  {
+    name: 'Kubchain',
+    id: 'Kubchain',
+    role: lang === 'th' ? 'สภาพคล่องที่โอนข้ามเชน' : 'Bridged liquidity',
+    token: CONTRACTS.poolKubchain,
+    explorer: `${CHAINS.kubchain.explorer}/address/${CONTRACTS.poolKubchain}`,
+    native: 'KUB',
+    status: lang === 'th' ? 'โอนข้ามเชน' : 'Bridged',
+  },
+];
+---
+
+<BaseLayout title={labels.title} description={labels.lede} locale={lang} ogImage={`/og/data-${lang}.png`}>
+  <PageHero
+    eyebrow={lang === 'th' ? 'ความโปร่งใส' : 'Transparency'}
+    title={labels.title}
+    description={labels.lede}
+    locale={lang}
+    chips={[lang === 'th' ? 'สด' : 'Live', 'ThaiFi', 'Evident / ReHash', lang === 'th' ? 'ตรวจสอบบนเชน' : 'On-chain']}
+    actions={[
+      { label: lang === 'th' ? 'รีเฟรช' : 'Refresh', href: l('data'), variant: 'primary' },
+      { label: lang === 'th' ? 'โครงการ' : 'Projects', href: l('projects') },
+      { label: lang === 'th' ? 'แอป Pool' : 'Pool app', href: SITE.external.pool, external: true },
+    ] as any}
+  />
+
+  <section class="section-tight" data-live-stats>
+    <div class="container-page">
+      <div class="dash-top">
+        <span class="chip chip-brand"><span class="dot dot-live"></span>{lang === 'th' ? 'อ่านจากเชน' : 'Read from chain'}</span>
+        <span class="dash-updated" data-stat="updated">{lang === 'th' ? 'กำลังอ่านข้อมูลจากเชน…' : 'Reading chain…'}</span>
+      </div>
+
+      <div class="dash-strip">
+        <div class="dash-cell">
+          <span class="kpi-label">{lang === 'th' ? 'จำนวนโทเคนพูล' : 'Pool token supply'}</span>
+          <div class="kpi-value"><span data-stat="pool" data-stat-format="full">-</span></div>
+          <span class="delta">REC · ThaiFi</span>
+        </div>
+        <div class="dash-cell">
+          <span class="kpi-label">{lang === 'th' ? 'ไถ่ถอนแล้วทั้งหมด' : 'Total retired'}</span>
+          <div class="kpi-value"><span data-stat="retired" data-stat-format="full">-</span></div>
+          <span class="delta">{lang === 'th' ? 'เผาถาวร · ย้อนกลับไม่ได้' : 'Burned · irreversible'}</span>
+        </div>
+        <div class="dash-cell">
+          <span class="kpi-label">{lang === 'th' ? 'โทเคนรายโครงการ' : 'Project tokens'}</span>
+          <div class="kpi-value"><span data-stat="project-supply" data-stat-format="compact">-</span></div>
+          <span class="delta"><span data-stat="project-count" data-stat-format="int">12</span> {lang === 'th' ? 'โครงการ' : 'projects'}</span>
+        </div>
+        <div class="dash-cell">
+          <span class="kpi-label">{lang === 'th' ? 'โอนข้ามเชนออก' : 'Bridged out'}</span>
+          <div class="kpi-value"><span data-stat="bridged-total" data-stat-format="compact">-</span></div>
+          <span class="delta">Optimism + Kubchain</span>
+        </div>
+      </div>
+
+      <div class="supply-panel">
+        <div class="supply-head">
+          <div>
+            <span class="kpi-label">{lang === 'th' ? 'สัดส่วนจำนวนโทเคนที่ออก' : 'Supply utilisation'}</span>
+            <p>
+              {lang === 'th'
+                ? 'จำนวนโทเคนที่ออกเทียบกับเพดาน 100,000,000 โทเคน'
+                : 'Issued supply against the 100,000,000 token cap.'}
+            </p>
+          </div>
+          <span class="chip">{lang === 'th' ? `เพดาน ${formatNumber(100_000_000, lang)} REC` : `${formatNumber(100_000_000, lang)} REC cap`}</span>
+        </div>
+        <div class="supply-bar" role="img" aria-label={lang === 'th' ? 'แถบแสดงสัดส่วนจำนวนโทเคน' : 'Supply utilisation bar'}>
+          <span class="supply-fill" data-bar="pool"></span>
+        </div>
+        <div class="supply-legend">
+          <span><span class="legend-dot"></span>{lang === 'th' ? 'จำนวนโทเคนที่ออก' : 'Issued'}</span>
+          <span class="muted">{lang === 'th' ? 'เพดาน 100,000,000' : '100,000,000 cap'}</span>
+        </div>
+      </div>
+
+      <div class="data-grid">
+        <div class="data-card">
+          <div class="data-card-head">
+            <Icon name="Database" size={18} />
+            <h2 class="h3">{lang === 'th' ? 'สิ่งที่ตัวเลขนี้บอก' : 'What the numbers mean'}</h2>
+          </div>
+          <ul class="check-list">
+            <li><ShieldCheck size={15} />{lang === 'th' ? 'จำนวนโทเคนพูลคือจำนวนที่ออกและหมุนเวียน ซึ่งอ่านจาก ThaiFi' : 'Pool token supply is the issued and circulating amount read from ThaiFi.'}</li>
+            <li><ShieldCheck size={15} />{lang === 'th' ? 'ยอดไถ่ถอนอ่านจาก totalSupply ของโทเคนไถ่ถอน ซึ่งเพิ่มเมื่อมีการเผา' : 'Retirements are read from the retired token totalSupply, which increases as tokens are burned.'}</li>
+            <li><ShieldCheck size={15} />{lang === 'th' ? 'จำนวนโทเคนที่โอนข้ามเชน อ่านจากยอดคงเหลือของสัญญาล็อกบน ThaiFi' : 'Bridged balances are read from the lock contract balances on ThaiFi.'}</li>
+            <li><ShieldCheck size={15} />{lang === 'th' ? 'โทเคนรายโครงการคือผลรวมจำนวนโทเคนของสัญญาโครงการที่รู้จัก' : 'Project tokens are the sum of known project token supplies.'}</li>
+          </ul>
+        </div>
+
+        <div class="data-card">
+          <div class="data-card-head">
+            <Icon name="Clock" size={18} />
+            <h2 class="h3">{lang === 'th' ? 'รอบการกระทบยอด' : 'Reconciliation cycle'}</h2>
+          </div>
+          <dl class="evidence-list">
+            <div class="evidence-row">
+              <dt>{lang === 'th' ? 'ความถี่' : 'Frequency'}</dt>
+              <dd>{lang === 'th' ? 'รายไตรมาส' : 'Quarterly'}</dd>
+            </div>
+            <div class="evidence-row">
+              <dt>{lang === 'th' ? 'การเผยแพร่' : 'Publication'}</dt>
+              <dd>{lang === 'th' ? 'ภายใน 7 วันทำการหลังสิ้นรอบ' : 'Within 7 business days of period end'}</dd>
+            </div>
+            <div class="evidence-row">
+              <dt>{lang === 'th' ? 'การทวนสอบ' : 'Assurance'}</dt>
+              <dd>{lang === 'th' ? 'ผู้ตรวจสอบอิสระอาจได้รับการแต่งตั้ง' : 'Independent auditors may be appointed'}</dd>
+            </div>
+          </dl>
+          <a class="link-arrow" href={l('reports')} style="margin-top:16px">
+            {lang === 'th' ? 'ดูรายงาน' : 'View reports'}
+            <ArrowRight size={14} stroke-width={2} />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <SectionHead
+        index="02"
+        eyebrow={lang === 'th' ? 'ทะเบียนสัญญา' : 'Contract registry'}
+        title={lang === 'th' ? 'ตรวจสอบที่อยู่ก่อนใช้งาน' : 'Verify the address before you interact.'}
+        description={lang === 'th' ? 'ที่อยู่ทั้งหมดที่เว็บไซต์อ้างอิง พร้อมเครือข่ายและเครื่องมือสำรวจบล็อกเชน' : 'Every address this site references, with its network and explorer.'}
+      />
+      <div class="registry-panel">
+        <ContractTable lang={lang} />
+      </div>
+      <p class="source-note">
+        <Icon name="Info" size={14} />
+        {lang === 'th'
+          ? 'ไวท์เปเปอร์ v1.0 §1.1 ระบุที่อยู่บน ThaiFi เป็น 0x18c8… ซึ่งต่างจากที่อยู่สัญญาที่ใช้งานอยู่ 0x7269… ทะเบียนนี้แสดงทั้งสองรายการเพื่อความโปร่งใส'
+          : 'Whitepaper v1.0 §1.1 records a ThaiFi address at 0x18c8…, which differs from the active deployment at 0x7269…. Both are listed here for transparency.'}
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <SectionHead
+        index="03"
+        eyebrow={lang === 'th' ? 'หลายเชน' : 'Multi-chain'}
+        title={lang === 'th' ? 'เชนไหนใช้ทำอะไร' : 'Which chain does what.'}
+        description={lang === 'th' ? 'ยอดคงเหลือบนเชนหนึ่งไม่ใช่ยอดบนอีกเชน การโอนข้ามเชนต้องใช้สะพานเชื่อม ไม่ใช่การส่งข้ามเครือข่ายโดยตรง' : 'A balance on one chain is not a balance on another. Cross-chain movement requires a bridge, not a cross-network send.'}
+      />
+      <div class="chain-grid">
+        {chains.map((chain) => (
+          <article class="chain-card">
+            <div class="chain-head">
+              <span class="dot" style="background:var(--brand)"></span>
+              <h3>{chain.name}</h3>
+              <span class="chip">{chain.id}</span>
+            </div>
+            <p>{chain.role}</p>
+            <dl>
+              <div><dt>{lang === 'th' ? 'โทเคน' : 'Token'}</dt><dd class="address">{chain.token}</dd></div>
+              <div><dt>{lang === 'th' ? 'เหรียญหลัก' : 'Native'}</dt><dd>{chain.native}</dd></div>
+              <div><dt>{lang === 'th' ? 'สถานะ' : 'Status'}</dt><dd>{chain.status}</dd></div>
+            </dl>
+            <a class="link-arrow" href={chain.explorer} target="_blank" rel="noopener noreferrer">
+              {lang === 'th' ? 'เปิดเครื่องมือสำรวจบล็อกเชน' : 'Open explorer'}
+              <ArrowRight size={13} stroke-width={2} />
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="cta-band">
+        <p class="eyebrow" style="color:var(--band-ink-2)">{lang === 'th' ? 'ตรวจสอบต่อ' : 'Verify further'}</p>
+        <h2 class="display-sm" style="margin-top:12px" set:html={lang === 'th' ? 'ตรวจสอบหลักฐาน<br />ให้ครบทั้งชุด' : 'Review the full evidence set.'}></h2>
+        <p>
+          {lang === 'th'
+            ? 'อ่านรอบการกระทบยอด รายงานรายเดือน และทะเบียนโครงการ ก่อนสรุป'
+            : 'Read the reconciliation cycle, monthly reports and project registry before drawing a conclusion.'}
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-inverse" href={l('reports')}>{lang === 'th' ? 'รายงานรายเดือน' : 'Monthly reports'}</a>
+          <a class="btn btn-secondary" href={l('compliance/controls')}>{lang === 'th' ? 'การควบคุมและการตรวจสอบ' : 'Controls & audit'}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="container-page source-footnote">{labels.source}</p>
+</BaseLayout>
+
+<style>
+  .dash-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .dash-updated { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); }
+  .supply-panel {
+    margin-top: 16px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .supply-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .supply-head p { margin-top: 4px; font-size: 1rem; color: var(--ink-3); }
+  .supply-bar {
+    height: 8px;
+    margin-top: 18px;
+    border-radius: 999px;
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+  .supply-fill {
+    display: block;
+    height: 100%;
+    width: 1.45%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+    transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .supply-legend {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 9px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .supply-legend > span:first-child { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+
+  .data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media (max-width: 860px) { .data-grid { grid-template-columns: 1fr; } }
+  .data-card {
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .data-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; color: var(--brand); }
+  .data-card-head h2 { color: var(--ink); }
+
+  .registry-panel {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    padding: 4px 20px;
+  }
+  .source-note {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-3);
+    max-width: 88ch;
+  }
+  .source-note svg { flex-shrink: 0; margin-top: 3px; color: var(--warning); }
+
+  .chain-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 900px) { .chain-grid { grid-template-columns: 1fr; } }
+  .chain-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .chain-head { display: flex; align-items: center; gap: 8px; }
+  .chain-head h3 { font-size: 1rem; }
+  .chain-head .chip { margin-left: auto; }
+  .chain-card > p { font-size: 1rem; color: var(--ink-3); }
+  .chain-card dl { display: grid; gap: 8px; margin: 0; }
+  .chain-card dt { font-family: var(--font-mono); font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
+  .chain-card dd { margin: 2px 0 0; font-size: 1rem; color: var(--ink-2); }
+  .chain-card .address { font-size: 1rem; }
+  .chain-card .link-arrow { margin-top: auto; }
+
+  .source-footnote {
+    padding-bottom: 40px;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-3);
+    max-width: 80ch;
+  }
+</style>

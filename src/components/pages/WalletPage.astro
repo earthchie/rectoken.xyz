@@ -1,0 +1,224 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Wallet, RefreshCw, ArrowLeftRight, Plus, ExternalLink, Copy, X, ShieldCheck } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import WalletButton from '@components/WalletButton.astro';
+import Icon from '@components/Icon.astro';
+import { CHAINS, CONTRACTS } from '@data/site';
+import { t, type Locale } from '@i18n/utils';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+---
+
+<BaseLayout
+  title={lang === 'th' ? 'กระเป๋า' : 'Wallet'}
+  description={lang === 'th' ? 'เชื่อมต่อ MetaMask ดูยอด REC และโอนโทเคน' : 'Connect MetaMask, view REC balances and transfer tokens.'}
+  locale={lang}
+>
+  <PageHero
+    eyebrow={lang === 'th' ? 'เข้าร่วม' : 'Participate'}
+    title={lang === 'th' ? 'กระเป๋าของคุณ' : 'Your wallet'}
+    description={lang === 'th' ? 'เชื่อมต่อ MetaMask เพื่ออ่านยอด REC บน ThaiFi, Optimism และ Kubchain และโอนโทเคนระหว่างกระเป๋า' : 'Connect MetaMask to read REC balances on ThaiFi, Optimism and Kubchain, and to transfer tokens between wallets.'}
+    locale={lang}
+    chips={['MetaMask', 'ThaiFi', 'Optimism', 'Kubchain']}
+    actions={[
+      { label: lang === 'th' ? 'ตรวจสอบที่อยู่สาธารณะ' : 'Public address check', href: l('check'), variant: 'secondary' },
+      { label: lang === 'th' ? 'แดชบอร์ด' : 'Dashboard', href: l('data') },
+    ] as any}
+  />
+
+  <section class="section-tight" data-wallet-page data-locale={lang}>
+    <div class="container-page">
+      <div class="wallet-disconnected" data-wallet-disconnected>
+        <div class="wallet-prompt">
+          <div class="wallet-prompt-icon"><Wallet size={24} stroke-width={1.7} /></div>
+          <h2 class="h3">{lang === 'th' ? 'เชื่อมต่อกระเป๋าเพื่อเริ่ม' : 'Connect a wallet to begin.'}</h2>
+          <p>
+            {lang === 'th'
+              ? 'REC Token ใช้ MetaMask หรือกระเป๋า EIP-1193 ที่ติดตั้งในเบราว์เซอร์ การเชื่อมต่อไม่ทำให้เราสามารถเคลื่อนย้ายโทเคนได้'
+              : 'REC Token works with MetaMask or any injected EIP-1193 wallet. Connecting does not give this site permission to move your tokens.'}
+          </p>
+          <div class="wallet-prompt-actions">
+            <WalletButton locale={lang} full />
+            <a class="btn btn-secondary" href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer">
+              {lang === 'th' ? 'ติดตั้ง MetaMask' : 'Install MetaMask'}
+              <ExternalLink size={14} stroke-width={1.9} />
+            </a>
+          </div>
+          <div class="wallet-prompt-note">
+            <ShieldCheck size={14} />
+            {lang === 'th' ? 'การอ่านยอดไม่ต้องมีการเชื่อมต่อ' : 'Reading balances never requires a connection.'}
+          </div>
+        </div>
+      </div>
+
+      <div class="wallet-connected" data-wallet-connected hidden>
+        <div class="wallet-head">
+          <div>
+            <p class="kpi-label">{lang === 'th' ? 'เชื่อมต่อแล้ว' : 'Connected'}</p>
+            <div class="wallet-address-line">
+              <h2 data-wallet-full-address>-</h2>
+              <button type="button" class="copy-btn" data-copy="" data-wallet-copy aria-label={lang === 'th' ? 'คัดลอกที่อยู่กระเป๋า' : 'Copy address'}><Copy size={14} /></button>
+            </div>
+          </div>
+          <div class="wallet-head-actions">
+            <button type="button" class="btn btn-secondary btn-sm" data-wallet-refresh>
+              <RefreshCw size={14} stroke-width={2} />
+              {lang === 'th' ? 'รีเฟรช' : 'Refresh'}
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" data-add-chain>
+              <Plus size={14} stroke-width={2} />
+              {lang === 'th' ? 'เพิ่ม ThaiFi' : 'Add ThaiFi'}
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" data-transfer-open>
+              <ArrowLeftRight size={14} stroke-width={2} />
+              {lang === 'th' ? 'โอน' : 'Transfer'}
+            </button>
+          </div>
+        </div>
+
+        <div class="balance-grid">
+          <div class="balance-card">
+            <span class="kpi-label">{lang === 'th' ? 'REC บน ThaiFi' : 'ThaiFi REC'}</span>
+            <div class="balance-value"><span data-wallet-balance="thaifi">-</span><span class="unit">REC</span></div>
+            <a class="balance-link" data-wallet-explorer="thaifi" href={CHAINS.thaifi.explorer} target="_blank" rel="noopener noreferrer">ThaiFi <ExternalLink size={11} /></a>
+          </div>
+          <div class="balance-card">
+            <span class="kpi-label">{lang === 'th' ? 'เหรียญหลัก ThaiFi' : 'ThaiFi native'}</span>
+            <div class="balance-value"><span data-wallet-balance="native">-</span><span class="unit">pathUSD</span></div>
+            <span class="balance-link muted">{lang === 'th' ? 'ทศนิยม 6 ตำแหน่ง' : '6 decimals'}</span>
+          </div>
+          <div class="balance-card">
+            <span class="kpi-label">{lang === 'th' ? 'REC บน Optimism' : 'Optimism REC'}</span>
+            <div class="balance-value"><span data-wallet-balance="optimism">-</span><span class="unit">REC</span></div>
+            <a class="balance-link" data-wallet-explorer="optimism" href={CHAINS.optimism.explorer} target="_blank" rel="noopener noreferrer">Optimism <ExternalLink size={11} /></a>
+          </div>
+          <div class="balance-card">
+            <span class="kpi-label">{lang === 'th' ? 'REC บน Kubchain' : 'Kubchain REC'}</span>
+            <div class="balance-value"><span data-wallet-balance="kubchain">-</span><span class="unit">REC</span></div>
+            <a class="balance-link" data-wallet-explorer="kubchain" href={CHAINS.kubchain.explorer} target="_blank" rel="noopener noreferrer">Kubchain <ExternalLink size={11} /></a>
+          </div>
+        </div>
+
+        <div class="holdings">
+          <div class="holdings-head">
+            <h3 class="h3">{lang === 'th' ? 'การถือครองรายโครงการ' : 'Project holdings'}</h3>
+            <span class="muted" style="font-size: 1rem">{lang === 'th' ? 'เฉพาะยอดมากกว่าศูนย์' : 'Non-zero balances only'}</span>
+          </div>
+          <div data-wallet-holdings></div>
+          <p class="wallet-empty" data-wallet-holdings-empty hidden>{lang === 'th' ? 'ไม่พบโทเคนรายโครงการในกระเป๋านี้' : 'No project tokens found in this wallet.'}</p>
+        </div>
+
+        <div class="wallet-warning">
+          <Icon name="TriangleAlert" size={15} />
+          <p>
+            {lang === 'th'
+              ? 'ตรวจสอบเครือข่ายก่อนโอนทุกครั้ง การส่งโทเคนบนเครือข่ายผิดหรือไปยังสัญญาผิดอาจทำให้สูญเสียอย่างถาวร'
+              : 'Check the network before every transfer. Sending on the wrong network or to the wrong contract can cause permanent loss.'}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal" data-transfer-modal data-open="false" role="dialog" aria-modal="true" aria-labelledby="transfer-title">
+    <div class="modal-panel" style="max-width:520px" role="document">
+      <div class="modal-head">
+        <div>
+          <p class="kpi-label">{lang === 'th' ? 'โอนโทเคน' : 'Transfer'}</p>
+          <h2 id="transfer-title" class="h3">{lang === 'th' ? 'โอน REC Token' : 'Transfer REC Token'}</h2>
+        </div>
+        <button type="button" class="icon-btn" data-transfer-close aria-label={lang === 'th' ? 'ปิด' : 'Close'}><X size={18} stroke-width={1.8} /></button>
+      </div>
+      <form class="modal-body transfer-form" data-transfer-form>
+        <div class="field">
+          <label class="field-label" for="transfer-network">{lang === 'th' ? 'เครือข่าย' : 'Network'}</label>
+          <select class="select" id="transfer-network" data-transfer-network>
+            <option value="thaifi">{lang === 'th' ? 'ThaiFi (เชน 17)' : 'ThaiFi (chain 17)'}</option>
+            <option value="optimism">{lang === 'th' ? 'Optimism (เชน 10)' : 'Optimism (chain 10)'}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="transfer-recipient">{lang === 'th' ? 'ที่อยู่ผู้รับ' : 'Recipient address'}</label>
+          <input class="input" id="transfer-recipient" data-transfer-recipient placeholder="0x…" spellcheck="false" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="transfer-amount">{lang === 'th' ? 'จำนวนโทเคน (REC)' : 'Amount (REC)'}</label>
+          <input class="input" id="transfer-amount" data-transfer-amount placeholder="0.00" inputmode="decimal" autocomplete="off" />
+        </div>
+        <p class="transfer-error" data-transfer-error hidden></p>
+        <div class="transfer-actions">
+          <button type="button" class="btn btn-secondary" data-transfer-close>{lang === 'th' ? 'ยกเลิก' : 'Cancel'}</button>
+          <button type="submit" class="btn btn-primary" data-transfer-submit>{lang === 'th' ? 'ส่ง' : 'Send'}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initWalletPage } from '@scripts/wallet-page';
+  initWalletPage(document.documentElement.lang === 'th-TH' ? 'th' : 'en');
+</script>
+
+<style>
+  .wallet-prompt {
+    max-width: 620px;
+    margin-inline: auto;
+    padding: clamp(28px, 5vw, 44px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    text-align: center;
+  }
+  .wallet-prompt-icon {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+  .wallet-prompt h2 { font-size: 1.5rem; }
+  .wallet-prompt p { margin-top: 10px; font-size: 1rem; line-height: 1.65; color: var(--ink-3); }
+  .wallet-prompt-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 22px; }
+  .wallet-prompt-note { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); }
+  .wallet-prompt-note svg { color: var(--brand); }
+
+  .wallet-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+  .wallet-address-line { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .wallet-address-line h2 { font-family: var(--font-mono); font-size: 1rem; word-break: break-all; }
+  .wallet-head-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .balance-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+  @media (max-width: 900px) { .balance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { .balance-grid { grid-template-columns: 1fr; } }
+  .balance-card { background: var(--surface); padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .balance-value { display: flex; align-items: baseline; gap: 5px; font-family: var(--font-display); font-size: 1.45rem; font-weight: 620; letter-spacing: -0.03em; min-width: 0; overflow-wrap: anywhere; }
+  .balance-value .unit { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); letter-spacing: 0.05em; }
+  .balance-link { display: inline-flex; align-items: center; gap: 4px; margin-top: auto; font-family: var(--font-mono); font-size: 14px; color: var(--brand); }
+  .balance-link.muted { color: var(--ink-3); }
+
+  .holdings { margin-top: 18px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+  .holdings-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .holding-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .holding-row:first-child { border-top: 0; }
+  .holding-name { font-size: 1rem; font-weight: 550; }
+  .holding-meta { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); margin-top: 2px; }
+  .holding-value { font-family: var(--font-display); font-size: 1rem; font-weight: 620; font-variant-numeric: tabular-nums; }
+  .holding-value small { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); margin-left: 3px; }
+  .wallet-empty { padding: 16px 0; text-align: center; color: var(--ink-3); font-size: 1rem; }
+  .wallet-warning { display: flex; gap: 8px; margin-top: 18px; padding: 14px 16px; border-left: 2px solid var(--warning); background: var(--warning-bg); border-radius: var(--radius-sm); font-size: 1rem; line-height: 1.6; color: var(--ink-2); }
+  .wallet-warning svg { flex-shrink: 0; margin-top: 2px; color: var(--warning); }
+
+  .transfer-form { display: flex; flex-direction: column; gap: 16px; }
+  .transfer-error { color: var(--danger); font-size: 1rem; }
+  .transfer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+</style>

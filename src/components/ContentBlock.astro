@@ -1,0 +1,380 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowRight, ArrowUpRight, Copy, Check } from '@lucide/astro';
+import Icon from '@components/Icon.astro';
+import { CONTRACTS, CHAINS } from '@data/site';
+import { EXECUTIVE_FACTS, GLOSSARY, WHITEPAPER_TOC } from '@data/whitepaper';
+import { RISK_CATEGORIES, CLAIM_FRAMEWORKS, CONTROL_MECHANISMS, RECONCILIATION } from '@data/compliance';
+import type { Locale } from '@i18n/utils';
+import { shortAddress } from '@utils/format';
+
+interface Props {
+  block: any;
+  lang: Locale;
+}
+const { block, lang } = Astro.props;
+
+const pick = (value: { en: string; th: string }) => value?.[lang] ?? value?.en ?? '';
+const local = (path: string) =>
+  path.startsWith('http') || path.startsWith('#') || path.startsWith('mailto:')
+    ? path
+    : getRelativeLocaleUrl(lang, path);
+
+const cardColumns = block.columns ?? (block.items?.length === 4 ? 2 : 3);
+
+const contracts = [
+  {
+    label: { en: 'Pool token · ThaiFi', th: 'พูลโทเคน · ThaiFi' },
+    address: CONTRACTS.poolThaiFi,
+    chain: 'ThaiFi',
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.poolThaiFi}`,
+    note: { en: 'Active primary deployment', th: 'สัญญาหลักที่ใช้งานอยู่' },
+  },
+  {
+    label: { en: 'Retired token · ThaiFi', th: 'โทเคนไถ่ถอน · ThaiFi' },
+    address: CONTRACTS.retiredToken,
+    chain: 'ThaiFi',
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.retiredToken}`,
+    note: { en: 'Reads total retirements', th: 'อ่านยอดไถ่ถอนรวม' },
+  },
+  {
+    label: { en: 'Retirement certificate NFT', th: 'NFT ใบรับรองการไถ่ถอน' },
+    address: CONTRACTS.certificateNft,
+    chain: 'ThaiFi',
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.certificateNft}`,
+    note: { en: 'Certificate records', th: 'บันทึกใบรับรอง' },
+  },
+  {
+    label: { en: 'Pool token · Optimism', th: 'พูลโทเคน · Optimism' },
+    address: CONTRACTS.poolOptimism,
+    chain: 'Optimism',
+    explorer: `${CHAINS.optimism.explorer}/token/${CONTRACTS.poolOptimism}`,
+    note: { en: 'Bridged deployment', th: 'สัญญาที่เชื่อมผ่านสะพานข้ามเชน' },
+  },
+  {
+    label: { en: 'Pool token · Kubchain', th: 'พูลโทเคน · Kubchain' },
+    address: CONTRACTS.poolKubchain,
+    chain: 'Kubchain',
+    explorer: `${CHAINS.kubchain.explorer}/address/${CONTRACTS.poolKubchain}`,
+    note: { en: 'Bridged deployment', th: 'สัญญาที่เชื่อมผ่านสะพานข้ามเชน' },
+  },
+  {
+    label: { en: 'Bridge lock · Optimism', th: 'สัญญาล็อก · Optimism' },
+    address: CONTRACTS.bridgeOptimism,
+    chain: 'ThaiFi',
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.bridgeOptimism}`,
+    note: { en: 'Lock address, not a token', th: 'ที่อยู่ของสัญญาล็อก ไม่ใช่โทเคน' },
+  },
+  {
+    label: { en: 'Bridge lock · Kubchain', th: 'สัญญาล็อก · Kubchain' },
+    address: CONTRACTS.bridgeKubchain,
+    chain: 'ThaiFi',
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.bridgeKubchain}`,
+    note: { en: 'Lock address, not a token', th: 'ที่อยู่ของสัญญาล็อก ไม่ใช่โทเคน' },
+  },
+  {
+    label: { en: 'Whitepaper reference · ThaiFi', th: 'ที่อยู่ในไวท์เปเปอร์ · ThaiFi' },
+    address: CONTRACTS.whitepaperThaiFiRef,
+    chain: 'ThaiFi',
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.whitepaperThaiFiRef}`,
+    note: { en: 'Recorded in Whitepaper v1.0 §1.1', th: 'บันทึกในไวท์เปเปอร์ v1.0 §1.1' },
+  },
+  {
+    label: { en: 'Legacy pool · CO2e Chain', th: 'พูลเดิม · CO2e Chain' },
+    address: CONTRACTS.legacyCo2e,
+    chain: 'CO2e (retired)',
+    explorer: `https://exp.co2e.cc/token/${CONTRACTS.legacyCo2e}`,
+    note: { en: 'Legacy chain, not active', th: 'เชนเดิม ไม่ได้ใช้งาน' },
+  },
+];
+---
+
+{block.type === 'prose' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    <div class="prose-rectoken" style="margin-top:16px">
+      {block.body.map((p: any, i: number) => (
+        <p>{pick(p)}</p>
+      ))}
+      {block.bullets && (
+        <ul>
+          {block.bullets.map((b: any) => <li>{pick(b)}</li>)}
+        </ul>
+      )}
+    </div>
+  </section>
+)}
+
+{block.type === 'cards' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class:list={['feature-grid', 'block-grid', `cols-${cardColumns}`]} style="margin-top:22px">
+      {block.items.map((item: any, i: number) => (
+        <article class="feature-cell">
+          <span class="num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="icon-box"><Icon name={item.icon} size={19} /></div>
+          <h3>{pick(item.title)}</h3>
+          <p>{pick(item.body)}</p>
+          {item.tag && <div style="margin-top:auto;padding-top:18px"><span class="chip">{pick(item.tag)}</span></div>}
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'facts' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <dl class="evidence-list" style="margin-top:20px">
+      {block.rows.map((row: any) => (
+        <div class="evidence-row">
+          <dt>{pick(row.label)}</dt>
+          <dd>
+            {pick(row.value)}
+            {row.note && <small>{pick(row.note)}</small>}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+)}
+
+{block.type === 'table' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="table-wrap" style="margin-top:20px">
+      <table class="data-table">
+        <thead>
+          <tr>{block.columns.map((col: any) => <th>{pick(col)}</th>)}</tr>
+        </thead>
+        <tbody>
+          {block.rows.map((row: any[]) => (
+            <tr>{row.map((cell) => <td>{pick(cell)}</td>)}</tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    {block.note && <p class="table-note">{pick(block.note)}</p>}
+  </section>
+)}
+
+{block.type === 'steps' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="step-list" style="margin-top:22px">
+      {block.items.map((item: any) => (
+        <article class="step-list-item">
+          <span class="step-no">{item.no}</span>
+          <div>
+            <h4>{pick(item.title)}</h4>
+            <p>{pick(item.body)}</p>
+            {item.who && <span class="chip" style="margin-top:12px">{pick(item.who)}</span>}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'accordion' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="accordion" data-accordion="multiple" style="margin-top:20px">
+      {block.items.map((item: any, i: number) => (
+        <div class="acc-item">
+          <button
+            type="button"
+            class="acc-trigger"
+            aria-expanded="false"
+            aria-controls={`${block.id}-panel-${i}`}
+            data-acc-trigger
+          >
+            {pick(item.q)}
+            <span aria-hidden="true" style="font-size:1.1rem;line-height:1">+</span>
+          </button>
+          <div class="acc-panel" id={`${block.id}-panel-${i}`} data-open="false">
+            <div class="acc-panel-inner">
+              <div class="acc-panel-content" set:html={pick(item.a).replace(/\n/g, '<br/>')} />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'links' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class:list={['doc-grid', 'block-doc-grid', block.items.length === 3 ? 'cols-3' : 'cols-2']} style="margin-top:22px">
+      {block.items.map((item: any) => (
+        <a class="doc-card" href={local(item.href)} target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener noreferrer' : undefined}>
+          <div class="doc-card-top">
+            <div class="icon-box"><Icon name="FileText" size={17} /></div>
+            {item.meta && <span class="chip">{pick(item.meta)}</span>}
+          </div>
+          <h3>{pick(item.title)}</h3>
+          <p>{pick(item.body)}</p>
+          <span class="link-arrow">
+            {lang === 'th' ? 'เปิด' : 'Open'}
+            <ArrowRight size={13} stroke-width={2} aria-hidden="true" />
+          </span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'callout' && (
+  <aside class:list={['callout', `callout-${block.kind}`, 'block-callout']}>
+    <Icon name={block.kind === 'danger' || block.kind === 'warning' ? 'TriangleAlert' : 'Info'} size={18} />
+    <div>
+      <strong>{pick(block.title)}</strong>
+      <p style="margin-top:4px">{pick(block.body)}</p>
+    </div>
+  </aside>
+)}
+
+{block.type === 'contracts' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="contract-list" style="margin-top:16px">
+      {contracts.map((row) => (
+        <div class="contract-row">
+          <span class="contract-label">{pick(row.label)}<small>{pick(row.note)}</small></span>
+          <a class="address" href={row.explorer} target="_blank" rel="noopener noreferrer">{row.address}</a>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="chip">{row.chain}</span>
+            <button type="button" class="copy-btn" data-copy={row.address} aria-label={`${lang === 'th' ? 'คัดลอก' : 'Copy'} ${row.address}`} title={lang === 'th' ? 'คัดลอก' : 'Copy'}>
+              <Copy size={14} />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'partners' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="partner-rail" style="margin-top:22px">
+      {EXECUTIVE_FACTS.partners.map((partner) => (
+        <div class="partner-cell">
+          <span class="partner-role">{pick(partner.role)}</span>
+          <span class="partner-name">{partner.name}</span>
+          <span style="font-size: 1rem;line-height:1.45;color:var(--ink-3)">{pick(partner.note)}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'team' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="team-grid" style="margin-top:22px">
+      {EXECUTIVE_FACTS.team.map((person) => (
+        <article class="team-card">
+          <div class="team-monogram" aria-hidden="true">
+            {person.name.replace(/^(Mr\.|Ms\.)\s*/, '').split(' ').map((w) => w[0]).join('').slice(0, 2)}
+          </div>
+          <div>
+            <h3>{person.name}</h3>
+            <p class="team-role">{pick(person.role)}</p>
+            <p class="team-bio">{pick(person.bio)}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'glossary' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="def-grid" style="margin-top:22px">
+      {GLOSSARY.map((entry) => (
+        <dl class="def-item">
+          <dt>{pick(entry.term)} <span class="def-cat">{pick(entry.category)}</span></dt>
+          <dd>{pick(entry.definition)}</dd>
+        </dl>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'risk' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="risk-categories">
+      {RISK_CATEGORIES.map((category) => (
+        <div class="risk-category">
+          <div class="risk-head">
+            <span class="risk-no">{category.no}</span>
+            <h3>{pick(category.title)}</h3>
+          </div>
+          <div class="risk-items">
+            {category.items.map((item) => (
+              <div class="risk-item">
+                <h4>{pick(item.title)}</h4>
+                <p>{pick(item.body)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'toc' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    <div class="doc-toc" style="margin-top:20px">
+      {WHITEPAPER_TOC.map((group) => (
+        <div class="doc-toc-group">
+          <h4>{pick(group.group)}</h4>
+          {group.items.map((item) => (
+            <div class="doc-toc-row">
+              <span>{pick(item.title)}</span>
+              <span>{lang === 'th' ? 'หน้า' : 'p.'} {item.page}</span>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{block.type === 'frameworks' && (
+  <section class="block" id={block.id}>
+    <h2 class="h3">{pick(block.title)}</h2>
+    {block.intro && <p class="block-intro">{pick(block.intro)}</p>}
+    <div class="framework-grid">
+      {CLAIM_FRAMEWORKS.map((fw) => (
+        <article class="framework-card">
+          <div class="framework-head">
+            <h3>{fw.name}</h3>
+            <span class:list={['chip', fw.status.en === 'Recognised instrument' || fw.status.en === 'Demand driver' ? 'chip-brand' : 'chip-warning']}>
+              {pick(fw.status)}
+            </span>
+          </div>
+          <p>{pick(fw.body)}</p>
+          <p class="framework-caveat">{pick(fw.caveat)}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+)}

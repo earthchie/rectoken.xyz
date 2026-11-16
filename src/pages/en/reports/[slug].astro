@@ -1,0 +1,15 @@
+---
+import ReportPage from '@components/pages/ReportPage.astro';
+import { MONTHLY_REPORTS } from '@data/report-monthly';
+
+export function getStaticPaths() {
+  return MONTHLY_REPORTS.map((report) => ({
+    params: { slug: report.slug },
+    props: { report },
+  }));
+}
+
+const { report } = Astro.props;
+---
+
+<ReportPage lang="en" report={report} />

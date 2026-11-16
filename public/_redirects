@@ -1,0 +1,25 @@
+# Legacy route preservation (SEO and old links)
+/privacy-policy            /th/legal/privacy/    301
+/terms-of-service          /th/legal/terms/      301
+/cookie-policy             /th/legal/cookies/    301
+/buy-sell                  /th/trade/            301
+/dashboard                 /th/data/             301
+/test-projects             /th/projects/         301
+/whitepaper                /th/whitepaper/       301
+/architecture              /th/architecture/     301
+/issuer                    /th/issuer/           301
+/announcement              /th/announcement/     301
+/faq                       /th/faq/              301
+/price                     /th/price/            301
+/reports                   /th/reports/          301
+/redeem                    /th/redeem/           301
+/wallet                    /th/wallet/           301
+/check                     /th/check/            302
+
+# Localised legacy links
+/th/privacy-policy         /th/legal/privacy/    301
+/th/terms-of-service       /th/legal/terms/      301
+/th/cookie-policy          /th/legal/cookies/    301
+/th/buy-sell               /th/trade/            301
+/th/dashboard              /th/data/             301
+/th/test-projects          /th/projects/         301

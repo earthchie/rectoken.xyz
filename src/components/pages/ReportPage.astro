@@ -1,0 +1,1488 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  FileCheck2,
+  Info,
+  Printer,
+  ShieldCheck,
+} from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import type { ReportData } from '@data/report-may-2026';
+import type { Locale } from '@i18n/utils';
+
+interface Props {
+  lang: Locale;
+  report: ReportData;
+}
+const { lang, report } = Astro.props;
+const r = report;
+const t = (value: { en: string; th: string }) => value[lang];
+const label = (value: string | { en: string; th: string }) =>
+  typeof value === 'string' ? value : t(value);
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+
+const contents = [
+  { id: 'summary', no: '01', label: { en: 'Executive summary', th: 'บทสรุปผู้บริหาร' } },
+  { id: 'scope', no: '02', label: { en: 'Scope of review', th: 'ขอบเขตการตรวจสอบ' } },
+  { id: 'reserve', no: '03', label: { en: 'Reserve asset summary', th: 'สรุปสินทรัพย์สำรอง' } },
+  { id: 'supply', no: '04', label: { en: 'Token supply summary', th: 'สรุปจำนวนโทเคน' } },
+  { id: 'reconciliation', no: '05', label: { en: 'Reserve reconciliation', th: 'การกระทบยอดสินทรัพย์สำรอง' } },
+  { id: 'coverage', no: '06', label: { en: 'Reserve coverage ratio', th: 'อัตราความครอบคลุมของสินทรัพย์สำรอง' } },
+  { id: 'retirement', no: '07', label: { en: 'Retirement treatment', th: 'การพิจารณารายการไถ่ถอน' } },
+  { id: 'representation', no: '08', label: { en: 'Reserve representation', th: 'คำรับรองเกี่ยวกับสินทรัพย์สำรอง' } },
+  { id: 'findings', no: '09', label: { en: 'Findings', th: 'ข้อค้นพบ' } },
+  { id: 'conclusion', no: '10', label: { en: 'Conclusion', th: 'ข้อสรุป' } },
+];
+
+const pageTitle =
+  lang === 'th'
+    ? `รายงานพอร์ต REC - ${t(r.period)}`
+    : `REC Portfolio Report - ${t(r.period)}`;
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={t(r.lede)}
+  locale={lang}
+  bodyClass="report-body"
+>
+  <div class="report-toolbar no-print">
+    <div class="container-page report-toolbar-inner">
+      <a class="report-back" href={l('reports')}>
+        <ArrowLeft size={15} stroke-width={2} />
+        {lang === 'th' ? 'รายงานรายเดือน' : 'Monthly reports'}
+      </a>
+      <div class="report-toolbar-actions">
+        <button type="button" class="report-print-btn" data-print-report>
+          <Printer size={16} stroke-width={1.9} />
+          {lang === 'th' ? 'ดาวน์โหลด PDF' : 'Download PDF'}
+        </button>
+      </div>
+    </div>
+    <p class="report-print-hint">
+      {lang === 'th'
+        ? 'เลือก "บันทึกเป็น PDF" ในหน้าต่างพิมพ์เพื่อส่งออกเอกสาร'
+        : 'Choose "Save as PDF" in the print dialog to export this report.'}
+    </p>
+  </div>
+
+  <article class="report-paper">
+    <header class="report-cover">
+      <div class="report-cover-brand">
+        <span class="report-brand-mark"><ShieldCheck size={18} stroke-width={2} /></span>
+        <span>
+          <strong>RECTOKEN</strong>
+          <small>BY BLOCKEDGE</small>
+        </span>
+        <span class="report-cover-type">{lang === 'th' ? 'รายงานรายเดือน' : 'Monthly report'}</span>
+      </div>
+
+      <div class="report-cover-body">
+        <div class="report-cover-copy">
+          <p class="report-eyebrow">
+            <span class="dot dot-live"></span>
+            {t(r.kicker)}
+          </p>
+          <h1>
+            {t(r.title)}
+            <span>{t(r.period)}</span>
+          </h1>
+          <p class="report-lede">{t(r.lede)}</p>
+          <p class="report-cutoff">{t(r.dataCutoff)}</p>
+        </div>
+
+        <aside class="report-verdict" aria-label={lang === 'th' ? 'ผลการทดสอบสำรอง' : 'Reserve test result'}>
+          <span class="report-verdict-label">
+            {lang === 'th' ? 'ผลการทดสอบสำรอง' : 'Reserve test result'}
+          </span>
+          <strong>{t(r.status)}</strong>
+          <span class="report-verdict-ratio">
+            {r.metrics[3].value}<span>%</span>
+          </span>
+          <span class="report-verdict-note">
+            {lang === 'th' ? 'ความครอบคลุมของสินทรัพย์สำรอง' : 'Reserve coverage ratio'}
+          </span>
+        </aside>
+      </div>
+
+      <dl class="report-meta">
+        {r.meta.map((item) => (
+          <div>
+            <dt>{t(item.label)}</dt>
+            <dd>{t(item.value)}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <section class="report-glance" aria-label={lang === 'th' ? 'ตัวเลขสำคัญ' : 'Key figures'}>
+        {r.metrics.map((metric) => (
+          <div class:list={['report-metric', `report-metric-${metric.tone}`]}>
+            <span class="report-metric-label">{t(metric.label)}</span>
+            <span class="report-metric-value">
+              {metric.value}
+              <small>{metric.unit}</small>
+            </span>
+          </div>
+        ))}
+      </section>
+    </header>
+
+    <nav class="report-contents no-print" aria-label={lang === 'th' ? 'สารบัญรายงาน' : 'Report contents'}>
+      <p class="report-contents-title">{lang === 'th' ? 'ในรายงานนี้' : 'In this report'}</p>
+      <div class="report-contents-grid">
+        {contents.map((item) => (
+          <a href={`#${item.id}`}>
+            <span>{item.no}</span>
+            {t(item.label)}
+          </a>
+        ))}
+      </div>
+    </nav>
+
+    <section class="report-section" id="summary">
+      <div class="report-section-head">
+        <span class="report-index">01</span>
+        <h2>{lang === 'th' ? 'บทสรุปผู้บริหาร' : 'Executive summary'}</h2>
+      </div>
+      <div class="report-prose">
+        <p>{t(r.summary.paragraphs[0])}</p>
+        <p>{t(r.summary.paragraphs[1])}</p>
+      </div>
+
+      {r.movementNote.en && (
+        <div class="report-movement">
+          <Info size={17} stroke-width={1.9} />
+          <p>{t(r.movementNote)}</p>
+        </div>
+      )}
+
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <caption class="sr-only">
+            {lang === 'th' ? 'สถานะสินทรัพย์สำรองและจำนวนโทเคน' : 'Reserve position and tokenized supply'}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">{lang === 'th' ? 'รายการ' : 'Item'}</th>
+              <th scope="col" class="num">{lang === 'th' ? 'จำนวน' : 'Amount'}</th>
+              <th scope="col">{lang === 'th' ? 'หน่วย' : 'Unit'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {r.summary.rows.map((row) => (
+              <tr class:list={{ 'is-emphasis': row.emphasis }}>
+                <th scope="row">{t(row.label)}</th>
+                <td class="num">{row.value}</td>
+                <td>{row.unit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="report-callout report-callout-pass">
+        <CheckCircle2 size={18} stroke-width={2} />
+        <p>{t(r.summary.conclusion)}</p>
+      </div>
+      <p class="report-small">{t(r.summary.websiteNote)}</p>
+    </section>
+
+    <section class="report-section" id="scope">
+      <div class="report-section-head">
+        <span class="report-index">02</span>
+        <h2>{lang === 'th' ? 'ขอบเขตการตรวจสอบ' : 'Scope of review'}</h2>
+      </div>
+      <p class="report-prose">{t(r.scope.intro)}</p>
+      <ol class="report-source-list">
+        {r.scope.sources.map((source, index) => (
+          <li>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <p>{t(source)}</p>
+          </li>
+        ))}
+      </ol>
+      <div class="report-callout report-callout-neutral">
+        <FileCheck2 size={18} stroke-width={1.8} />
+        <p>{t(r.scope.disclaimer)}</p>
+      </div>
+    </section>
+
+    <section class="report-section" id="reserve">
+      <div class="report-section-head">
+        <span class="report-index">03</span>
+        <h2>{lang === 'th' ? 'สรุปสินทรัพย์สำรอง' : 'Reserve asset summary'}</h2>
+      </div>
+      <p class="report-prose">{t(r.reserve.intro)}</p>
+
+      <div class="report-table-wrap">
+        <table class="report-table report-table-attributes">
+          <caption class="sr-only">
+            {lang === 'th' ? 'คุณลักษณะของสินทรัพย์สำรอง' : 'Reserve asset attributes'}
+          </caption>
+          <tbody>
+            {r.reserve.attributes.map((row) => (
+              <tr>
+                <th scope="row">{t(row.label)}</th>
+                <td>{t(row.value)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="report-vintage">
+        <h3 class="report-subhead">{t(r.reserve.vintageTitle)}</h3>
+        <div class="report-bars">
+          {r.reserve.vintages.map((vintage) => (
+            <div class="report-bar-row">
+              <span class="report-bar-label">{vintage.label}</span>
+              <span class="report-bar-track">
+                <span class="report-bar-fill" style={`--w:${vintage.percent}%`}></span>
+              </span>
+              <span class="report-bar-value">
+                {vintage.value} <small>{vintage.unit}</small>
+              </span>
+              <span class="report-bar-percent">{vintage.percent.toFixed(2)}%</span>
+            </div>
+          ))}
+        </div>
+        <div class="report-total-row">
+          <span>{t(r.reserve.total.label)}</span>
+          <strong>
+            {r.reserve.total.value} <small>{r.reserve.total.unit}</small>
+          </strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="report-section" id="supply">
+      <div class="report-section-head">
+        <span class="report-index">04</span>
+        <h2>{lang === 'th' ? 'สรุปจำนวนโทเคน' : 'Token supply summary'}</h2>
+      </div>
+      <p class="report-prose">{t(r.supply.intro)}</p>
+
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <caption class="sr-only">
+            {lang === 'th' ? 'จำนวนโทเคน REC และยอดคงเหลือ' : 'REC token supply and balances'}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">{lang === 'th' ? 'รายการ' : 'Item'}</th>
+              <th scope="col" class="num">{lang === 'th' ? 'จำนวน' : 'Amount'}</th>
+              <th scope="col">{lang === 'th' ? 'หน่วย' : 'Unit'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {r.supply.rows.map((row) => (
+              <tr class:list={{ 'is-emphasis': row.emphasis }}>
+                <th scope="row">
+                  {t(row.label)}
+                  {row.note && <small class="report-row-note">{t(row.note)}</small>}
+                </th>
+                <td class="num">{row.value}</td>
+                <td>{row.unit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="report-subhead">{t(r.supply.compositionTitle)}</h3>
+      <div class="report-composition" role="img" aria-label={t(r.supply.compositionTitle)}>
+        <div class="report-composition-bar">
+          {r.supply.composition.map((part) => (
+            <span style={`--w:${part.percent}%`} class:list={['report-composition-fill', part.label.en === 'Kubchain' ? 'is-kubchain' : part.label.en === 'Optimism' ? 'is-optimism' : 'is-pool']}></span>
+          ))}
+        </div>
+        <div class="report-composition-legend">
+          {r.supply.composition.map((part) => (
+            <div>
+              <span class:list={['report-legend-dot', part.label.en === 'Kubchain' ? 'is-kubchain' : part.label.en === 'Optimism' ? 'is-optimism' : 'is-pool']}></span>
+              <span>{t(part.label)}</span>
+              <strong>{part.percent.toFixed(2)}%</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p class="report-small">{t(r.supply.note)}</p>
+      <p class="report-small report-small-strong">{t(r.supply.retiredNote)}</p>
+    </section>
+
+    <section class="report-section" id="reconciliation">
+      <div class="report-section-head">
+        <span class="report-index">05</span>
+        <h2>{lang === 'th' ? 'การกระทบยอดสินทรัพย์สำรอง' : 'Reserve reconciliation'}</h2>
+      </div>
+      <div class="report-test">
+        <span>{lang === 'th' ? 'เกณฑ์ทดสอบหลัก' : 'Core reserve test'}</span>
+        <p>{t(r.reconciliation.test)}</p>
+      </div>
+
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <caption class="sr-only">
+            {lang === 'th' ? 'การกระทบยอดสินทรัพย์สำรอง' : 'Reserve reconciliation'}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">{lang === 'th' ? 'รายการ' : 'Item'}</th>
+              <th scope="col" class="num">{lang === 'th' ? 'จำนวน' : 'Amount'}</th>
+              <th scope="col">{lang === 'th' ? 'หน่วย' : 'Unit'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {r.reconciliation.rows.map((row) => (
+              <tr class:list={{ 'is-emphasis': row.emphasis }}>
+                <th scope="row">{t(row.label)}</th>
+                <td class="num">{row.value}</td>
+                <td>{row.unit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="report-pass-row">
+        <span class="report-pass-pill">
+          <CheckCircle2 size={16} stroke-width={2.2} />
+          {lang === 'th' ? 'ผลลัพธ์' : 'Result'}: {t(r.reconciliation.result)}
+        </span>
+        <p>{t(r.reconciliation.conclusion)}</p>
+      </div>
+    </section>
+
+    <section class="report-section" id="coverage">
+      <div class="report-section-head">
+        <span class="report-index">06</span>
+        <h2>{lang === 'th' ? 'อัตราความครอบคลุมของสินทรัพย์สำรอง' : 'Reserve coverage ratio'}</h2>
+      </div>
+
+      <div class="report-coverage">
+        <div class="report-coverage-number">
+          {r.coverage.ratio}<span>%</span>
+        </div>
+        <div class="report-coverage-copy">
+          <p class="report-formula-label">{t(r.coverage.formulaLabel)}</p>
+          <div class="report-formula">
+            <span>{r.coverage.numerator}</span>
+            <span class="report-formula-line"></span>
+            <span>{r.coverage.denominator}</span>
+          </div>
+          <p>{t(r.coverage.conclusion)}</p>
+        </div>
+      </div>
+      <div class="report-coverage-track" aria-hidden="true">
+        <span></span>
+        <em>{r.coverage.ratio}%</em>
+      </div>
+    </section>
+
+    <section class="report-section" id="retirement">
+      <div class="report-section-head">
+        <span class="report-index">07</span>
+        <h2>{lang === 'th' ? 'การพิจารณารายการไถ่ถอน' : 'Retirement treatment'}</h2>
+      </div>
+      <div class="report-prose">
+        {r.retirement.paragraphs.map((paragraph) => (
+          <p>{t(paragraph)}</p>
+        ))}
+      </div>
+      <div class="report-two-up">
+        {r.retirement.cards.map((card) => (
+          <div class="report-data-card">
+            <span>{t(card.label)}</span>
+            <strong>
+              {card.value} <small>{card.unit}</small>
+            </strong>
+            <p>{t(card.note)}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="report-section" id="representation">
+      <div class="report-section-head">
+        <span class="report-index">08</span>
+        <h2>{lang === 'th' ? 'คำรับรองเกี่ยวกับสินทรัพย์สำรอง' : 'Reserve representation'}</h2>
+      </div>
+      <p class="report-prose">{t(r.representations.intro)}</p>
+      <ol class="report-numbered-list">
+        {r.representations.items.map((item, index) => (
+          <li>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <p>{t(item)}</p>
+          </li>
+        ))}
+      </ol>
+      <p class="report-small">{t(r.representations.note)}</p>
+    </section>
+
+    <section class="report-section" id="findings">
+      <div class="report-section-head">
+        <span class="report-index">09</span>
+        <h2>{lang === 'th' ? 'ข้อค้นพบ' : 'Findings'}</h2>
+      </div>
+      <ol class="report-numbered-list report-findings">
+        {r.findings.items.map((item, index) => (
+          <li>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <p>{t(item)}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="report-section report-conclusion" id="conclusion">
+      <div class="report-section-head">
+        <span class="report-index">10</span>
+        <h2>{lang === 'th' ? 'ข้อสรุป' : 'Conclusion'}</h2>
+      </div>
+      <div class="report-prose">
+        {r.conclusion.paragraphs.map((paragraph) => (
+          <p>{t(paragraph)}</p>
+        ))}
+      </div>
+    </section>
+
+    <div class="report-end-actions no-print">
+      <button type="button" class="report-print-btn" data-print-report>
+        <Download size={16} stroke-width={1.9} />
+        {lang === 'th' ? 'ดาวน์โหลดรายงานเป็น PDF' : 'Download this report as PDF'}
+      </button>
+    </div>
+
+    <footer class="report-colophon">
+      <p class="report-tagline">{t(r.conclusion.tagline)}</p>
+      <div>
+        <strong>RECTOKEN</strong>
+        <span>{lang === 'th' ? 'รายงานพอร์ต REC' : 'REC Portfolio Report'} · {t(r.period)}</span>
+      </div>
+      <nav aria-label={lang === 'th' ? 'แหล่งข้อมูล' : 'Sources'}>
+        {r.footer.sources.map((source) => (
+          <a href={source.href === '/data' ? l('data') : source.href} target={source.href.startsWith('http') ? '_blank' : undefined} rel={source.href.startsWith('http') ? 'noopener noreferrer' : undefined}>
+            {label(source.label)}
+            {source.href.startsWith('http') ? <ExternalLink size={11} stroke-width={2} /> : <ArrowRight size={11} stroke-width={2} />}
+          </a>
+        ))}
+      </nav>
+      <p>{t(r.footer.disclaimer)}</p>
+    </footer>
+  </article>
+</BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-print-report]').forEach((button) => {
+    button.addEventListener('click', () => window.print());
+  });
+</script>
+
+<style>
+  .report-body {
+    background:
+      radial-gradient(900px circle at 90% 0%, var(--brand-soft), transparent 55%),
+      var(--surface-2);
+  }
+
+  .report-toolbar {
+    padding-block: 18px 0;
+  }
+  .report-toolbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1080px;
+  }
+  .report-back,
+  .report-source-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 1rem;
+    color: var(--ink-3);
+    transition: color 0.2s ease;
+  }
+  .report-back:hover,
+  .report-source-link:hover { color: var(--brand); }
+  .report-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .report-print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--brand);
+    border-radius: var(--radius-sm);
+    background: var(--brand);
+    color: var(--ink-inverse);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  .report-print-btn:hover {
+    background: var(--brand-strong);
+    transform: translateY(-1px);
+  }
+  .report-print-hint {
+    max-width: 1080px;
+    margin: 8px auto 0;
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  @media (max-width: 700px) {
+    .report-toolbar-inner { align-items: flex-start; flex-direction: column; }
+    .report-toolbar-actions { width: 100%; justify-content: space-between; }
+  }
+
+  .report-paper {
+    width: min(1080px, calc(100% - 32px));
+    margin: 22px auto 64px;
+    padding: clamp(24px, 4.5vw, 64px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .report-cover {
+    position: relative;
+    padding-bottom: clamp(28px, 4vw, 48px);
+    border-bottom: 1px solid var(--line);
+  }
+  .report-cover::before {
+    content: '';
+    position: absolute;
+    inset: calc(clamp(24px, 4.5vw, 64px) * -1) calc(clamp(24px, 4.5vw, 64px) * -1) auto;
+    height: 6px;
+    background: var(--gradient-headline);
+  }
+  .report-cover-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .report-brand-mark {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+  .report-cover-brand > span:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .report-cover-brand strong {
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+  .report-cover-brand small {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+  }
+  .report-cover-type {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .report-cover-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: clamp(24px, 5vw, 64px);
+    align-items: end;
+    padding-top: clamp(34px, 6vw, 70px);
+  }
+  @media (max-width: 760px) {
+    .report-cover-body { grid-template-columns: 1fr; align-items: start; }
+  }
+  .report-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+  .report-cover h1 {
+    margin-top: 16px;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+  .report-cover h1 span {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.42em;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--ink-3);
+  }
+  .report-lede {
+    max-width: 58ch;
+    margin-top: 24px;
+    font-size: 1.15rem;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+  .report-cutoff {
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    color: var(--ink-3);
+  }
+
+  .report-verdict {
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+    border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--line));
+    border-radius: var(--radius-md);
+    background:
+      radial-gradient(180px circle at 100% 0%, var(--brand-soft), transparent 70%),
+      var(--surface-2);
+  }
+  .report-verdict-label {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .report-verdict strong {
+    margin-top: 20px;
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--brand);
+  }
+  .report-verdict-ratio {
+    margin-top: 18px;
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 650;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .report-verdict-ratio span { font-size: 0.62em; color: var(--ink-3); }
+  .report-verdict-note {
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+
+  .report-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px 28px;
+    margin: clamp(30px, 5vw, 56px) 0 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  @media (max-width: 800px) { .report-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .report-meta { grid-template-columns: 1fr; } }
+  .report-meta div { min-width: 0; }
+  .report-meta dt {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .report-meta dd {
+    margin: 5px 0 0;
+    font-size: 1rem;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+
+  .report-glance {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 28px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--line);
+    overflow: hidden;
+  }
+  @media (max-width: 800px) { .report-glance { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .report-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px;
+    background: var(--surface);
+  }
+  .report-metric-label {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ink-3);
+  }
+  .report-metric-value {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 650;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .report-metric-value small {
+    display: block;
+    margin: 2px 0 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--ink-3);
+  }
+  .report-metric-pass .report-metric-value { color: var(--brand); }
+
+  .report-contents {
+    margin-top: 32px;
+    padding: 22px 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+  }
+  .report-contents-title {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .report-contents-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 28px;
+    margin-top: 12px;
+  }
+  @media (max-width: 620px) { .report-contents-grid { grid-template-columns: 1fr; } }
+  .report-contents a {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 1rem;
+    color: var(--ink-2);
+  }
+  .report-contents a:hover { color: var(--brand); }
+  .report-contents a span {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--brand);
+  }
+
+  .report-section {
+    padding-top: clamp(34px, 5vw, 58px);
+    margin-top: clamp(34px, 5vw, 58px);
+    border-top: 1px solid var(--line);
+  }
+  .report-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .report-index {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: var(--brand);
+  }
+  .report-section h2 {
+    font-size: clamp(1.55rem, 2.6vw, 2.2rem);
+    line-height: 1.18;
+  }
+  .report-prose {
+    max-width: 76ch;
+    font-size: 1.0625rem;
+    line-height: 1.72;
+    color: var(--ink-2);
+  }
+  .report-prose p + p { margin-top: 12px; }
+  .report-subhead {
+    margin-top: 30px;
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+  }
+
+  .report-table-wrap {
+    margin-top: 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+  }
+  .report-table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+    font-size: 1rem;
+  }
+  .report-table caption { text-align: left; }
+  .report-table th,
+  .report-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  .report-table thead th {
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .report-table tbody th {
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .report-table td { color: var(--ink-2); }
+  .report-table .num {
+    text-align: right;
+    font-family: var(--font-data);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  .report-table tbody tr:last-child th,
+  .report-table tbody tr:last-child td { border-bottom: 0; }
+  .report-table tr.is-emphasis th,
+  .report-table tr.is-emphasis td {
+    background: var(--brand-soft);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .report-row-note {
+    display: block;
+    margin-top: 3px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .report-table-attributes tbody th { width: 45%; }
+
+  .report-callout {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--brand);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    font-size: 1rem;
+    line-height: 1.62;
+    color: var(--ink-2);
+  }
+  .report-callout svg { flex-shrink: 0; margin-top: 2px; color: var(--brand); }
+  .report-callout-pass { border-left-color: var(--brand); background: var(--brand-soft); }
+  .report-callout-neutral { border-left-color: var(--ink-3); }
+  .report-callout-neutral svg { color: var(--ink-3); }
+  .report-small {
+    margin-top: 18px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink-3);
+    max-width: 80ch;
+  }
+  .report-small-strong { color: var(--ink-2); font-weight: 500; }
+
+  .report-movement {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 14px 16px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .report-movement svg { flex-shrink: 0; margin-top: 2px; color: var(--brand); }
+
+  .report-source-list,
+  .report-numbered-list {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .report-source-list li,
+  .report-numbered-list li {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 10px;
+    padding: 16px 18px;
+    background: var(--surface);
+  }
+  .report-source-list li > span,
+  .report-numbered-list li > span {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--brand);
+  }
+  .report-source-list p,
+  .report-numbered-list p { font-size: 1rem; line-height: 1.6; color: var(--ink-2); }
+  .report-findings li { padding-block: 18px; }
+
+  .report-bars {
+    display: grid;
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .report-bar-row {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto 64px;
+    gap: 12px;
+    align-items: center;
+  }
+  @media (max-width: 560px) {
+    .report-bar-row { grid-template-columns: 52px minmax(0, 1fr) auto; }
+    .report-bar-percent { display: none; }
+  }
+  .report-bar-label {
+    font-family: var(--font-data);
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .report-bar-track {
+    height: 10px;
+    border-radius: 99px;
+    background: var(--surface-3);
+    overflow: hidden;
+  }
+  .report-bar-fill {
+    display: block;
+    width: var(--w);
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+  }
+  .report-bar-value {
+    font-family: var(--font-data);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--ink-2);
+  }
+  .report-bar-value small { font-family: var(--font-mono); color: var(--ink-3); }
+  .report-bar-percent {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    text-align: right;
+    color: var(--ink-3);
+  }
+  .report-total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line-strong);
+    font-size: 1rem;
+  }
+  .report-total-row strong {
+    font-family: var(--font-data);
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .report-total-row small { font-family: var(--font-mono); color: var(--ink-3); }
+
+  .report-composition {
+    margin-top: 16px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+  }
+  .report-composition-bar {
+    display: flex;
+    height: 16px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: var(--surface-3);
+  }
+  .report-composition-fill {
+    display: block;
+    width: var(--w);
+    height: 100%;
+    background: var(--brand);
+  }
+  .report-composition-fill.is-kubchain { background: color-mix(in srgb, var(--brand) 55%, var(--info)); }
+  .report-composition-fill.is-optimism { background: var(--warning); }
+  .report-composition-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    margin-top: 14px;
+  }
+  .report-composition-legend div {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .report-composition-legend strong {
+    font-family: var(--font-data);
+    color: var(--ink);
+  }
+  .report-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+  }
+  .report-legend-dot.is-kubchain { background: color-mix(in srgb, var(--brand) 55%, var(--info)); }
+  .report-legend-dot.is-optimism { background: var(--warning); }
+
+  .report-test {
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--brand);
+    border-radius: var(--radius-sm);
+    background: var(--brand-soft);
+  }
+  .report-test span {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+  .report-test p {
+    margin-top: 6px;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .report-pass-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .report-pass-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border: 1px solid var(--brand);
+    border-radius: 999px;
+    background: var(--brand);
+    color: var(--ink-inverse);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+  .report-pass-row p { flex: 1; min-width: 240px; font-size: 1rem; color: var(--ink-2); }
+
+  .report-coverage {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(24px, 5vw, 56px);
+    align-items: center;
+  }
+  @media (max-width: 700px) { .report-coverage { grid-template-columns: 1fr; } }
+  .report-coverage-number {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 4.8vw, 4.6rem);
+    font-weight: 680;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+    color: var(--brand);
+    font-variant-numeric: tabular-nums;
+  }
+  .report-coverage-number span { font-size: 0.38em; color: var(--ink-3); }
+  .report-formula-label {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .report-formula {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin: 12px 0 14px;
+    font-family: var(--font-data);
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .report-formula-line { width: 100%; height: 1px; background: var(--ink-2); }
+  .report-coverage-copy p:last-child {
+    max-width: 56ch;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+  .report-coverage-track {
+    position: relative;
+    height: 12px;
+    margin-top: 28px;
+    border-radius: 99px;
+    background: var(--surface-3);
+  }
+  .report-coverage-track span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+  }
+  .report-coverage-track em {
+    position: absolute;
+    right: 0;
+    bottom: 18px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-style: normal;
+    color: var(--brand);
+  }
+
+  .report-two-up {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 22px;
+  }
+  @media (max-width: 640px) { .report-two-up { grid-template-columns: 1fr; } }
+  .report-data-card {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+  }
+  .report-data-card > span {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+  }
+  .report-data-card strong {
+    margin-top: 10px;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .report-data-card strong small {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--ink-3);
+  }
+  .report-data-card p { margin-top: 6px; font-size: 14px; color: var(--ink-3); }
+
+  .report-conclusion .report-prose { max-width: 80ch; }
+  .report-end-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 28px;
+  }
+  @media (max-width: 560px) {
+    .report-end-actions .report-print-btn { width: 100%; }
+  }
+  .report-tagline {
+    margin: 0 0 12px;
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--brand);
+  }
+
+  .report-colophon {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px 28px;
+    margin-top: clamp(40px, 6vw, 72px);
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .report-colophon .report-tagline { grid-column: 1 / -1; }
+  .report-colophon > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .report-colophon > div strong { font-size: 1rem; }
+  .report-colophon > div span { font-size: 14px; color: var(--ink-3); }
+  .report-colophon nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+  .report-colophon nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .report-colophon nav a:hover { color: var(--brand); }
+  .report-colophon > p {
+    grid-column: 1 / -1;
+    max-width: 86ch;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-3);
+  }
+  @media (max-width: 640px) {
+    .report-colophon { grid-template-columns: 1fr; }
+    .report-colophon nav { justify-content: flex-start; }
+  }
+
+  .report-print-footer { display: none; }
+  @media (max-width: 720px) {
+    .report-paper { width: 100%; margin: 12px 0 0; padding: 22px 20px 40px; border-radius: 0; border-left: 0; border-right: 0; }
+    .report-cover h1 { font-size: clamp(2.2rem, 10vw, 3rem); }
+    .report-cover h1 span { font-size: 0.48em; }
+  }
+</style>
+
+<style is:global>
+  html[lang='th-TH'] .report-cover h1 {
+    line-height: 1.26;
+    letter-spacing: -0.02em;
+  }
+  html[lang='th-TH'] .report-cover h1 span {
+    line-height: 1.35;
+  }
+  html[lang='th-TH'] .report-section h2 {
+    line-height: 1.32;
+  }
+  html[lang='th-TH'] .report-tagline {
+    line-height: 1.45;
+  }
+
+  @media print {
+    @page {
+      size: A4;
+      margin: 16mm 14mm 18mm;
+    }
+
+    html,
+    body {
+      background: #fff !important;
+      color: #111 !important;
+      font-size: 10.5pt !important;
+    }
+
+    .site-header,
+    .site-footer,
+    .report-toolbar,
+    .report-contents,
+    .skip-link,
+    .scroll-progress,
+    .toast-stack,
+    .no-print {
+      display: none !important;
+    }
+
+    .report-body {
+      background: #fff !important;
+    }
+
+    .report-paper {
+      width: 100% !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      background: #fff !important;
+    }
+
+    .report-cover {
+      min-height: 0 !important;
+      padding: 0 0 12mm !important;
+      border-bottom: 1px solid #ddd !important;
+      break-after: page;
+    }
+    .report-cover::before {
+      display: none !important;
+    }
+    .report-cover-body {
+      padding-top: 18mm !important;
+      grid-template-columns: minmax(0, 1fr) 48mm !important;
+    }
+    .report-cover h1 {
+      font-size: 30pt !important;
+      line-height: 1.05 !important;
+    }
+    html[lang='th-TH'] .report-cover h1 { line-height: 1.3 !important; }
+    html[lang='th-TH'] .report-section h2 { line-height: 1.32 !important; }
+    .report-cover h1 span {
+      font-size: 12pt !important;
+      line-height: 1.3 !important;
+    }
+    .report-lede {
+      font-size: 10pt !important;
+      max-width: 115mm !important;
+    }
+    .report-verdict {
+      padding: 5mm !important;
+      break-inside: avoid;
+    }
+    .report-verdict strong { font-size: 20pt !important; }
+    .report-coverage-number { font-size: 26pt !important; }
+    .report-coverage { grid-template-columns: 40mm minmax(0, 1fr) !important; }
+
+    .report-glance {
+      margin-top: 6mm !important;
+      break-inside: avoid;
+    }
+    .report-test {
+      break-inside: avoid;
+    }
+    #reconciliation {
+      break-before: page;
+    }
+
+    .report-section {
+      margin-top: 8mm !important;
+      padding-top: 7mm !important;
+      break-inside: auto;
+    }
+    .report-section-head {
+      margin-bottom: 4mm !important;
+      break-after: avoid;
+    }
+    .report-section h2 { break-after: avoid; }
+    .report-section h3,
+    .report-subhead { break-after: avoid; }
+    .report-prose { font-size: 10pt !important; line-height: 1.55 !important; max-width: none !important; }
+    .report-table-wrap,
+    .report-callout,
+    .report-data-card,
+    .report-composition,
+    .report-coverage,
+    .report-movement,
+    .report-total-row,
+    .report-vintage,
+    .report-pass-row,
+    .report-bars {
+      break-inside: avoid;
+    }
+    .report-table-wrap {
+      border-color: #ddd !important;
+      overflow: visible !important;
+    }
+    .report-table {
+      min-width: 0 !important;
+      font-size: 9pt !important;
+    }
+    .report-table th,
+    .report-table td { padding: 2.2mm 3mm !important; border-color: #ddd !important; }
+    .report-table thead th { background: #f4f7f5 !important; color: #444 !important; }
+    .report-table tr.is-emphasis th,
+    .report-table tr.is-emphasis td { background: #eef9f2 !important; }
+
+    .report-callout,
+    .report-test { background: #f7faf8 !important; border-color: #ddd !important; }
+    .report-callout-pass { background: #eef9f2 !important; }
+    .report-metric,
+    .report-data-card,
+    .report-composition { background: #f7faf8 !important; border-color: #ddd !important; }
+    .report-composition-bar,
+    .report-bar-track,
+    .report-coverage-track { background: #e6ebe8 !important; }
+    .report-composition-bar,
+    .report-bar-track,
+    .report-coverage-track,
+    .report-composition-fill,
+    .report-bar-fill,
+    .report-coverage-track span {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .report-pass-pill {
+      background: #0d7a4e !important;
+      border-color: #0d7a4e !important;
+      color: #fff !important;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .report-colophon {
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 245mm;
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+      border-top: 0 !important;
+      gap: 5mm;
+      break-before: page;
+      break-inside: avoid;
+    }
+    .report-colophon .report-tagline {
+      font-size: 20pt !important;
+      line-height: 1.4 !important;
+      margin-bottom: 8mm !important;
+      color: #0d7a4e !important;
+    }
+    .report-colophon > p,
+    .report-colophon > div span,
+    .report-colophon nav a { font-size: 8pt !important; color: #555 !important; }
+    .report-colophon > div strong { font-size: 11pt !important; }
+    .report-colophon nav a svg { display: none !important; }
+
+    a { text-decoration: none !important; color: inherit !important; }
+  }
+</style>

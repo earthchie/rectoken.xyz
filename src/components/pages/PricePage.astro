@@ -1,0 +1,301 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowRight, ArrowUpRight, Clock, TrendingUp, ChartNoAxesColumn, Globe2 } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import SectionHead from '@components/SectionHead.astro';
+import Icon from '@components/Icon.astro';
+import { PRICE_PAGE, PRICE_TH, ASSESSMENT, ASSESSMENT_TH, CNERG, CNERG_TH } from '@data/price';
+import { MARKET, SITE } from '@data/site';
+import type { Locale } from '@i18n/utils';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+
+const page = lang === 'th' ? PRICE_TH : PRICE_PAGE;
+const assessmentColumns = lang === 'th' ? ASSESSMENT_TH.columns : ASSESSMENT.columns;
+const countryMap: Record<string, string> = {
+  Vietnam: 'เวียดนาม',
+  India: 'อินเดีย',
+  Malaysia: 'มาเลเซีย',
+  Thailand: 'ไทย',
+  Singapore: 'สิงคโปร์',
+};
+const cell = (value: string) => {
+  if (lang !== 'th') return value;
+  if (value === 'Suspended') return 'ระงับ';
+  return countryMap[value] || value;
+};
+const cnerg = lang === 'th' ? CNERG_TH : CNERG;
+
+const chains = [
+  { label: lang === 'th' ? 'ราคาอ้างอิง OTC' : 'OTC reference', value: `$${MARKET.otc.priceUsd.toFixed(2)}`, note: lang === 'th' ? 'ต่อ 1 MWh' : 'per 1 MWh' },
+  { label: lang === 'th' ? 'ราคาเปิดคำสั่งขาย' : 'Initial sell order', value: 'THB 10.00-19.80', note: lang === 'th' ? '50 ระดับราคา' : '50 price levels' },
+  { label: lang === 'th' ? 'สถานะ Bitkub' : 'Bitkub status', value: lang === 'th' ? 'เร็ว ๆ นี้' : 'Coming soon', note: MARKET.bitkub.symbol },
+];
+---
+
+<BaseLayout title={page.title} description={page.subtitle} locale={lang}>
+  <PageHero
+    eyebrow={lang === 'th' ? 'ราคาและตลาด' : 'Price & market'}
+    title={page.title}
+    description={page.subtitle}
+    locale={lang}
+    chips={[lang === 'th' ? 'OTC' : 'OTC', 'THB / USD', 'Bitkub', 'S&P Global Energy']}
+    actions={[
+      { label: lang === 'th' ? 'แดชบอร์ดเรียลไทม์' : 'Live dashboard', href: l('data'), variant: 'primary' },
+      { label: lang === 'th' ? 'รายงานรายเดือน' : 'Monthly reports', href: l('reports') },
+    ] as any}
+  />
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="callout callout-warning">
+        <Icon name="TriangleAlert" size={18} />
+        <p>
+          <strong>{lang === 'th' ? 'ราคาอ้างอิงไม่ใช่ราคาซื้อขายที่รับประกัน' : 'A reference price is not a guaranteed trading price.'}</strong>{' '}
+          {lang === 'th'
+            ? 'ราคาซื้อขายเกิดขึ้นจากการจับคู่คำสั่งบนศูนย์ซื้อขาย และอาจสูงหรือต่ำกว่าราคา OTC ต้นทุนอ้างอิง หรือราคาคำสั่งขายของบริษัท'
+            : 'Trading prices arise from exchange order matching and may be higher or lower than the OTC reference, underlying cost or the Company’s sell orders.'}
+        </p>
+      </div>
+
+      <div class="price-grid" data-live-price>
+        <article class="price-card">
+          <div class="price-card-head">
+            <div>
+              <p class="kpi-label">{lang === 'th' ? 'ราคาอ้างอิง' : 'Reference'}</p>
+              <h2>{lang === 'th' ? MARKET.otc.name.replace('Vietnam', 'เวียดนาม') : MARKET.otc.name}</h2>
+            </div>
+            <span class="chip chip-brand">{lang === 'th' ? 'OTC' : 'OTC Reference'}</span>
+          </div>
+          <p class="price-sub">{MARKET.otc.note[lang]}</p>
+          <div class="price-value">
+            <span data-otc-usd>${MARKET.otc.priceUsd.toFixed(2)}</span>
+            <span class="price-unit">USD / {lang === 'th' ? 'โทเคน' : 'token'}</span>
+          </div>
+          <div class="price-secondary">≈ ฿<span data-otc-thb>{(MARKET.otc.priceUsd * MARKET.forexFallback).toFixed(2)}</span> THB / {lang === 'th' ? 'โทเคน' : 'token'}</div>
+          <div class="price-foot">
+            <Clock size={13} />
+            <span>{lang === 'th' ? 'อัปเดต' : 'Updated'} <span data-price-updated>-</span></span>
+          </div>
+        </article>
+
+        <article class="price-card">
+          <div class="price-card-head">
+            <div>
+              <p class="kpi-label">{lang === 'th' ? 'ศูนย์ซื้อขาย' : 'Exchange'}</p>
+              <h2>Bitkub Exchange ({MARKET.bitkub.symbol})</h2>
+            </div>
+            <span class="chip">{lang === 'th' ? 'เร็ว ๆ นี้' : 'Coming soon'}</span>
+          </div>
+          <p class="price-sub">{lang === 'th' ? 'การซื้อขายบนศูนย์ซื้อขายสินทรัพย์ดิจิทัล' : 'Digital asset exchange trading'}</p>
+          <div class="price-value"><span class="muted">-</span></div>
+          <div class="price-secondary">{MARKET.bitkub.note[lang]}</div>
+          <div class="price-foot">
+            <TrendingUp size={13} />
+            <span>{lang === 'th' ? 'ประกาศผ่านช่องทางอย่างเป็นทางการ' : 'Announced through official channels'}</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="price-context">
+        {chains.map((item) => (
+          <div class="context-cell">
+            <span class="kpi-label">{item.label}</span>
+            <span class="context-value">{item.value}</span>
+            <span class="context-note">{item.note}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <SectionHead
+        index="02"
+        eyebrow={lang === 'th' ? 'ข้อมูลประเมินราคา' : 'Assessment'}
+        title={lang === 'th' ? 'ตารางประเมินราคา I-REC' : 'I-REC price assessment'}
+        description={lang === 'th' ? `ข้อมูล ณ ${ASSESSMENT_TH.date} แหล่งที่มา ${ASSESSMENT.source}` : `Dated ${ASSESSMENT.date}. Source: ${ASSESSMENT.source}.`}
+      />
+      <div class="table-wrap">
+        <table class="data-table assessment-table">
+          <thead>
+            <tr>{assessmentColumns.map((col) => <th>{col}</th>)}</tr>
+          </thead>
+          <tbody>
+            {ASSESSMENT.rows.map((row) => (
+              <tr>
+                {row.map((value, i) => (
+                  <td class:list={[i === 0 && 'country-cell', value === '0.03' || value === '0.11' ? 'highlight-cell' : '']}>
+                    {cell(value)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">{lang === 'th' ? ASSESSMENT_TH.note : ASSESSMENT.note}</p>
+
+      <div class="table-wrap" style="margin-top:20px">
+        <table class="data-table">
+          <thead>
+            <tr>{(lang === 'th' ? ['ประเทศ', 'หน่วย', 'ปีก่อน', 'ปีปัจจุบัน', 'ปี +1', 'ปี +2'] : ASSESSMENT.singapore.columns).map((col) => <th>{col}</th>)}</tr>
+          </thead>
+          <tbody>
+            {ASSESSMENT.singapore.rows.map((row) => (
+              <tr>
+                {row.map((value, i) => (
+                  <td class={i === 0 ? 'country-cell' : ''}>{i === 0 ? cell(value) : value}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        {lang === 'th'
+          ? 'ราคาเปิดซื้อขายโทเคนในแผ่นประเมินปี 2024: 40 บาท (1.176 USD) ต่อโทเคน'
+          : 'The 2024 assessment sheet also records a token trading open price of THB 40 (USD 1.176) per token.'}
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <SectionHead
+        index="03"
+        eyebrow={lang === 'th' ? 'กราฟราคา' : 'Charts'}
+        title={lang === 'th' ? 'กราฟราคาย้อนหลัง' : 'Historical price charts'}
+        description={lang === 'th' ? 'ภาพต้นฉบับที่เผยแพร่ เปิดภาพเต็มเพื่ออ่านรายละเอียด' : 'The published source images. Open the full image for detail.'}
+      />
+      <div class="chart-grid">
+        {page.charts.map((chart, i) => (
+          <figure class="chart-card">
+            <div class="chart-head">
+              <div>
+                <h3>{chart.title}</h3>
+                <p>{chart.description}</p>
+              </div>
+              <a href={PRICE_PAGE.charts[i].src} target="_blank" rel="noopener noreferrer" class="link-arrow">
+                {lang === 'th' ? 'ภาพเต็ม' : 'Full image'}
+                <ArrowUpRight size={13} stroke-width={2} />
+              </a>
+            </div>
+            <a href={PRICE_PAGE.charts[i].src} target="_blank" rel="noopener noreferrer" class="chart-image-link">
+              <img src={PRICE_PAGE.charts[i].src} alt={lang === 'th' ? `กราฟ${chart.description}` : PRICE_PAGE.charts[i].alt} loading="lazy" width="2048" height="2048" />
+            </a>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div class="cnerng-panel">
+        <div>
+          <p class="eyebrow">{lang === 'th' ? 'ตลาดเปรียบเทียบ' : 'Market comparison'}</p>
+          <h2 class="h3" style="margin-top:10px">{cnerg.title}</h2>
+          <p class="cnerng-body">{cnerg.body}</p>
+          <div class="tag-list" style="margin-top:14px">
+            {cnerg.tags.map((tag) => <span class="chip">{tag}</span>)}
+          </div>
+          <div class="cnerng-actions">
+            <a class="btn btn-primary" href={SITE.external.cnergPlatform} target="_blank" rel="noopener noreferrer">
+              {lang === 'th' ? 'ดูราคาสด' : 'Explore live prices'}
+              <ArrowRight size={15} stroke-width={2} />
+            </a>
+            <a class="btn btn-secondary" href={SITE.external.cnergIndex} target="_blank" rel="noopener noreferrer">
+              {lang === 'th' ? 'ดัชนีราคา' : 'Price index'}
+              <ArrowUpRight size={15} stroke-width={2} />
+            </a>
+          </div>
+        </div>
+        <div class="cnerng-features">
+          {cnerg.features.map((feature) => (
+            <div class="cnerng-feature">
+              <Icon name="ChartNoAxesColumn" size={16} />
+              <strong>{feature.title}</strong>
+              <span>{feature.body}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p class="price-note">
+        {lang === 'th'
+          ? 'ราคา OTC ราคาบนศูนย์ซื้อขาย และราคาเปิดคำสั่งขายอาจแตกต่างกันเพราะสะท้อนตลาด สภาพคล่อง และเงื่อนไขที่ต่างกัน ไม่ใช่ราคาเดียวกัน'
+          : 'OTC reference prices, exchange prices and the initial sell-order prices may differ because they reflect different markets, liquidity and terms. They are not the same price.'}
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { initPrice } from '@scripts/price';
+  initPrice(document.documentElement.lang === 'th-TH' ? 'th' : 'en');
+</script>
+
+<style>
+  .price-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+  @media (max-width: 860px) { .price-grid { grid-template-columns: 1fr; } }
+  .price-card {
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .price-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .price-card-head h2 { font-size: 1rem; margin-top: 4px; letter-spacing: -0.02em; }
+  .price-sub { font-size: 1rem; color: var(--ink-3); }
+  .price-value { display: flex; align-items: baseline; gap: 8px; margin-top: 18px; font-family: var(--font-display); font-size: clamp(2.2rem, 3.4vw, 2.9rem); font-weight: 620; letter-spacing: -0.04em; line-height: 1; }
+  .price-unit { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.06em; color: var(--ink-3); text-transform: uppercase; }
+  .price-secondary { font-size: 1rem; color: var(--ink-2); }
+  .price-foot { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); }
+
+  .price-context { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 16px; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; background: var(--line); }
+  @media (max-width: 720px) { .price-context { grid-template-columns: 1fr; } }
+  .context-cell { background: var(--surface); padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+  .context-value { font-family: var(--font-display); font-size: 1.1rem; font-weight: 620; letter-spacing: -0.02em; }
+  .context-note { font-size: 1rem; color: var(--ink-3); }
+
+  .assessment-table .country-cell { font-weight: 600; color: var(--ink); }
+  .assessment-table .highlight-cell { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  .table-note { margin-top: 10px; font-size: 1rem; line-height: 1.6; color: var(--ink-3); max-width: 92ch; }
+
+  .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+  .chart-card { margin: 0; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+  .chart-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .chart-head h3 { font-size: 1rem; }
+  .chart-head p { margin-top: 3px; font-size: 1rem; color: var(--ink-3); }
+  .chart-image-link { display: block; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); }
+  .chart-image-link img { width: 100%; height: auto; max-height: 560px; object-fit: contain; margin-inline: auto; }
+
+  .cnerng-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 32px;
+    padding: clamp(22px, 3vw, 34px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  @media (max-width: 900px) { .cnerng-panel { grid-template-columns: 1fr; } }
+  .cnerng-body { margin-top: 10px; font-size: 1rem; line-height: 1.65; color: var(--ink-3); max-width: 58ch; }
+  .cnerng-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .cnerng-features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+  .cnerng-feature { background: var(--surface-2); padding: 16px; display: flex; flex-direction: column; gap: 5px; }
+  .cnerng-feature svg { color: var(--brand); }
+  .cnerng-feature strong { font-size: 1rem; }
+  .cnerng-feature span { font-size: 1rem; color: var(--ink-3); line-height: 1.45; }
+  .price-note { margin-top: 18px; font-size: 1rem; line-height: 1.65; color: var(--ink-3); max-width: 90ch; }
+</style>

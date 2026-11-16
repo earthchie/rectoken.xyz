@@ -1,0 +1,259 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowUpRight, TriangleAlert } from '@lucide/astro';
+import Logo from '@components/Logo.astro';
+import { SITE } from '@data/site';
+import { t, type Locale } from '@i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const year = new Date().getFullYear();
+
+const columns = [
+  {
+    title: t('footer.token', locale),
+    links: [
+      { label: locale === 'th' ? 'REC Token คืออะไร' : 'What is REC Token', path: 'about' },
+      { label: locale === 'th' ? 'รายละเอียดโทเคน' : 'Token details', path: 'token' },
+      { label: locale === 'th' ? 'สถาปัตยกรรม' : 'Architecture', path: 'architecture' },
+      { label: locale === 'th' ? 'ราคาและตลาด' : 'Price & market', path: 'price' },
+      { label: locale === 'th' ? 'ไวท์เปเปอร์' : 'Whitepaper', path: 'whitepaper' },
+    ],
+  },
+  {
+    title: t('footer.transparency', locale),
+    links: [
+      { label: locale === 'th' ? 'แดชบอร์ดเรียลไทม์' : 'Live dashboard', path: 'data' },
+      { label: locale === 'th' ? 'โครงการ' : 'Projects', path: 'projects' },
+      { label: locale === 'th' ? 'รายงานรายเดือน' : 'Monthly reports', path: 'reports' },
+      { label: locale === 'th' ? 'ตรวจสอบที่อยู่' : 'Verify an address', path: 'check' },
+      { label: locale === 'th' ? 'แอป Pool' : 'Pool app', href: SITE.external.pool, external: true },
+      { label: locale === 'th' ? 'ใบรับรองการไถ่ถอน' : 'Retirement certificates', href: SITE.external.certificates, external: true },
+    ],
+  },
+  {
+    title: t('footer.compliance', locale),
+    links: [
+      { label: locale === 'th' ? 'ภาพรวมการกำกับดูแล' : 'Regulatory overview', path: 'compliance' },
+      { label: locale === 'th' ? 'การควบคุมและการตรวจสอบ' : 'Controls & audit', path: 'compliance/controls' },
+      { label: locale === 'th' ? 'การกล่าวอ้างและสิทธิ์' : 'Claims & eligibility', path: 'compliance/claims' },
+      { label: locale === 'th' ? 'ปัจจัยความเสี่ยง' : 'Risk factors', path: 'compliance/risk' },
+      { label: locale === 'th' ? 'การอุทธรณ์' : 'Appeals', path: 'compliance/appeals' },
+    ],
+  },
+  {
+    title: t('footer.company', locale),
+    links: [
+      { label: locale === 'th' ? 'ผู้ออกโทเคน' : 'Issuer', path: 'issuer' },
+      { label: locale === 'th' ? 'ประกาศ' : 'Announcements', path: 'announcement' },
+      { label: locale === 'th' ? 'คลังเอกสาร' : 'Document library', path: 'documents' },
+      { label: locale === 'th' ? 'คำถามที่พบบ่อย' : 'FAQ', path: 'faq' },
+      { label: locale === 'th' ? 'ติดต่อ' : 'Contact', path: 'contact' },
+    ],
+  },
+  {
+    title: t('footer.legal', locale),
+    links: [
+      { label: locale === 'th' ? 'นโยบายความเป็นส่วนตัว' : 'Privacy policy', path: 'legal/privacy' },
+      { label: locale === 'th' ? 'ข้อกำหนดการใช้งาน' : 'Terms of service', path: 'legal/terms' },
+      { label: locale === 'th' ? 'นโยบายคุกกี้' : 'Cookie policy', path: 'legal/cookies' },
+      { label: locale === 'th' ? 'ค้นหา' : 'Search', path: 'search' },
+    ],
+  },
+];
+
+const socials = [
+  { label: 'X', href: SITE.social.x },
+  { label: 'Telegram', href: SITE.social.telegram },
+  { label: 'Facebook', href: SITE.social.facebook },
+  { label: 'Messenger', href: SITE.social.messenger },
+  { label: 'GitHub', href: SITE.social.github },
+];
+---
+
+<footer class="site-footer">
+  <div class="container-wide">
+    <div class="footer-risk">
+      <div class="risk-mark">
+        <TriangleAlert size={18} stroke-width={1.8} aria-hidden="true" />
+      </div>
+      <div class="risk-copy">
+        <span class="risk-eyebrow">{t('common.riskWarning', locale)}</span>
+        <p>{t('footer.risk', locale)}</p>
+      </div>
+      <a href={getRelativeLocaleUrl(locale, 'compliance/risk')} class="risk-link">
+        {locale === 'th' ? 'อ่านปัจจัยความเสี่ยง' : 'Read risk factors'}
+        <ArrowUpRight size={14} stroke-width={2} aria-hidden="true" />
+      </a>
+    </div>
+
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <Logo href={getRelativeLocaleUrl(locale)} />
+        <p class="footer-tagline">{t('footer.tagline', locale)}</p>
+        <dl class="footer-company">
+          <div>
+            <dt>{t('footer.regNo', locale)}</dt>
+            <dd>{SITE.regNo}</dd>
+          </div>
+          <div>
+            <dt>{locale === 'th' ? 'ที่อยู่' : 'Registered office'}</dt>
+            <dd>{SITE.address[locale]}</dd>
+          </div>
+          <div>
+            <dt>{t('common.email', locale)}</dt>
+            <dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd>
+          </div>
+        </dl>
+      </div>
+
+      {columns.map((column) => (
+        <nav class="footer-col" aria-label={column.title}>
+          <h2 class="footer-heading">{column.title}</h2>
+          {column.links.map((link: any) => (
+            <a
+              class="footer-link"
+              href={link.external ? link.href : getRelativeLocaleUrl(locale, link.path)}
+              target={link.external ? '_blank' : undefined}
+              rel={link.external ? 'noopener noreferrer' : undefined}
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      ))}
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {year} {SITE.legalName.replace(/\.$/, '')}. {locale === 'th' ? 'สงวนลิขสิทธิ์' : 'All rights reserved.'}</p>
+      <div class="footer-socials">
+        {socials.map((social, i) => (
+          <span>
+            <a href={social.href} target="_blank" rel="noopener noreferrer">{social.label}</a>
+            {i < socials.length - 1 && <span class="footer-social-sep" aria-hidden="true">·</span>}
+          </span>
+        ))}
+      </div>
+      <p class="footer-meta">
+        <span>{locale === 'th' ? 'กฎหมายที่ใช้บังคับ: ราชอาณาจักรไทย' : 'Governing law: Kingdom of Thailand'}</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-risk {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 16px;
+    margin-top: 20px;
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: linear-gradient(100deg, var(--warning-bg), var(--surface) 62%);
+    overflow: hidden;
+  }
+  .footer-risk::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--warning), transparent);
+  }
+  .risk-mark {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--warning) 14%, transparent);
+    color: var(--warning);
+    flex-shrink: 0;
+  }
+  .risk-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warning);
+  }
+  .risk-copy p {
+    margin-top: 4px;
+    max-width: 94ch;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .risk-link {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 550;
+    white-space: nowrap;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .risk-link:hover { border-color: var(--warning); color: var(--warning); }
+  .risk-link svg { transition: transform 0.25s ease; }
+  .risk-link:hover svg { transform: translate(2px, -2px); }
+
+  @media (max-width: 820px) {
+    .footer-risk { grid-template-columns: auto minmax(0, 1fr); }
+    .risk-link { grid-column: 1 / -1; justify-self: start; }
+  }
+
+  .footer-brand { padding-right: 24px; }
+  .footer-tagline {
+    margin-top: 18px;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-3);
+    max-width: 34ch;
+  }
+  .footer-company {
+    margin: 22px 0 0;
+    display: grid;
+    gap: 10px;
+  }
+  .footer-company dt {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    opacity: 0.85;
+  }
+  .footer-company dd {
+    margin: 2px 0 0;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+  .footer-company a:hover { color: var(--brand); }
+
+  .footer-socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.03em;
+  }
+  .footer-socials a { color: var(--ink-3); }
+  .footer-socials a:hover { color: var(--brand); }
+  .footer-social-sep { opacity: 0.35; margin: 0 4px; }
+  .footer-meta { color: var(--ink-3); }
+</style>

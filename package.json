@@ -1,0 +1,34 @@
+{
+  "name": "rectoken-xyz",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && pagefind --site dist && node scripts/setup-pagefind.mjs",
+    "build:astro": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "i18n": "node scripts/check-i18n.mjs",
+    "links": "node scripts/check-links.mjs",
+    "og": "node scripts/generate-og.mjs",
+    "verify": "npm run build && npm run i18n && npm run links"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.5",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@fontsource/ibm-plex-sans-thai": "^5.2.8",
+    "@lucide/astro": "^1.73.0",
+    "@tailwindcss/vite": "^4.3.5",
+    "astro": "^6.4.8",
+    "pagefind": "^1.6.0",
+    "tailwindcss": "^4.3.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.63.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.8"
+  }
+}

@@ -1,0 +1,104 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { ArrowLeft, ArrowRight } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import Toc from '@components/Toc.astro';
+import { PRIVACY, TERMS, COOKIES, LEGAL_META } from '@data/legal';
+import type { Locale } from '@i18n/utils';
+
+interface Props {
+  kind: 'privacy' | 'terms' | 'cookies';
+  lang: Locale;
+}
+const { kind, lang } = Astro.props;
+
+const sections = kind === 'privacy' ? PRIVACY : kind === 'terms' ? TERMS : COOKIES;
+const meta = LEGAL_META[kind];
+const title = lang === 'th' ? meta.thaiTitle : meta.title;
+const description = lang === 'th' ? meta.thaiDescription : meta.description;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+
+const toc = sections.map((section, i) => ({
+  id: `section-${i + 1}`,
+  label: section.title[lang],
+}));
+
+const otherLegal = [
+  { kind: 'privacy', label: lang === 'th' ? 'ความเป็นส่วนตัว' : 'Privacy' },
+  { kind: 'terms', label: lang === 'th' ? 'ข้อกำหนด' : 'Terms' },
+  { kind: 'cookies', label: lang === 'th' ? 'คุกกี้' : 'Cookies' },
+].filter((item) => item.kind !== kind);
+---
+
+<BaseLayout title={title} description={description} locale={lang}>
+  <PageHero
+    eyebrow={lang === 'th' ? 'กฎหมาย' : 'Legal'}
+    title={title}
+    description={description}
+    locale={lang}
+    chips={[lang === 'th' ? 'เวอร์ชัน 1.0' : 'Version 1.0', lang === 'th' ? 'กฎหมายไทย' : 'Thai law']}
+  />
+
+  <section class="section-tight">
+    <div class="container-page with-rail">
+      <div class="legal-body">
+        {sections.map((section, i) => (
+          <section class="legal-section" id={`section-${i + 1}`}>
+            <h2>{section.title[lang]}</h2>
+            <p>{section.body[lang]}</p>
+            {section.bullets && (
+              <ul>
+                {section.bullets.map((bullet) => <li>{bullet[lang]}</li>)}
+              </ul>
+            )}
+          </section>
+        ))}
+
+        <div class="legal-foot">
+          <a class="link-arrow" href={l('')}>
+            <ArrowLeft size={14} stroke-width={2} />
+            {lang === 'th' ? 'กลับหน้าหลัก' : 'Back to home'}
+          </a>
+          <div class="legal-other">
+            {otherLegal.map((item) => (
+              <a class="link-arrow" href={l(`legal/${item.kind}`)}>
+                {item.label}
+                <ArrowRight size={13} stroke-width={2} />
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <Toc locale={lang} title={lang === 'th' ? 'ในหน้านี้' : 'On this page'} items={toc} />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-body { min-width: 0; max-width: 78ch; }
+  .legal-section { padding-block: 26px; border-bottom: 1px solid var(--line); scroll-margin-top: 96px; }
+  .legal-section:first-child { padding-top: 0; }
+  .legal-section h2 {
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .legal-section p {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .legal-section ul {
+    margin: 12px 0 0;
+    padding-left: 1.2em;
+    display: grid;
+    gap: 7px;
+  }
+  .legal-section li { font-size: 1rem; line-height: 1.65; color: var(--ink-2); }
+  .legal-section li::marker { color: var(--brand); }
+  .legal-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 24px; }
+  .legal-other { display: flex; flex-wrap: wrap; gap: 16px; }
+</style>

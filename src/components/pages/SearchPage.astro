@@ -1,0 +1,111 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Search } from '@lucide/astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PageHero from '@components/PageHero.astro';
+import type { Locale } from '@i18n/utils';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const l = (path: string) => getRelativeLocaleUrl(lang, path);
+---
+
+<BaseLayout
+  title={lang === 'th' ? 'ค้นหา' : 'Search'}
+  description={lang === 'th' ? 'ค้นหาเอกสาร ข้อมูล โครงการ และประกาศทั่วทั้งเว็บไซต์' : 'Search documents, data, projects and announcements across the site.'}
+  locale={lang}
+>
+  <PageHero
+    eyebrow={lang === 'th' ? 'ค้นหา' : 'Search'}
+    title={lang === 'th' ? 'ค้นหาทั้งเว็บไซต์' : 'Search the whole site'}
+    description={lang === 'th' ? 'ค้นหาไวท์เปเปอร์ ประกาศ รายงาน ข้อมูลโครงการ และหน้าความโปร่งใส' : 'Search the whitepaper, announcements, reports, project data and transparency pages.'}
+    locale={lang}
+    chips={[lang === 'th' ? 'ดัชนีแบบเต็มข้อความ' : 'Full-text index', 'Pagefind', 'EN / TH']}
+  />
+
+  <section class="section-tight">
+    <div class="container-page">
+      <div
+        class="search-page"
+        data-search-page
+        data-locale={lang}
+        data-empty-label={lang === 'th' ? 'ไม่พบผลลัพธ์ ลองใช้คำอื่น' : 'No results found. Try a different term.'}
+        data-missing-label={lang === 'th' ? 'ขณะนี้ระบบค้นหายังไม่พร้อมใช้งาน กรุณาลองใหม่อีกครั้งภายหลัง' : 'Search index not found. Run `npm run build` to generate it.'}
+        data-results-label={lang === 'th' ? 'รายการ' : 'results'}
+      >
+        <label class="search-page-input">
+          <Search size={18} stroke-width={1.8} aria-hidden="true" />
+          <input
+            type="search"
+            placeholder={lang === 'th' ? 'ค้นหาเอกสาร ข้อมูล โครงการ…' : 'Search documents, data, projects…'}
+            data-search-page-input
+            aria-label={lang === 'th' ? 'ค้นหา' : 'Search'}
+            autocomplete="off"
+          />
+        </label>
+        <p class="search-page-count" data-search-page-count></p>
+        <div class="search-page-results" data-search-page-results></div>
+      </div>
+
+      <div class="search-note">
+        <p>
+          {lang === 'th'
+            ? 'ค้นหาข้อมูลจากหน้าต่าง ๆ ในเว็บไซต์ หรือเลือกดูจากลิงก์ด้านล่าง'
+            : 'The index is generated from the built HTML. If you just added a page, run `npm run build` again.'}
+        </p>
+        <div class="search-links">
+          <a class="link-arrow" href={l('documents')}>{lang === 'th' ? 'คลังเอกสาร' : 'Document library'}</a>
+          <a class="link-arrow" href={l('data')}>{lang === 'th' ? 'แดชบอร์ดเรียลไทม์' : 'Live dashboard'}</a>
+          <a class="link-arrow" href={l('compliance')}>{lang === 'th' ? 'การกำกับดูแล' : 'Compliance'}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .search-page { max-width: 860px; }
+  .search-page-input {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    height: 56px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .search-page-input svg { color: var(--ink-3); flex-shrink: 0; }
+  .search-page-input input {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .search-page-count { margin-top: 12px; font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.05em; color: var(--ink-3); }
+  .search-page-results { margin-top: 8px; }
+  .search-page-results :global(.search-result-page) {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+  }
+  .search-page-results :global(.search-result-page:hover) { background: var(--surface-2); }
+  .search-page-results :global(.search-result-page .search-result-title) { font-size: 1rem; }
+  .search-page-results :global(.search-result-page .search-result-excerpt) { font-size: 1rem; -webkit-line-clamp: 3; }
+  .search-note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .search-note p { font-size: 1rem; color: var(--ink-3); max-width: 60ch; }
+  .search-links { display: flex; flex-wrap: wrap; gap: 16px; }
+</style>
