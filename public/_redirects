@@ -15,6 +15,7 @@
 /redeem                    /th/redeem/           301
 /wallet                    /th/wallet/           301
 /check                     /th/check/            302
+/check/*                   /th/check/?address=:splat  302
 
 # Localised legacy links
 /th/privacy-policy         /th/legal/privacy/    301

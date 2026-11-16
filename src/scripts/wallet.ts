@@ -6,6 +6,9 @@
 import { rpc } from './chain';
 import { CHAINS } from '@data/site';
 
+/** Chains with a JSON-RPC endpoint. Kubchain is explorer-only in site config. */
+const RPC_CHAINS = [CHAINS.thaifi, CHAINS.optimism] as const;
+
 export type WalletChain = {
   id: number;
   hexId: string;
@@ -261,7 +264,7 @@ export async function sendTransaction(tx: {
 
 /** Wait for a receipt by polling the public RPC of a configured chain. */
 export async function waitForReceipt(chainId: number, hash: string, timeoutMs = 120_000): Promise<any> {
-  const chain = Object.values(CHAINS).find((entry) => entry.id === chainId);
+  const chain = RPC_CHAINS.find((entry) => entry.id === chainId);
   if (!chain) throw new Error('UNKNOWN_CHAIN');
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {

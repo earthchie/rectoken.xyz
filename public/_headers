@@ -4,7 +4,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://asset.blockedge.co; connect-src 'self' https://rpc.thaifi.com https://mainnet.optimism.io https://asset.blockedge.co https://open.er-api.com https://api.bitkub.com https://www.kubscan.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; worker-src 'self' blob:
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://asset.blockedge.co; connect-src 'self' https://rpc.thaifi.com https://mainnet.optimism.io https://asset.blockedge.co https://open.er-api.com https://api.bitkub.com https://www.kubscan.com; worker-src 'self' blob:
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable

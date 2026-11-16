@@ -1,11 +1,8 @@
 name = "rectoken-xyz"
 compatibility_date = "2026-11-16"
-main = "src/worker.ts"
 
-# Static site output. The Worker only handles /api/redeem and /check/*;
-# everything else is served straight from dist with _headers and _redirects applied.
+# Static site only. There is no Worker script in this repository; the redemption
+# backend will live in a separate service.
 [assets]
 directory = "./dist"
-binding = "ASSETS"
 not_found_handling = "404-page"
-run_worker_first = ["/api/*", "/check", "/check/*"]

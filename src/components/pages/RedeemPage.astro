@@ -1,6 +1,6 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { ArrowRight, CheckCircle, Copy, ExternalLink, Info, ShieldCheck, Clock, Mail, Scale } from '@lucide/astro';
+import { ArrowRight, Copy, ExternalLink, Info, ShieldCheck, Clock, Mail, Scale } from '@lucide/astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PageHero from '@components/PageHero.astro';
 import Icon from '@components/Icon.astro';
@@ -12,7 +12,6 @@ interface Props {
 }
 const { lang } = Astro.props;
 const l = (path: string) => getRelativeLocaleUrl(lang, path);
-const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 
 const options = [
   {
@@ -151,7 +150,7 @@ const steps = [
         <div class="redeem-form-card" data-redeem>
           <div data-redeem-form-wrap>
             <h2 class="h3">{lang === 'th' ? 'ส่งคำขอแลกคืน' : 'Submit a redemption request'}</h2>
-            <p class="redeem-form-sub">{lang === 'th' ? 'ระบุรายละเอียดการโอนโทเคน เราตรวจสอบทุกคำขอก่อนเผา' : 'Provide the details of your token transfer. We verify every request before burning tokens.'}</p>
+            <p class="redeem-form-sub">{lang === 'th' ? 'กรอกรายละเอียดการโอนโทเคน แล้วระบบจะสร้างอีเมลคำขอให้คุณส่งจากแอปอีเมลของคุณ' : 'Enter the details of your token transfer and we will prepare an email you send from your mail app.'}</p>
 
             <form class="redeem-form" data-redeem-form novalidate>
               <div class="form-grid">
@@ -196,42 +195,21 @@ const steps = [
                 <textarea class="textarea" id="redeem-notes" name="notes" placeholder={lang === 'th' ? 'ข้อมูลเพิ่มเติมหรือคำขอพิเศษ…' : 'Any additional information or special instructions…'} data-redeem-notes></textarea>
               </div>
 
-              <div class="field">
-                <label class="field-label">{siteKey ? (lang === 'th' ? 'การยืนยันความปลอดภัย *' : 'Security verification *') : (lang === 'th' ? 'การยืนยันความปลอดภัย' : 'Security verification')}</label>
-                <div class="turnstile" data-turnstile data-sitekey={siteKey}></div>
-                <span class="field-hint" data-turnstile-hint>
-                  {siteKey
-                    ? (lang === 'th' ? 'ยืนยันความปลอดภัยเพื่อเปิดใช้งานการส่ง' : 'Complete the verification to enable submission.')
-                    : (lang === 'th' ? 'ไม่จำเป็นในสภาพแวดล้อมนี้' : 'Not required in this environment.')}
-                </span>
-              </div>
-
               <p class="redeem-error" data-redeem-error hidden></p>
 
               <button type="submit" class="btn btn-primary redeem-submit" data-redeem-submit>
-                {lang === 'th' ? 'ส่งคำขอแลกคืน' : 'Submit redemption request'}
+                {lang === 'th' ? 'เปิดอีเมลคำขอ' : 'Open request email'}
               </button>
-
-              <p class="redeem-fallback" data-redeem-fallback hidden>
-                {lang === 'th' ? 'บริการรับคำขอไม่พร้อมใช้งานในเครื่องนี้' : 'The request service is not available here.'}
-                <a data-redeem-mailto href={`mailto:${SITE.supportEmail}`}>{lang === 'th' ? 'เขียนอีเมลแทน' : 'Compose an email instead'}</a>
-              </p>
             </form>
           </div>
 
-          <div class="redeem-success" data-redeem-success hidden>
-            <div class="redeem-success-icon"><CheckCircle size={26} stroke-width={1.8} /></div>
-            <h2 class="h3">{lang === 'th' ? 'ส่งคำขอแล้ว' : 'Request submitted'}</h2>
-            <p>{lang === 'th' ? 'ได้รับคำขอของคุณแล้ว กรุณาเก็บรหัสคำขอไว้เพื่ออ้างอิง' : 'Your request has been received. Keep the request ID for reference.'}</p>
-            <div class="redeem-receipt">
-              <div><span>{lang === 'th' ? 'รหัสคำขอ' : 'Request ID'}</span><strong data-redeem-request-id>-</strong></div>
-              <div><span>{lang === 'th' ? 'สถานะ' : 'Status'}</span><strong data-redeem-status>-</strong></div>
-              <div><span>{lang === 'th' ? 'คาดว่าจะเสร็จสิ้น' : 'Expected completion'}</span><strong data-redeem-expected>-</strong></div>
-            </div>
-            <ul class="check-list redeem-next" data-redeem-next></ul>
+          <div class="redeem-success" data-redeem-draft hidden>
+            <div class="redeem-success-icon"><Mail size={26} stroke-width={1.8} /></div>
+            <h2 class="h3">{lang === 'th' ? 'อีเมลคำขอพร้อมส่ง' : 'Request email ready'}</h2>
+            <p>{lang === 'th' ? 'เราเปิดแอปอีเมลของคุณพร้อมรายละเอียดคำขอแล้ว กรุณากดส่งจากแอปอีเมล คำขอจะถือว่าได้รับเมื่อทีมงานตอบกลับ' : 'Your mail app should open with the request details. Send it from there. The request counts as received when our team replies.'}</p>
             <div class="redeem-success-actions">
-              <a class="btn btn-secondary" href={l('')}>{lang === 'th' ? 'กลับหน้าหลัก' : 'Return home'}</a>
-              <button type="button" class="btn btn-primary" data-redeem-another>{lang === 'th' ? 'ส่งคำขอใหม่' : 'Submit another request'}</button>
+              <a class="btn btn-primary" data-redeem-mailto href={`mailto:${SITE.supportEmail}`}>{lang === 'th' ? 'เปิดอีเมลอีกครั้ง' : 'Open the email again'}</a>
+              <button type="button" class="btn btn-secondary" data-redeem-another>{lang === 'th' ? 'แก้ไขรายละเอียด' : 'Edit details'}</button>
             </div>
           </div>
         </div>
@@ -301,20 +279,12 @@ const steps = [
   .redeem-form-sub { margin-top: 6px; font-size: 1rem; line-height: 1.6; color: var(--ink-3); }
   .redeem-form { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
   .redeem-form .mono { font-family: var(--font-mono); font-size: 1rem; }
-  .turnstile { min-height: 0; }
   .redeem-error { color: var(--danger); font-size: 1rem; }
   .redeem-submit { width: 100%; min-height: 48px; }
-  .redeem-fallback { font-size: 1rem; color: var(--ink-3); text-align: center; }
-  .redeem-fallback a { color: var(--brand); text-decoration: underline; }
 
   .redeem-success { text-align: center; padding: 12px 0; }
   .redeem-success-icon { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); }
   .redeem-success p { margin-top: 8px; font-size: 1rem; color: var(--ink-3); }
-  .redeem-receipt { display: grid; gap: 1px; margin-top: 20px; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--line); text-align: left; }
-  .redeem-receipt > div { display: flex; justify-content: space-between; gap: 12px; padding: 11px 14px; background: var(--surface-2); font-size: 1rem; }
-  .redeem-receipt span { color: var(--ink-3); }
-  .redeem-receipt strong { font-family: var(--font-mono); font-size: 1rem; }
-  .redeem-next { margin-top: 18px; text-align: left; }
   .redeem-success-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 22px; }
 
   .redeem-info { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
