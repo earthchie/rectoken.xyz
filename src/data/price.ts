@@ -1,7 +1,11 @@
 export const PRICE_PAGE = {
   title: 'REC Token price',
-  subtitle: 'Historical REC Token price charts and the underlying I-REC assessment.',
+  subtitle: 'REC Token price reference, market comparison and the underlying I-REC assessment.',
   callout: 'REC Tokens are backed by REC Hydro from Vietnam - generated from hydropower renewable energy projects.',
+  /*
+   * Temporarily not rendered on /price: the previous chart banners showed an
+   * incorrect opening price. Re-enable when corrected images are supplied.
+   */
   charts: [
     {
       title: 'REC Price 2025',
@@ -20,7 +24,7 @@ export const PRICE_PAGE = {
 
 export const PRICE_TH = {
   title: 'ราคา REC Token',
-  subtitle: 'กราฟราคาย้อนหลังของ REC Token และการประเมินราคา I-REC อ้างอิง',
+  subtitle: 'ราคาอ้างอิงของ REC Token ตลาดเปรียบเทียบ และการประเมินราคา I-REC อ้างอิง',
   callout: 'REC Token มีใบรับรอง REC จากโครงการผลิตไฟฟ้าพลังน้ำในเวียดนามเป็นสินทรัพย์อ้างอิง',
   charts: [
     { title: 'ราคา REC ปี 2025', description: 'แนวโน้มราคา REC Token ปี 2025' },

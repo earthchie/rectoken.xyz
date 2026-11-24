@@ -31,6 +31,13 @@ const contracts = [
     note: { en: 'Active primary deployment', th: 'สัญญาหลักที่ใช้งานอยู่' },
   },
   {
+    label: { en: 'REC minter · ThaiFi', th: 'ตัวออกโทเคน REC · ThaiFi' },
+    address: CONTRACTS.recMinter,
+    chain: 'ThaiFi',
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.recMinter}`,
+    note: { en: 'Issuance gateway', th: 'ประตูการออกโทเคน' },
+  },
+  {
     label: { en: 'Retired token · ThaiFi', th: 'โทเคนไถ่ถอน · ThaiFi' },
     address: CONTRACTS.retiredToken,
     chain: 'ThaiFi',
@@ -73,11 +80,11 @@ const contracts = [
     note: { en: 'Lock address, not a token', th: 'ที่อยู่ของสัญญาล็อก ไม่ใช่โทเคน' },
   },
   {
-    label: { en: 'Whitepaper reference · ThaiFi', th: 'ที่อยู่ในไวท์เปเปอร์ · ThaiFi' },
-    address: CONTRACTS.whitepaperThaiFiRef,
+    label: { en: 'Admin multisig · ThaiFi', th: 'มัลติซิกผู้ดูแล · ThaiFi' },
+    address: CONTRACTS.multisig,
     chain: 'ThaiFi',
-    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.whitepaperThaiFiRef}`,
-    note: { en: 'Recorded in Whitepaper v1.0 §1.1', th: 'บันทึกในไวท์เปเปอร์ v1.0 §1.1' },
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.multisig}`,
+    note: { en: '2-of-3 admin', th: 'ผู้ดูแล 2 จาก 3' },
   },
   {
     label: { en: 'Legacy pool · CO2e Chain', th: 'พูลเดิม · CO2e Chain' },

@@ -43,6 +43,12 @@ const updatedAt = new Intl.DateTimeFormat(lang === 'th' ? 'th-TH-u-ca-gregory' :
   timeZone: 'Asia/Bangkok',
 }).format(stats.updatedAt);
 const updatedLabel = `${t('common.updated', lang)} ${updatedAt} ICT`;
+const poolStatus =
+  stats.paused === null
+    ? '-'
+    : stats.paused
+      ? lang === 'th' ? 'หยุดชั่วคราว' : 'Paused'
+      : lang === 'th' ? 'ใช้งาน' : 'Active';
 
 const labels = {
   title: lang === 'th' ? 'แดชบอร์ดเรียลไทม์เพื่อความโปร่งใส' : 'Live transparency dashboard',
@@ -64,6 +70,7 @@ type ChainCard = {
   explorer: string;
   native: string;
   status: string;
+  statusStat?: string;
   stat: string;
   supply: number | null;
   remaining?: number | null;
@@ -78,7 +85,8 @@ const chains: ChainCard[] = [
     token: CONTRACTS.poolThaiFi,
     explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.poolThaiFi}`,
     native: lang === 'th' ? 'pathUSD (ทศนิยม 6 ตำแหน่ง)' : 'pathUSD (6 decimals)',
-    status: lang === 'th' ? 'ใช้งาน' : 'Active',
+    status: poolStatus,
+    statusStat: 'pool-status',
     stat: 'pool',
     supply: stats.poolSupply,
     remaining: stats.remaining,
@@ -230,8 +238,8 @@ const chains: ChainCard[] = [
       <p class="source-note">
         <Icon name="Info" size={14} />
         {lang === 'th'
-          ? 'ไวท์เปเปอร์ v1.0 §1.1 ระบุที่อยู่บน ThaiFi เป็น 0x18c8… ซึ่งต่างจากที่อยู่สัญญาที่ใช้งานอยู่ 0x7269… ทะเบียนนี้แสดงทั้งสองรายการเพื่อความโปร่งใส'
-          : 'Whitepaper v1.0 §1.1 records a ThaiFi address at 0x18c8…, which differs from the active deployment at 0x7269…. Both are listed here for transparency.'}
+          ? 'สัญญาพูลบน ThaiFi ที่ใช้งานอยู่คือ 0x7269992Ea88ec64fF65f9B03F8D6Ea4AADb5EAE9 ส่วน 0x18c8F43c456e3947C37D3604d891De914d592776 คือสัญญาล็อกสะพาน Kubchain ซึ่งเป็นคนละสัญญา ตรวจสอบที่อยู่ที่ใช้งานบน explorer ก่อนส่งโทเคนทุกครั้ง'
+          : 'The active ThaiFi pool token is 0x7269992Ea88ec64fF65f9B03F8D6Ea4AADb5EAE9. The Kubchain bridge lock is a separate contract at 0x18c8F43c456e3947C37D3604d891De914d592776. Always verify the active address on the explorer before sending tokens.'}
       </p>
     </div>
   </section>
@@ -276,7 +284,10 @@ const chains: ChainCard[] = [
                 </div>
               )}
               <div><dt>{lang === 'th' ? 'เหรียญหลัก' : 'Native'}</dt><dd>{chain.native}</dd></div>
-              <div><dt>{lang === 'th' ? 'สถานะ' : 'Status'}</dt><dd>{chain.status}</dd></div>
+              <div>
+                <dt>{lang === 'th' ? 'สถานะ' : 'Status'}</dt>
+                <dd>{chain.statusStat ? <span data-stat={chain.statusStat}>{chain.status}</span> : chain.status}</dd>
+              </div>
             </dl>
             <a class="link-arrow" href={chain.explorer} target="_blank" rel="noopener noreferrer">
               {lang === 'th' ? 'เปิดเครื่องมือสำรวจบล็อกเชน' : 'Open explorer'}

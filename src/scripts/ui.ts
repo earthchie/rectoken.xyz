@@ -573,6 +573,17 @@ async function initLiveStats(): Promise<void> {
         el.textContent = `${t('common.updated', pageLocale())} ${stamp} ICT`;
         return;
       }
+      if (key === 'pool-status') {
+        const thai = pageLocale() === 'th';
+        el.textContent =
+          stats.paused === null
+            ? '-'
+            : stats.paused
+              ? thai ? 'หยุดชั่วคราว' : 'Paused'
+              : thai ? 'ใช้งาน' : 'Active';
+        el.dataset.live = 'true';
+        return;
+      }
       if (key in values) {
         el.textContent = formatStat(values[key], el.dataset.statFormat || 'full');
         el.classList.remove('skeleton');

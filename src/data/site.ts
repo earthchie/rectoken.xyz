@@ -1,6 +1,6 @@
 /**
  * Single source of truth for site-wide facts, addresses and navigation.
- * Values are taken from Whitepaper v1.0 and the live deployment config.
+ * Values are taken from Whitepaper v1.1 and the live deployment config.
  */
 
 export type Locale = 'en' | 'th';
@@ -32,10 +32,10 @@ export const SITE = {
     certification: 'I-REC certified under the I-TRACK standard',
   },
   whitepaper: {
-    version: '1.0',
+    version: '1.1',
     pages: 48,
     updated: '2026',
-    url: 'https://asset.blockedge.co/rec-project/rec-whitepaper-v1.0.pdf',
+    url: 'https://asset.blockedge.co/rec-project/rec-whitepaper-v1.1.pdf',
   },
   redemption: {
     minimum: 100,
@@ -81,9 +81,10 @@ export const CONTRACTS = {
   certificateNft: '0xAF3A54D50A8527649F03ff6103bC58e6d3CFb0c4',
   poolOptimism: '0xF4fEfEe4730Cf174608766877911F8D33735f9D7',
   poolKubchain: '0x5555555555240EF13ef76C1dC35Aa5CD695616F8',
-  bridgeOptimism: '0x0291822d708D8925fb1FA2E7c52791285d7c5cF7',
-  bridgeKubchain: '0x1ae6DB7e63200f473Dc56B660Cbffd2043507E3D',
-  whitepaperThaiFiRef: '0x18c8F43c456e3947C37D3604d891De914d592776',
+  recMinter: '0xF559db05151D11eE7695F76981176A6558508c04',
+  multisig: '0x612076A8Fd8E735EFE6408524f8f74F70dCFc17A',
+  bridgeOptimism: '0x9d61C1a98A06A02c4ddaA3D87dBdF708d3C1E006',
+  bridgeKubchain: '0x18c8F43c456e3947C37D3604d891De914d592776',
   legacyCo2e: '0x578f3B6133A3BF06b2988B68085DD9860D2cAbca',
   legacyCo2eNft: '0x01f23D1524a1f98D3C174C39d3eE4F2bA5daF438',
   legacyRetired: '0xe77EfaB6f0a51b73D06b425Ef3C563350621330D',
@@ -224,7 +225,7 @@ export const NAVIGATION: NavGroup[] = [
     ],
     featured: {
       path: '/whitepaper',
-      label: { en: 'Whitepaper v1.0', th: 'ไวท์เปเปอร์ v1.0' },
+      label: { en: 'Whitepaper v1.1', th: 'ไวท์เปเปอร์ v1.1' },
       desc: {
         en: 'The full 48-page source document for every claim on this site.',
         th: 'เอกสารต้นฉบับครบ 48 หน้า ซึ่งเป็นแหล่งอ้างอิงสำหรับทุกข้อกล่าวอ้างบนเว็บไซต์นี้',
