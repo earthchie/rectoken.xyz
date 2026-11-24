@@ -156,13 +156,15 @@ export function initWalletPage(lang: string): void {
 
   addChain?.addEventListener('click', async () => {
     try {
-      await ensureChain(CHAINS.thaifi);
+      const ok = await ensureChain(CHAINS.thaifi);
+      if (!ok) throw new Error('CHAIN_NOT_ADDED');
       toast?.(
         lang === 'th' ? 'เพิ่ม ThaiFi แล้ว' : 'ThaiFi added',
         lang === 'th' ? 'ขณะนี้คุณสามารถสลับไปยังเชน 17 ใน MetaMask ได้' : 'You can now switch to chain 17 in MetaMask.',
         'success'
       );
-    } catch {
+    } catch (error) {
+      console.warn('[wallet] could not add ThaiFi', error);
       toast?.(
         lang === 'th' ? 'เพิ่ม ThaiFi ไม่สำเร็จ' : 'Could not add ThaiFi',
         lang === 'th' ? 'กรุณาเพิ่มเครือข่ายด้วยตนเอง' : 'Please add the network manually.',

@@ -208,7 +208,7 @@ export async function ensureChain(chain: WalletChain): Promise<boolean> {
   const current = (await provider.request({ method: 'eth_chainId' })) as string;
   if (sameChain(current, chain)) return true;
 
-  try {
+  const switchToChain = async (): Promise<boolean> => {
     await provider.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: chain.hexId }],
@@ -216,9 +216,15 @@ export async function ensureChain(chain: WalletChain): Promise<boolean> {
     const updated = (await provider.request({ method: 'eth_chainId' })) as string;
     setState({ chainId: updated });
     return sameChain(updated, chain);
+  };
+
+  try {
+    return await switchToChain();
   } catch (error: any) {
     const code = error?.code ?? Number(error?.data?.originalError?.code);
-    if (code === 4902) {
+    if (code !== 4902) return false;
+
+    try {
       await provider.request({
         method: 'wallet_addEthereumChain',
         params: [
@@ -231,11 +237,21 @@ export async function ensureChain(chain: WalletChain): Promise<boolean> {
           },
         ],
       });
-      const updated = (await provider.request({ method: 'eth_chainId' })) as string;
-      setState({ chainId: updated });
-      return sameChain(updated, chain);
+      return await switchToChain();
+    } catch (addError: any) {
+      const addCode = addError?.code ?? Number(addError?.data?.originalError?.code);
+      if (addCode === 4001) throw addError;
+      /*
+       * MetaMask also rejects an add when the chain is already present with a
+       * different native symbol. In that case the chain exists, so one more
+       * switch is the correct recovery.
+       */
+      try {
+        return await switchToChain();
+      } catch {
+        throw addError;
+      }
     }
-    return false;
   }
 }
 

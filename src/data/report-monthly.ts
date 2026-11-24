@@ -21,11 +21,11 @@ type PortfolioSnapshot = {
   showVintageYearsAttribute: boolean;
   walletSource?: Bi;
   policyNote?: Bi;
-  reconciliationConclusion?: Bi;
-  coverageConclusion?: Bi;
+  reconciliationConclusion: Bi;
+  coverageConclusion: Bi;
   retirementNote: Bi;
   retiredNote: Bi;
-  findingBalanced?: Bi;
+  findingBalanced: Bi;
   findingMatched: Bi;
 };
 
@@ -284,21 +284,40 @@ function replaceMonth<T>(value: T, monthEn: string, monthTh: string, year: strin
   return value;
 }
 
-function applySnapshot(report: ReportData, snapshot: PortfolioSnapshot): void {
-  report.metrics[0].value = snapshot.total;
-  report.metrics[1].value = snapshot.tokenized;
-  report.metrics[2].value = snapshot.surplus;
-  report.metrics[3].value = snapshot.coverage;
+function setRowValue(
+  rows: Array<{ label: Bi; value: string }>,
+  label: string,
+  value: string
+): void {
+  const row = rows.find((item) => item.label.en === label);
+  if (!row) throw new Error(`Report row not found: ${label}`);
+  row.value = value;
+}
 
-  report.summary.rows[0].value = snapshot.total;
-  report.summary.rows[1].value = snapshot.available;
-  report.summary.rows[2].value = snapshot.onRetirement;
-  report.summary.rows[3].value = snapshot.tokenized;
-  report.summary.rows[4].value = snapshot.retiredTokens;
+function applySnapshot(report: ReportData, snapshot: PortfolioSnapshot): void {
+  setRowValue(report.metrics, 'Total REC balance on REHASH', snapshot.total);
+  setRowValue(report.metrics, 'Tokenized REC supply', snapshot.tokenized);
+  setRowValue(report.metrics, 'Reserve surplus', snapshot.surplus);
+  setRowValue(report.metrics, 'Reserve coverage ratio', snapshot.coverage);
+
+  setRowValue(report.summary.rows, 'Total REC balance on REHASH', snapshot.total);
+  setRowValue(report.summary.rows, 'Available REC balance on REHASH', snapshot.available);
+  setRowValue(report.summary.rows, 'REC on retirement on REHASH', snapshot.onRetirement);
+  setRowValue(
+    report.summary.rows,
+    'Total REC tokenized reported on RECTOKEN.XYZ',
+    snapshot.tokenized
+  );
+  setRowValue(
+    report.summary.rows,
+    'Total retired tokens reported on RECTOKEN.XYZ',
+    snapshot.retiredTokens
+  );
 
   const setAttribute = (label: string, value: Bi) => {
     const row = report.reserve.attributes.find((attribute) => attribute.label.en === label);
-    if (row) row.value = value;
+    if (!row) throw new Error(`Report attribute not found: ${label}`);
+    row.value = value;
   };
   if (snapshot.showVintageYearsAttribute) {
     setAttribute('Vintage years', snapshot.vintageLabel);
@@ -316,11 +335,11 @@ function applySnapshot(report: ReportData, snapshot: PortfolioSnapshot): void {
   report.reserve.vintageTitle = snapshot.vintageTitle;
   report.reserve.total.value = snapshot.total;
 
-  report.supply.rows[0].value = snapshot.tokenized;
-  report.supply.rows[1].value = snapshot.poolBalance;
-  report.supply.rows[2].value = snapshot.bridgedOp;
-  report.supply.rows[3].value = snapshot.bridgedKub;
-  report.supply.rows[4].value = snapshot.retiredTokens;
+  setRowValue(report.supply.rows, 'Total REC tokenized', snapshot.tokenized);
+  setRowValue(report.supply.rows, 'RECTOKEN pool balance', snapshot.poolBalance);
+  setRowValue(report.supply.rows, 'Bridged to Optimism', snapshot.bridgedOp);
+  setRowValue(report.supply.rows, 'Bridged to Kubchain', snapshot.bridgedKub);
+  setRowValue(report.supply.rows, 'Total retired', snapshot.retiredTokens);
 
   const compositionTotal = Number(snapshot.tokenized.replace(/,/g, '')) || 0;
   const share = (value: string) => {
@@ -334,38 +353,42 @@ function applySnapshot(report: ReportData, snapshot: PortfolioSnapshot): void {
   ];
   report.supply.retiredNote = snapshot.retiredNote;
 
-  report.reconciliation.rows[0].value = snapshot.total;
-  report.reconciliation.rows[1].value = snapshot.tokenized;
-  report.reconciliation.rows[2].value = snapshot.surplus;
-  if (snapshot.reconciliationConclusion) {
-    report.reconciliation.conclusion = snapshot.reconciliationConclusion;
-  }
+  setRowValue(report.reconciliation.rows, 'Total REC balance on REHASH', snapshot.total);
+  setRowValue(report.reconciliation.rows, 'Total REC tokenized on RECTOKEN', snapshot.tokenized);
+  setRowValue(report.reconciliation.rows, 'Reserve surplus', snapshot.surplus);
+  report.reconciliation.conclusion = snapshot.reconciliationConclusion;
 
   report.coverage.numerator = snapshot.total;
   report.coverage.denominator = snapshot.tokenized;
   report.coverage.ratio = snapshot.coverage;
-  if (snapshot.coverageConclusion) {
-    report.coverage.conclusion = snapshot.coverageConclusion;
-  }
+  report.coverage.conclusion = snapshot.coverageConclusion;
 
-  report.retirement.paragraphs[0] = {
-    en: `The REHASH inventory records ${snapshot.onRetirement} MWh as "On Retirement." For reserve reconciliation purposes, this amount is treated separately from freely available inventory, but remains part of the total REHASH balance at the reporting date.`,
-    th: `ข้อมูลสินค้าคงคลังของ REHASH บันทึกจำนวน ${snapshot.onRetirement} MWh ว่า "อยู่ระหว่างการไถ่ถอน" ในการกระทบยอดสินทรัพย์สำรอง จำนวนนี้แยกจากสินค้าคงคลังที่สามารถใช้ได้อย่างอิสระ แต่ยังคงรวมอยู่ในยอดทั้งหมดบน REHASH ณ วันที่รายงาน`,
-  };
-  report.retirement.paragraphs[1] = snapshot.retirementNote;
-  report.retirement.cards[0].value = snapshot.onRetirement;
-  report.retirement.cards[1].value = snapshot.retiredTokens;
+  report.retirement.paragraphs = [
+    {
+      en: `The REHASH inventory records ${snapshot.onRetirement} MWh as "On Retirement." For reserve reconciliation purposes, this amount is treated separately from freely available inventory, but remains part of the reported reserve balance at the reporting date.`,
+      th: `ข้อมูลสินค้าคงคลังของ REHASH บันทึกจำนวน ${snapshot.onRetirement} MWh ว่า "อยู่ระหว่างการไถ่ถอน" ในการกระทบยอดสินทรัพย์สำรอง จำนวนนี้แยกจากสินค้าคงคลังที่สามารถใช้ได้อย่างอิสระ แต่ยังคงรวมอยู่ในยอดสำรองที่รายงาน ณ วันที่รายงาน`,
+    },
+    snapshot.retirementNote,
+  ];
+  setRowValue(report.retirement.cards, 'On retirement at REHASH', snapshot.onRetirement);
+  setRowValue(report.retirement.cards, 'Permanently retired on RECTOKEN', snapshot.retiredTokens);
 
-  report.findings.items[0] = {
-    en: `The total REHASH REC balance is ${snapshot.total} MWh.`,
-    th: `ยอด REC รวมบน REHASH คือ ${snapshot.total} MWh`,
-  };
-  report.findings.items[1] = {
-    en: `The RECTOKEN dashboard reports total REC tokenized of ${snapshot.tokenized} REC.`,
-    th: `แดชบอร์ด RECTOKEN รายงานยอด REC ที่แปลงเป็นโทเคนรวม ${snapshot.tokenized} REC`,
-  };
-  if (snapshot.findingBalanced) report.findings.items[2] = snapshot.findingBalanced;
-  report.findings.items[3] = snapshot.findingMatched;
+  report.findings.items = [
+    {
+      en: `The total REHASH REC balance is ${snapshot.total} MWh.`,
+      th: `ยอด REC รวมบน REHASH คือ ${snapshot.total} MWh`,
+    },
+    {
+      en: `The RECTOKEN dashboard reports total REC tokenized of ${snapshot.tokenized} REC.`,
+      th: `แดชบอร์ด RECTOKEN รายงานยอด REC ที่แปลงเป็นโทเคนรวม ${snapshot.tokenized} REC`,
+    },
+    snapshot.findingBalanced,
+    snapshot.findingMatched,
+    {
+      en: 'No evidence was identified from the reviewed data that the tokenized REC supply exceeds the reserve balance on REHASH.',
+      th: 'ไม่พบหลักฐานจากข้อมูลที่ตรวจสอบว่าจำนวนโทเคน REC ที่ออกเกินยอดสำรองบน REHASH',
+    },
+  ];
 
   report.conclusion.paragraphs[2] = {
     en: `The project therefore demonstrates a reserve coverage position of ${snapshot.coverage}% when measured against the total REHASH REC balance.`,

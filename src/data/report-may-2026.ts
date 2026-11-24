@@ -261,8 +261,8 @@ export const REPORT_MAY_2026 = {
   retirement: {
     paragraphs: [
       {
-        en: 'The REHASH inventory records 0.0000 MWh as "On Retirement." For reserve reconciliation purposes, this amount is treated separately from freely available inventory, but remains part of the total REHASH balance at the reporting date.',
-        th: 'ข้อมูลสินค้าคงคลังของ REHASH บันทึกจำนวน 0.0000 MWh ว่า "อยู่ระหว่างไถ่ถอน" ในการกระทบยอดสินทรัพย์สำรอง จำนวนนี้แยกจากสินค้าคงคลังที่สามารถใช้ได้อย่างอิสระ แต่ยังคงรวมอยู่ในยอดทั้งหมดบน REHASH ณ วันที่รายงาน',
+        en: 'The REHASH inventory records 0.0000 MWh as "On Retirement." For reserve reconciliation purposes, this amount is treated separately from freely available inventory, but remains part of the reported reserve balance at the reporting date.',
+        th: 'ข้อมูลสินค้าคงคลังของ REHASH บันทึกจำนวน 0.0000 MWh ว่า "อยู่ระหว่างไถ่ถอน" ในการกระทบยอดสินทรัพย์สำรอง จำนวนนี้แยกจากสินค้าคงคลังที่สามารถใช้ได้อย่างอิสระ แต่ยังคงรวมอยู่ในยอดสำรองที่รายงาน ณ วันที่รายงาน',
       },
       {
         en: 'The RECTOKEN dashboard reports 322.5101 REC as permanently retired. This figure is not circulating supply. It represents REC tokens that have already been removed from active circulation through the retirement process.',
