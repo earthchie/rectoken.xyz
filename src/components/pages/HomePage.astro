@@ -25,7 +25,7 @@ import {
   CTA,
   COMPARISON,
 } from '@data/home';
-import procurement from '@data/projects.json';
+import { loadProjects } from '@scripts/data';
 import { t, pick, type Locale } from '@i18n/utils';
 import { formatNumber, shortAddress } from '@utils/format';
 
@@ -35,13 +35,14 @@ interface Props {
 const { lang } = Astro.props;
 
 const l = (path: string) => getRelativeLocaleUrl(lang, path);
-const snapshotSupply = procurement.projects.reduce(
-  (sum, p) => sum + Number(p.supplySnapshot || 0),
-  0
-);
-const snapshotCount = procurement.projects.length;
+/* Read the live project registry rather than a hand-maintained list. */
+const registry = await loadProjects();
+const snapshotSupply = registry.reduce((sum, p) => sum + p.supply, 0);
+const snapshotCount = registry.length;
+const primaryVintage = registry[0]?.vintage || '';
+const vintageLabel = [...new Set(registry.map((p) => p.vintage))].sort().join(' · ');
 const provinceMap = new Map<string, number>();
-for (const project of procurement.projects) {
+for (const project of registry) {
   provinceMap.set(project.province, (provinceMap.get(project.province) || 0) + 1);
 }
 const provinceCounts = [...provinceMap.entries()].sort((a, b) => b[1] - a[1]);
@@ -274,9 +275,9 @@ const docs = [
               <div><span>Unit</span><strong>1 MWh</strong></div>
               <div><span>Standard</span><strong>I-TRACK</strong></div>
               <div><span>Registry</span><strong>Evident</strong></div>
-              <div><span>Vintage</span><strong>2024</strong></div>
+              <div><span>Vintage</span><strong>{primaryVintage}</strong></div>
             </div>
-            <div class="certificate-code">IREC-••••-VN-2024</div>
+            <div class="certificate-code">IREC-••••-VN-{primaryVintage}</div>
           </div>
           <div class="asset-connector">
             <span class="connector-line"></span>
@@ -589,7 +590,7 @@ const docs = [
         }
       >
         <a class="link-arrow" href={l('projects')}>
-          {lang === 'th' ? 'ดูทั้ง 12 โครงการ' : 'All 12 projects'}
+          {lang === 'th' ? `ดูทั้ง ${snapshotCount} โครงการ` : `All ${snapshotCount} projects`}
           <ArrowRight size={14} stroke-width={2} aria-hidden="true" />
         </a>
       </SectionHead>
@@ -600,7 +601,7 @@ const docs = [
             <span class="kpi-label">{lang === 'th' ? 'โครงการตามจังหวัด' : 'Projects by province'}</span>
             <strong>{snapshotCount} {lang === 'th' ? 'โครงการ · เวียดนาม' : 'projects · Vietnam'}</strong>
           </div>
-          <span class="chip">I-REC · 2024</span>
+          <span class="chip">I-REC · {vintageLabel}</span>
         </div>
         <div class="province-bars">
           {provinceCounts.map(([province, count], i) => (
@@ -616,7 +617,7 @@ const docs = [
       </div>
 
       <div class="project-grid">
-        {procurement.projects.slice(0, 3).map((project) => (
+        {registry.slice(0, 3).map((project) => (
           <a class="project-card" href={l('projects')}>
             <div class="project-card-top">
               <h3>{project.name}</h3>
@@ -632,7 +633,7 @@ const docs = [
             </div>
             <div class="project-card-foot">
               <span class="project-supply">
-                {formatNumber(Number(project.supplySnapshot), lang, { maximumFractionDigits: 2 })}
+                {formatNumber(project.supply, lang, { maximumFractionDigits: 2 })}
                 <small>REC · {lang === 'th' ? 'จำนวนโทเคนรวม' : 'total supply'}</small>
               </span>
               <span class="project-open" aria-hidden="true"><ArrowRight size={15} stroke-width={2} /></span>
@@ -645,8 +646,8 @@ const docs = [
         <Icon name="Info" size={14} />
         <span>
           {lang === 'th'
-            ? 'หน้ารายละเอียดโครงการอ่านจำนวนโทเคนจาก ThaiFi แบบเรียลไทม์ ส่วนค่าที่แสดงบนหน้านี้เป็นข้อมูล ณ วันที่ 16 พ.ย. 2026'
-            : 'Supply is read live from ThaiFi on the project pages. Values shown here are a snapshot dated 16 Nov 2026.'}
+            ? 'รายการโครงการอ่านจาก rec-hydro.json ส่วนจำนวนโทเคนอ่านจาก ThaiFi ขณะสร้างหน้าและรีเฟรชสดบนเบราว์เซอร์'
+            : 'The project list is read from rec-hydro.json; supply is read from ThaiFi at build and refreshed live in the browser.'}
         </span>
       </p>
     </div>

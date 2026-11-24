@@ -67,7 +67,7 @@ export const SITE = {
     certificates: 'https://cert.rectoken.xyz/',
     redex: 'https://redex.eco',
     evidence: 'https://evident.global',
-    rehash: 'https://rehash.eco',
+    rehash: 'https://rehash.redex.eco/',
     bitkub: 'https://www.bitkub.com',
     cnergPlatform: 'https://platform.cnerg.net/home',
     cnergIndex: 'https://www.cnerg.net/solutions/price-index',
@@ -91,6 +91,15 @@ export const CONTRACTS = {
   usdtOptimism: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
   uniswapRouter: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
   uniswapQuoter: '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6',
+} as const;
+
+/** Public wallets referenced by the site. These are not contracts. */
+export const WALLETS = {
+  /**
+   * Holds the residual pool-token balance on ThaiFi after the November 2026
+   * vintage swap (0.33 REC at the 24 November 2026 snapshot).
+   */
+  poolCustody: '0x5266Dfa5ae013674f8FdC832b7c601B838D94eE6',
 } as const;
 
 export const CHAINS = {

@@ -6,15 +6,43 @@ import PageHero from '@components/PageHero.astro';
 import SectionHead from '@components/SectionHead.astro';
 import ContractTable from '@components/ContractTable.astro';
 import Icon from '@components/Icon.astro';
-import { SITE, CONTRACTS, CHAINS } from '@data/site';
+import { SITE, CONTRACTS, CHAINS, WALLETS } from '@data/site';
+import { loadStats } from '@scripts/data';
 import { t, type Locale } from '@i18n/utils';
-import { formatNumber } from '@utils/format';
+import { formatCompact, formatNumber, shortAddress } from '@utils/format';
 
 interface Props {
   lang: Locale;
 }
 const { lang } = Astro.props;
 const l = (path: string) => getRelativeLocaleUrl(lang, path);
+/*
+ * Read the chain at build time so the page never ships dashes: every figure
+ * below is rendered with a real snapshot, then refreshed live in the browser.
+ */
+const stats = await loadStats();
+const bridgedTotal =
+  stats.bridgedOp === null || stats.bridgedKub === null
+    ? null
+    : stats.bridgedOp + stats.bridgedKub;
+const utilization =
+  stats.poolSupply === null ? 0 : Math.min(100, (stats.poolSupply / 100_000_000) * 100);
+const statText = (value: number | null, mode: 'full' | 'compact' | 'int' = 'full'): string => {
+  if (value === null || !Number.isFinite(value)) return '-';
+  if (mode === 'int') return Math.round(value).toLocaleString('en-US');
+  if (mode === 'compact') return formatCompact(value);
+  return formatNumber(value, lang, { maximumFractionDigits: 2 });
+};
+/* Match initLiveStats(): Thai month names with the Gregorian year. */
+const updatedAt = new Intl.DateTimeFormat(lang === 'th' ? 'th-TH-u-ca-gregory' : 'en-GB', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'Asia/Bangkok',
+}).format(stats.updatedAt);
+const updatedLabel = `${t('common.updated', lang)} ${updatedAt} ICT`;
 
 const labels = {
   title: lang === 'th' ? 'แดชบอร์ดเรียลไทม์เพื่อความโปร่งใส' : 'Live transparency dashboard',
@@ -24,11 +52,25 @@ const labels = {
       : 'Supply, retirements and bridged balances read directly from ThaiFi and public chains. Every value has a contract address and an explorer to verify it.',
   source:
     lang === 'th'
-      ? 'ข้อมูลอ่านจาก RPC สาธารณะขณะโหลดหน้า และสถานะบนเชนอาจเปลี่ยนไปเมื่อคุณอ่าน ข้อมูลนี้เป็นภาพ ณ ช่วงเวลาหนึ่ง ไม่ได้อัปเดตอย่างต่อเนื่อง'
-      : 'Values are read from public RPC at page load and may change between your read and the chain state. This is a point-in-time snapshot, not a streaming feed.',
+      ? 'ค่าที่แสดงถูกอ่านจาก RPC สาธารณะทั้งขณะสร้างหน้าและเมื่อโหลดหน้าในเบราว์เซอร์ สถานะบนเชนอาจเปลี่ยนไปเมื่อคุณอ่าน ข้อมูลนี้เป็นภาพ ณ ช่วงเวลาหนึ่ง ไม่ได้อัปเดตอย่างต่อเนื่อง'
+      : 'Values are read from public RPC both at build time and when the page loads in your browser; state may change between reads. This is a point-in-time snapshot, not a streaming feed.',
 };
 
-const chains = [
+type ChainCard = {
+  name: string;
+  id: string;
+  role: string;
+  token: string;
+  explorer: string;
+  native: string;
+  status: string;
+  stat: string;
+  supply: number | null;
+  remaining?: number | null;
+  wallet?: string;
+};
+
+const chains: ChainCard[] = [
   {
     name: 'ThaiFi',
     id: lang === 'th' ? 'เชน 17' : 'chain 17',
@@ -37,6 +79,10 @@ const chains = [
     explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.poolThaiFi}`,
     native: lang === 'th' ? 'pathUSD (ทศนิยม 6 ตำแหน่ง)' : 'pathUSD (6 decimals)',
     status: lang === 'th' ? 'ใช้งาน' : 'Active',
+    stat: 'pool',
+    supply: stats.poolSupply,
+    remaining: stats.remaining,
+    wallet: WALLETS.poolCustody,
   },
   {
     name: 'Optimism',
@@ -46,6 +92,8 @@ const chains = [
     explorer: `${CHAINS.optimism.explorer}/token/${CONTRACTS.poolOptimism}`,
     native: 'ETH (18)',
     status: lang === 'th' ? 'โอนข้ามเชน' : 'Bridged',
+    stat: 'bridged-op',
+    supply: stats.bridgedOp,
   },
   {
     name: 'Kubchain',
@@ -55,6 +103,8 @@ const chains = [
     explorer: `${CHAINS.kubchain.explorer}/address/${CONTRACTS.poolKubchain}`,
     native: 'KUB',
     status: lang === 'th' ? 'โอนข้ามเชน' : 'Bridged',
+    stat: 'bridged-kub',
+    supply: stats.bridgedKub,
   },
 ];
 ---
@@ -77,28 +127,28 @@ const chains = [
     <div class="container-page">
       <div class="dash-top">
         <span class="chip chip-brand"><span class="dot dot-live"></span>{lang === 'th' ? 'อ่านจากเชน' : 'Read from chain'}</span>
-        <span class="dash-updated" data-stat="updated">{lang === 'th' ? 'กำลังอ่านข้อมูลจากเชน…' : 'Reading chain…'}</span>
+        <span class="dash-updated" data-stat="updated">{updatedLabel}</span>
       </div>
 
       <div class="dash-strip">
         <div class="dash-cell">
           <span class="kpi-label">{lang === 'th' ? 'จำนวนโทเคนพูล' : 'Pool token supply'}</span>
-          <div class="kpi-value"><span data-stat="pool" data-stat-format="full">-</span></div>
+          <div class="kpi-value"><span data-stat="pool" data-stat-format="full">{statText(stats.poolSupply, 'full')}</span></div>
           <span class="delta">REC · ThaiFi</span>
         </div>
         <div class="dash-cell">
           <span class="kpi-label">{lang === 'th' ? 'ไถ่ถอนแล้วทั้งหมด' : 'Total retired'}</span>
-          <div class="kpi-value"><span data-stat="retired" data-stat-format="full">-</span></div>
+          <div class="kpi-value"><span data-stat="retired" data-stat-format="full">{statText(stats.retired, 'full')}</span></div>
           <span class="delta">{lang === 'th' ? 'เผาถาวร · ย้อนกลับไม่ได้' : 'Burned · irreversible'}</span>
         </div>
         <div class="dash-cell">
           <span class="kpi-label">{lang === 'th' ? 'โทเคนรายโครงการ' : 'Project tokens'}</span>
-          <div class="kpi-value"><span data-stat="project-supply" data-stat-format="compact">-</span></div>
-          <span class="delta"><span data-stat="project-count" data-stat-format="int">12</span> {lang === 'th' ? 'โครงการ' : 'projects'}</span>
+          <div class="kpi-value"><span data-stat="project-supply" data-stat-format="compact">{statText(stats.projectSupply, 'compact')}</span></div>
+          <span class="delta"><span data-stat="project-count" data-stat-format="int">{statText(stats.projectCount, 'int')}</span> {lang === 'th' ? 'โครงการ' : 'projects'}</span>
         </div>
         <div class="dash-cell">
           <span class="kpi-label">{lang === 'th' ? 'โอนข้ามเชนออก' : 'Bridged out'}</span>
-          <div class="kpi-value"><span data-stat="bridged-total" data-stat-format="compact">-</span></div>
+          <div class="kpi-value"><span data-stat="bridged-total" data-stat-format="compact">{statText(bridgedTotal, 'compact')}</span></div>
           <span class="delta">Optimism + Kubchain</span>
         </div>
       </div>
@@ -116,7 +166,7 @@ const chains = [
           <span class="chip">{lang === 'th' ? `เพดาน ${formatNumber(100_000_000, lang)} REC` : `${formatNumber(100_000_000, lang)} REC cap`}</span>
         </div>
         <div class="supply-bar" role="img" aria-label={lang === 'th' ? 'แถบแสดงสัดส่วนจำนวนโทเคน' : 'Supply utilisation bar'}>
-          <span class="supply-fill" data-bar="pool"></span>
+          <span class="supply-fill" data-bar="pool" style={`width:${utilization > 0 ? Math.max(0.4, utilization) : 0}%`}></span>
         </div>
         <div class="supply-legend">
           <span><span class="legend-dot"></span>{lang === 'th' ? 'จำนวนโทเคนที่ออก' : 'Issued'}</span>
@@ -133,7 +183,7 @@ const chains = [
           <ul class="check-list">
             <li><ShieldCheck size={15} />{lang === 'th' ? 'จำนวนโทเคนพูลคือจำนวนที่ออกและหมุนเวียน ซึ่งอ่านจาก ThaiFi' : 'Pool token supply is the issued and circulating amount read from ThaiFi.'}</li>
             <li><ShieldCheck size={15} />{lang === 'th' ? 'ยอดไถ่ถอนอ่านจาก totalSupply ของโทเคนไถ่ถอน ซึ่งเพิ่มเมื่อมีการเผา' : 'Retirements are read from the retired token totalSupply, which increases as tokens are burned.'}</li>
-            <li><ShieldCheck size={15} />{lang === 'th' ? 'จำนวนโทเคนที่โอนข้ามเชน อ่านจากยอดคงเหลือของสัญญาล็อกบน ThaiFi' : 'Bridged balances are read from the lock contract balances on ThaiFi.'}</li>
+            <li><ShieldCheck size={15} />{lang === 'th' ? 'จำนวนโทเคนที่โอนข้ามเชน อ่านจาก totalSupply ของโทเคนพูลบน Optimism และ Kubchain' : 'Bridged supply is read from the pool token totalSupply on Optimism and Kubchain.'}</li>
             <li><ShieldCheck size={15} />{lang === 'th' ? 'โทเคนรายโครงการคือผลรวมจำนวนโทเคนของสัญญาโครงการที่รู้จัก' : 'Project tokens are the sum of known project token supplies.'}</li>
           </ul>
         </div>
@@ -205,6 +255,26 @@ const chains = [
             <p>{chain.role}</p>
             <dl>
               <div><dt>{lang === 'th' ? 'โทเคน' : 'Token'}</dt><dd class="address">{chain.token}</dd></div>
+              <div>
+                <dt>{lang === 'th' ? 'จำนวนโทเคนบนเชน' : 'On-chain supply'}</dt>
+                <dd><span data-stat={chain.stat} data-stat-format="full">{statText(chain.supply, 'full')}</span> REC</dd>
+              </div>
+              {chain.remaining !== undefined && (
+                <div>
+                  <dt>{lang === 'th' ? 'คงเหลือบน ThaiFi' : 'Remaining on ThaiFi'}</dt>
+                  <dd><span data-stat="remaining" data-stat-format="full">{statText(chain.remaining, 'full')}</span> REC</dd>
+                </div>
+              )}
+              {chain.wallet && (
+                <div>
+                  <dt>{lang === 'th' ? 'กระเป๋าถือครอง' : 'Custody wallet'}</dt>
+                  <dd class="address">
+                    <a href={`${CHAINS.thaifi.explorer}/address/${chain.wallet}`} target="_blank" rel="noopener noreferrer">
+                      {shortAddress(chain.wallet)}
+                    </a>
+                  </dd>
+                </div>
+              )}
               <div><dt>{lang === 'th' ? 'เหรียญหลัก' : 'Native'}</dt><dd>{chain.native}</dd></div>
               <div><dt>{lang === 'th' ? 'สถานะ' : 'Status'}</dt><dd>{chain.status}</dd></div>
             </dl>

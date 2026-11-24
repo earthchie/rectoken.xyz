@@ -55,7 +55,7 @@ src/
     pages/                                 one component per route, takes `lang`
   data/
     site.ts                                company, contracts, chains, navigation
-    projects.json                          project registry snapshot (12 projects)
+    projects.json                          fallback snapshot of the live project registry
     content.ts                             long-form page content (about, token, compliance, ...)
     whitepaper.ts, compliance.ts, home.ts, faq.ts, legal.ts, price.ts, reports.ts
   i18n/{en,th}.json                        shared UI strings (223 keys each)
@@ -82,10 +82,17 @@ scripts/
 
 ### Adding a project
 
-`src/data/projects.json` is the static registry used for server rendering and fallback. At runtime
-`src/scripts/data.ts` fetches `https://asset.blockedge.co/rec-hydro.json`, then refreshes supplies
-from ThaiFi. A new project appears automatically once it is added to the remote list; add it to the
-snapshot too so it is visible without JavaScript and indexable by search.
+`https://asset.blockedge.co/rec-hydro.json` is the source of truth. The project pages call
+`loadProjects()` from `src/scripts/data.ts` at build time: it reads the address list, then each
+project's metadata from `https://asset.blockedge.co/<address>.json`, then the on-chain supply
+from ThaiFi. The same function runs again in the browser to refresh supplies.
+
+A new project appears on the home page, the projects page and the data page on the next build,
+without editing any TypeScript. `src/data/projects.json` is only the fallback snapshot used when
+the remote registry cannot be reached; regenerate it from the live JSON rather than hand-editing
+it. Remove an address from `rec-hydro.json` and it disappears from the site on the next build.
+Only tokenised projects belong in that list; inventory held in REHASH but not tokenised is not
+published as a project.
 
 ### Adding a UI string
 
@@ -106,12 +113,16 @@ Add the key to **both** `src/i18n/en.json` and `src/i18n/th.json`. Use `t('secti
 ## Monthly reports
 
 Monthly portfolio reports are published as normal site pages and exported to PDF from the
-browser, rather than uploaded as static PDFs. Reports currently exist for May through October
+browser, rather than uploaded as static PDFs. Reports currently exist for May through November
 2026 at `/en/reports/<month>-2026/` and `/th/reports/<month>-2026/`.
 
 - Base report copy and figures live in `src/data/report-may-2026.ts`.
-- Monthly variants, including carried-forward months, are generated in
-  `src/data/report-monthly.ts`.
+- Monthly variants and their reserve/supply snapshots are defined in
+  `src/data/report-monthly.ts`. July 2026 records the 29 July export; November 2026 records the
+  18 November import. Carried-forward months use the position they carry from.
+- From the August 2026 report onward, reports do not disclose vintage 2023 or 2024. Older
+  inventory is aggregated into one "Legacy" reserve line. July 2026 and earlier keep their
+  original vintage breakdown.
 - The shared layout and A4 print styles live in `src/components/pages/ReportPage.astro`.
 - Route files are dynamic `[slug].astro` wrappers in `src/pages/en/reports/` and
   `src/pages/th/reports/`.
@@ -128,9 +139,9 @@ update automatically.
 | Pool token supply | `totalSupply()` on `0x726999…EAE9` (ThaiFi) |
 | Retired | `totalSupply()` on `0x25B9e6…6317` (ThaiFi) |
 | Project supplies | `totalSupply()` for each project token (ThaiFi) |
-| Bridged balances | `balanceOf(bridge)` on the pool token (ThaiFi) |
-| Optimism balance | `balanceOf` on `0xF4fEfE…f9D7` (Optimism RPC) |
-| Kubchain balance | Kubscan public API |
+| Bridged to Optimism | `totalSupply()` on `0xF4fEfE…f9D7` (Optimism RPC) |
+| Bridged to Kubchain | `total_supply` from the Kubscan token API |
+| Address balances | `balanceOf` on ThaiFi/Optimism, Kubscan API on Kubchain |
 | OTC reference | `src/data/site.ts` (`0.17 USD`), FX from `open.er-api.com` |
 | Swap quote | Uniswap V3 Quoter on Optimism (`0xb27308…AB6`) |
 

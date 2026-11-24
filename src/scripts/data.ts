@@ -1,5 +1,5 @@
 import snapshot from '@data/projects.json';
-import { CHAINS, CONTRACTS, MARKET, SITE } from '@data/site';
+import { CHAINS, CONTRACTS, MARKET, SITE, WALLETS } from '@data/site';
 import { getBalanceOf, getNativeBalance, getTotalSupply, fromUnitsSafe } from './chain';
 import { safeEndpoint } from './net';
 
@@ -54,7 +54,7 @@ function mapMetadata(address: string, meta: any): Partial<Project> {
     country: (attr('Project location') || 'Vietnam').split(',')[0].trim(),
     technology: attr('Credit category') || 'Hydro-electric',
     standard: attr('Carbon standard') || 'International REC Standard (I-REC)',
-    vintage: attr('Vintage Year') || '2024',
+    vintage: attr('Vintage Year') || '',
     description: meta?.description ?? '',
     image: meta?.image ?? '',
     verifyUrl: attr('Project URL') || meta?.url || '',
@@ -143,11 +143,18 @@ export function snapshotProjects(): Project[] {
 }
 
 async function computeStats() {
-  const [pool, retired, bridgeOp, bridgeKub, projects] = await Promise.allSettled([
+  /*
+   * "Bridged" is read from the pool token's totalSupply on the destination
+   * chain, not from the ThaiFi lock contract. The lock balances on the new
+   * ThaiFi chain read 0 even though the Optimism and Kubchain deployments hold
+   * live supply, so the destination supply is the truthful on-chain figure.
+   */
+  const [pool, retired, bridgeOp, bridgeKub, remaining, projects] = await Promise.allSettled([
     getTotalSupply(RPC, CONTRACTS.poolThaiFi),
     getTotalSupply(RPC, CONTRACTS.retiredToken),
-    getBalanceOf(RPC, CONTRACTS.poolThaiFi, CONTRACTS.bridgeOptimism),
-    getBalanceOf(RPC, CONTRACTS.poolThaiFi, CONTRACTS.bridgeKubchain),
+    getTotalSupply(CHAINS.optimism.rpc, CONTRACTS.poolOptimism),
+    readKubchainSupply(),
+    getBalanceOf(RPC, CONTRACTS.poolThaiFi, WALLETS.poolCustody),
     loadProjects(),
   ]);
 
@@ -156,8 +163,9 @@ async function computeStats() {
   return {
     poolSupply: pool.status === 'fulfilled' ? fromUnitsSafe(pool.value, 18) : null,
     retired: retired.status === 'fulfilled' ? fromUnitsSafe(retired.value, 18) : null,
-    bridgedOp: bridgeOp.status === 'fulfilled' ? fromUnitsSafe(bridgeOp.value, 18) : 0,
-    bridgedKub: bridgeKub.status === 'fulfilled' ? fromUnitsSafe(bridgeKub.value, 18) : 0,
+    bridgedOp: bridgeOp.status === 'fulfilled' ? fromUnitsSafe(bridgeOp.value, 18) : null,
+    bridgedKub: bridgeKub.status === 'fulfilled' ? bridgeKub.value : null,
+    remaining: remaining.status === 'fulfilled' ? fromUnitsSafe(remaining.value, 18) : null,
     projectSupply: projectList.reduce((sum, p) => sum + p.supply, 0),
     projectCount: projectList.length,
     updatedAt: new Date(),
@@ -229,6 +237,20 @@ export async function loadAddressBalances(address: string): Promise<AddressBalan
       .filter((h) => h.balance > 0),
     updatedAt: new Date(),
   };
+}
+
+async function readKubchainSupply(): Promise<number | null> {
+  try {
+    const data = await fetchJson<any>(
+      `${CHAINS.kubchain.api}/tokens/${CONTRACTS.poolKubchain}`,
+      8_000
+    );
+    if (!data || typeof data.total_supply !== 'string') return null;
+    const decimals = Number(data.decimals ?? 18);
+    return fromUnitsSafe(BigInt(data.total_supply), decimals);
+  } catch {
+    return null;
+  }
 }
 
 async function readKubchainBalance(address: string): Promise<number | null> {
