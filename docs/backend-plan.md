@@ -41,17 +41,24 @@ All endpoints JSON over HTTPS, versioned under `/v1`.
 
 ```json
 {
+  "contactName": "Somchai Example",
   "email": "user@example.com",
-  "accountId": "REDEX-12345",
+  "phone": "+66 81 234 5678",
+  "option": "rehash | retire-individual",
+  "rehashAccount": "REHASH account email or ID (required for rehash)",
+  "beneficialName": "Beneficiary name (required for retire-individual)",
+  "retirementReason": "Reason for retirement (required for retire-individual)",
   "amount": 1000,
-  "network": "optimism",
+  "network": "optimism | kubchain",
   "transactionHash": "0x...",
-  "option": "transfer | retire-entity | retire-individual",
   "notes": "optional, max 2000 chars",
   "locale": "th | en",
   "turnstileToken": "..."
 }
 ```
+
+`amount` is accepted only as a cross-check; the server derives the authoritative amount from
+`transactionHash` and rejects a mismatch.
 
 Responses: `201` with `{ id, status, receivedAt }`; `400` for validation failures with a stable
 machine-readable `code`; `409` when the transaction hash was already submitted; `429` when rate
@@ -60,8 +67,10 @@ limited; `503` when email delivery is unavailable.
 Requirements:
 
 - Reject unknown fields, cap the body at 32 KB, cap string lengths server-side.
-- Validate `email`, `amount >= 100`, `network` enum, `option` enum and `transactionHash` as
-  `0x` plus 64 hex characters.
+- Validate `contactName`, `email`, `phone`, `amount >= 100`, `network` enum, `option` enum and
+  `transactionHash` as `0x` plus 64 hex characters.
+- Require `rehashAccount` for `rehash`, and both `beneficialName` and `retirementReason` for
+  `retire-individual`; reject fields that belong to the other option.
 - Accept an `Idempotency-Key` header; identical keys return the original request instead of creating
   a second one.
 - Rate limit by IP and by email, for example 5 requests per hour per IP and 20 per day per address.
@@ -71,10 +80,12 @@ Requirements:
 
 On create:
 
-1. Fetch the transaction and receipt from the chain's RPC.
-2. Confirm it succeeded (`status == 0x1`) and was sent to the redemption vault for that network.
-3. Confirm the token contract is the REC Token contract and the transferred amount matches the
-   requested amount within the accepted decimals.
+1. Fetch the receipt from the Optimism RPC, or the transaction plus token transfers from the
+   Kubchain API.
+2. Confirm it succeeded and contains a `Transfer` of that network's REC token to the redemption
+   vault (or to the zero address for a burn).
+3. Derive the amount from that transfer and compare it to the requested amount within the accepted
+   decimals. Never trust the browser-supplied amount.
 4. Confirm the transaction is old enough to be final (for example 20 confirmations or 10 minutes).
 5. Record the tx hash as consumed so it cannot back a second request.
 6. Mark the request `verified`, or `rejected` with a reason code.
@@ -89,9 +100,15 @@ Store only what triage needs:
 | Field | Notes |
 |---|---|
 | `id` | Public reference, for example `REC-<base32>` |
+| `contact_name` | Requester contact, personal data |
 | `email` | Requester contact, personal data |
-| `account_id` | REDEX/Evident identifier |
-| `amount`, `network`, `option` | Request details |
+| `phone` | Requester contact, personal data |
+| `option` | `rehash` or `retire-individual` |
+| `rehash_account` | Required for `rehash` |
+| `beneficial_name` | Required for `retire-individual` |
+| `retirement_reason` | Required for `retire-individual` |
+| `amount`, `network` | Derived from the transaction |
+| `sender_address`, `vault_address` | Derived from the transaction |
 | `transaction_hash` | Unique, used for duplicate detection |
 | `notes` | Free text, optional |
 | `status` | `received`, `verified`, `rejected`, `in_review`, `completed`, `cancelled` |
@@ -128,11 +145,25 @@ going live.
 
 | Option | Shape | Trade-off |
 |---|---|---|
-| Cloudflare Worker + D1 + Queues + Email | Stays in the current platform, low ops | D1 and queue semantics are limited; email provider still external |
-| Small Node service (Fastify) + Postgres + provider API | Clear schema, easy migrations, portable | Needs a runtime host, backups and monitoring |
+| **Cloudflare Worker + D1 + Queues + email API** | `POST /api/redemptions` Worker writes to D1, sends email and queues retries | Same platform as the site; D1 has a unique index on `transaction_hash`; no server to manage; external email provider needed |
+| **Firebase Firestore + Cloud Functions** | Browser writes to Firestore under security rules; `onCreate` function sends email/FCM | Real-time console and auth; requires App Check and careful rules because PII is in a client-writable store; Blaze plan |
+| **Supabase Postgres + Edge Functions** | Row-level security, SQL schema, webhooks | Another vendor; strong audit/query story |
+| **Formspree / Basin / Netlify Forms** | Hosted form endpoint, built-in email | Fastest to ship; no on-chain verification, duplicate detection or custom audit |
+| **Small Node service + Postgres** | Full control over schema, queues and audit | Needs a runtime host, backups and monitoring |
 
-Recommendation: a small Node service with Postgres. The workload is low volume, the schema and audit
-requirements matter more than edge latency, and it keeps the static site independent of the backend.
+Recommendation for this site: **Cloudflare Worker + D1 + Turnstile + an email API**. The site already
+lives on Cloudflare, the volume is low, and D1's unique index on `transaction_hash` gives duplicate
+protection without a separate database service. Keep the Node + Postgres option if the issuer wants a
+full audit/migrations toolchain and independent hosting more than low ops.
+
+### Notifications
+
+- Send an operations email on every stored request, with `Reply-To` set to the requester.
+- Send an acknowledgement to the requester only after the row is committed.
+- Mirror the notification to a Slack/Telegram webhook if operations wants an instant alert.
+- Use a queue with retries; a failed email must never lose the request.
+- Never notify from the browser. The browser-side verification is UX only; the Worker re-verifies the
+  transaction and is the source of truth.
 
 ## Frontend integration
 

@@ -16,21 +16,21 @@ const l = (path: string) => getRelativeLocaleUrl(lang, path);
 const options = [
   {
     no: '01',
-    title: lang === 'th' ? 'รับ I-REC โดยไม่ไถ่ถอน' : 'Receive I-REC without retirement',
-    who: lang === 'th' ? 'นิติบุคคลเท่านั้น' : 'Legal entities only',
-    body: lang === 'th' ? 'I-REC จะถูกโอนไปยังบัญชี REDEX ของคุณเพื่อใช้งานในอนาคต' : 'I-RECs are transferred to your REDEX account for future use.',
+    title: lang === 'th' ? 'รับ I-REC บน REHASH' : 'Receive I-REC on REHASH',
+    who: lang === 'th' ? 'นิติบุคคล' : 'Legal entities',
+    body:
+      lang === 'th'
+        ? 'ให้บัญชี REHASH ที่ต้องการรับ I-REC จากนั้นคุณสามารถไถ่ถอนใบรับรองด้วยตนเองได้'
+        : 'Provide the REHASH account that should receive the I-RECs. You can retire the certificates yourself afterwards.',
   },
   {
     no: '02',
-    title: lang === 'th' ? 'ไถ่ถอนในนามนิติบุคคล' : 'Retirement under a legal entity',
-    who: lang === 'th' ? 'นิติบุคคล' : 'Legal entities',
-    body: lang === 'th' ? 'I-REC จะถูกไถ่ถอนบน REDEX และออกใบรับรองการไถ่ถอนอย่างเป็นทางการ' : 'I-RECs are retired on REDEX and an official retirement certificate is issued.',
-  },
-  {
-    no: '03',
-    title: lang === 'th' ? 'ไถ่ถอนในนามบุคคลธรรมดา' : 'Retirement on behalf of an individual',
+    title: lang === 'th' ? 'ไถ่ถอนในนามบุคคลธรรมดา' : 'Retire on behalf of an individual',
     who: lang === 'th' ? 'บุคคลธรรมดา' : 'Individuals',
-    body: lang === 'th' ? 'I-REC จะถูกไถ่ถอนภายใต้บัญชีของ BlockEdge โดยบันทึกชื่อของคุณในรายละเอียด' : 'I-RECs are retired under BlockEdge’s account with your name recorded in the retirement details.',
+    body:
+      lang === 'th'
+        ? 'ให้ชื่อผู้รับประโยชน์และเหตุผลในการไถ่ถอน BlockEdge จะไถ่ถอน I-REC ภายใต้บัญชีของบริษัทโดยบันทึกชื่อผู้รับประโยชน์ไว้'
+        : 'Provide the beneficial name and reason for retirement. BlockEdge retires the I-RECs under its account with the beneficiary recorded.',
   },
 ];
 
@@ -43,7 +43,10 @@ const steps = [
   {
     no: '02',
     title: lang === 'th' ? 'ส่งคำขอ' : 'Submit the request',
-    body: lang === 'th' ? 'กรอกอีเมล บัญชี REDEX แฮชธุรกรรม และตัวเลือกการแลกคืน' : 'Provide your email, REDEX account, transaction hash and redemption option.',
+    body:
+      lang === 'th'
+        ? 'กรอกข้อมูลติดต่อ บัญชี REHASH หรือข้อมูลผู้รับประโยชน์ แฮชธุรกรรม และตัวเลือกการแลกคืน'
+        : 'Provide your contact details, REHASH account or beneficiary details, transaction hash and redemption option.',
   },
   {
     no: '03',
@@ -155,16 +158,47 @@ const steps = [
             <form class="redeem-form" data-redeem-form novalidate>
               <div class="form-grid">
                 <div class="field">
-                  <label class="field-label" for="redeem-email">{lang === 'th' ? 'อีเมล *' : 'Email address *'}</label>
-                  <input class="input" id="redeem-email" name="email" type="email" required placeholder="your.email@example.com" data-redeem-email />
+                  <label class="field-label" for="redeem-name">{lang === 'th' ? 'ชื่อผู้ติดต่อ *' : 'Contact name *'}</label>
+                  <input class="input" id="redeem-name" name="name" type="text" required autocomplete="name" placeholder={lang === 'th' ? 'ชื่อและนามสกุล' : 'Full name'} data-redeem-name />
                 </div>
                 <div class="field">
-                  <label class="field-label" for="redeem-account">{lang === 'th' ? 'รหัสบัญชี Evident / REDEX *' : 'Evident / REDEX account ID *'}</label>
-                  <input class="input" id="redeem-account" name="accountId" required placeholder={lang === 'th' ? 'รหัสบัญชี REDEX ของคุณ' : 'Your REDEX account identifier'} data-redeem-account />
+                  <label class="field-label" for="redeem-email">{lang === 'th' ? 'อีเมล *' : 'Email address *'}</label>
+                  <input class="input" id="redeem-email" name="email" type="email" required autocomplete="email" placeholder="your.email@example.com" data-redeem-email />
                 </div>
+                <div class="field">
+                  <label class="field-label" for="redeem-phone">{lang === 'th' ? 'เบอร์โทรศัพท์ *' : 'Phone number *'}</label>
+                  <input class="input" id="redeem-phone" name="phone" type="tel" required autocomplete="tel" placeholder="+66 8x xxx xxxx" data-redeem-phone />
+                </div>
+                <div class="field">
+                  <label class="field-label" for="redeem-option">{lang === 'th' ? 'ตัวเลือกการแลกคืน *' : 'Redemption option *'}</label>
+                  <select class="select" id="redeem-option" name="option" data-redeem-option>
+                    <option value="rehash">{lang === 'th' ? 'รับ I-REC บน REHASH' : 'Receive I-REC on REHASH'}</option>
+                    <option value="individual">{lang === 'th' ? 'ไถ่ถอนในนามบุคคลธรรมดา' : 'Retire on behalf of an individual'}</option>
+                  </select>
+                </div>
+
+                <div class="field form-span" data-redeem-rehash-field>
+                  <label class="field-label" for="redeem-rehash">{lang === 'th' ? 'บัญชี REHASH *' : 'REHASH account *'}</label>
+                  <input class="input" id="redeem-rehash" name="rehashAccount" placeholder={lang === 'th' ? 'อีเมลหรือรหัสบัญชี REHASH' : 'REHASH account email or ID'} data-redeem-rehash />
+                  <span class="field-hint">{lang === 'th' ? 'I-REC จะถูกโอนเข้าบัญชีนี้ คุณสามารถไถ่ถอนด้วยตนเองได้หลังจากนั้น' : 'The I-RECs will be transferred to this account; you can retire them yourself afterwards.'}</span>
+                </div>
+
+                <div class="form-span conditional-fields" data-redeem-individual-fields hidden>
+                  <div class="field">
+                    <label class="field-label" for="redeem-beneficial">{lang === 'th' ? 'ชื่อผู้รับประโยชน์ *' : 'Beneficial name *'}</label>
+                    <input class="input" id="redeem-beneficial" name="beneficialName" placeholder={lang === 'th' ? 'ชื่อบุคคลที่จะบันทึกในการไถ่ถอน' : 'The individual’s name recorded in the retirement'} data-redeem-beneficial />
+                    <span class="field-hint">{lang === 'th' ? 'ชื่อนี้จะถูกบันทึกในรายละเอียดการไถ่ถอน' : 'This name is recorded in the retirement details.'}</span>
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="redeem-reason">{lang === 'th' ? 'เหตุผลในการไถ่ถอน *' : 'Reason for retirement *'}</label>
+                    <textarea class="textarea" id="redeem-reason" name="retirementReason" rows={3} placeholder={lang === 'th' ? 'เช่น การรายงาน Scope 2 หรือข้อกำหนดด้าน ESG' : 'e.g. Scope 2 reporting or an ESG requirement'} data-redeem-reason></textarea>
+                  </div>
+                </div>
+
                 <div class="field">
                   <label class="field-label" for="redeem-amount">{lang === 'th' ? 'จำนวนโทเคน (REC) *' : 'Amount (REC) *'}</label>
-                  <input class="input" id="redeem-amount" name="amount" required inputmode="decimal" placeholder="100" data-redeem-amount />
+                  <input class="input" id="redeem-amount" name="amount" readonly inputmode="decimal" placeholder={lang === 'th' ? 'อ่านจากธุรกรรมอัตโนมัติ' : 'Read from the transaction'} data-redeem-amount />
+                  <span class="field-hint">{lang === 'th' ? 'ระบบอ่านจำนวนจากแฮชธุรกรรมโดยอัตโนมัติ' : 'The amount is read automatically from the transaction hash.'}</span>
                 </div>
                 <div class="field">
                   <label class="field-label" for="redeem-network">{lang === 'th' ? 'เครือข่ายที่โอน *' : 'Network used *'}</label>
@@ -173,26 +207,22 @@ const steps = [
                     <option value="kubchain">Kubchain</option>
                   </select>
                 </div>
-              </div>
 
-              <div class="field">
-                <label class="field-label" for="redeem-hash">{lang === 'th' ? 'แฮชธุรกรรม *' : 'Transaction hash *'}</label>
-                <input class="input mono" id="redeem-hash" name="transactionHash" required placeholder="0x…" spellcheck="false" data-redeem-hash />
-                <span class="field-hint">{lang === 'th' ? 'แฮชของการโอน REC Token ไปยังห้องนิรภัย (ขั้นต่ำ 100 REC)' : 'The hash of your REC Token transfer to the vault (minimum 100 REC).'}</span>
-              </div>
+                <div class="field form-span">
+                  <label class="field-label" for="redeem-hash">{lang === 'th' ? 'แฮชธุรกรรม *' : 'Transaction hash *'}</label>
+                  <div class="input-row">
+                    <input class="input mono" id="redeem-hash" name="transactionHash" required placeholder="0x…" spellcheck="false" data-redeem-hash />
+                    <button type="button" class="btn btn-secondary btn-sm" data-redeem-check>{lang === 'th' ? 'ตรวจสอบ' : 'Check'}</button>
+                  </div>
+                  <span class="field-hint" data-redeem-tx-status aria-live="polite">
+                    {lang === 'th' ? 'วางแฮชของการโอน REC Token ไปยังห้องนิรภัย ระบบจะอ่านจำนวนและผู้ส่งให้' : 'Paste the hash of your REC Token transfer to the vault. The amount and sender are read automatically.'}
+                  </span>
+                </div>
 
-              <div class="field">
-                <label class="field-label" for="redeem-option">{lang === 'th' ? 'ตัวเลือกการแลกคืน *' : 'Redemption option *'}</label>
-                <select class="select" id="redeem-option" name="option" data-redeem-option>
-                  <option value="transfer">{lang === 'th' ? 'รับ I-REC (นิติบุคคล)' : 'Receive I-REC (legal entity)'}</option>
-                  <option value="retire-entity">{lang === 'th' ? 'ไถ่ถอนในนามนิติบุคคล' : 'Retire under a legal entity'}</option>
-                  <option value="retire-individual">{lang === 'th' ? 'ไถ่ถอนในนามบุคคลธรรมดา' : 'Retire on behalf of an individual'}</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="redeem-notes">{lang === 'th' ? 'หมายเหตุ (ไม่บังคับ)' : 'Additional notes (optional)'}</label>
-                <textarea class="textarea" id="redeem-notes" name="notes" placeholder={lang === 'th' ? 'ข้อมูลเพิ่มเติมหรือคำขอพิเศษ…' : 'Any additional information or special instructions…'} data-redeem-notes></textarea>
+                <div class="field form-span">
+                  <label class="field-label" for="redeem-notes">{lang === 'th' ? 'หมายเหตุ (ไม่บังคับ)' : 'Additional notes (optional)'}</label>
+                  <textarea class="textarea" id="redeem-notes" name="notes" placeholder={lang === 'th' ? 'ข้อมูลเพิ่มเติมหรือคำขอพิเศษ…' : 'Any additional information or special instructions…'} data-redeem-notes></textarea>
+                </div>
               </div>
 
               <p class="redeem-error" data-redeem-error hidden></p>
@@ -256,7 +286,7 @@ const steps = [
 </script>
 
 <style>
-  .redeem-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+  .redeem-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
   @media (max-width: 860px) { .redeem-options { grid-template-columns: 1fr; } }
   .redeem-option { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
   .redeem-option-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
@@ -271,7 +301,7 @@ const steps = [
   .vault-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
   .vault-link { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 14px; color: var(--brand); }
   .vault-address { display: flex; align-items: center; gap: 6px; }
-  .vault-address code { flex: 1; font-family: var(--font-mono); font-size: 1rem; word-break: break-all; color: var(--ink); }
+  .vault-address code { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 1rem; white-space: nowrap; overflow-x: auto; scrollbar-width: thin; color: var(--ink); }
   .vault-note { display: flex; gap: 6px; margin-top: 12px; font-size: 1rem; line-height: 1.55; color: var(--ink-3); }
   .vault-note svg { flex-shrink: 0; margin-top: 2px; color: var(--warning); }
 
@@ -279,6 +309,15 @@ const steps = [
   .redeem-form-sub { margin-top: 6px; font-size: 1rem; line-height: 1.6; color: var(--ink-3); }
   .redeem-form { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
   .redeem-form .mono { font-family: var(--font-mono); font-size: 1rem; }
+  .redeem-form .form-span { grid-column: 1 / -1; }
+  .redeem-form [hidden] { display: none !important; }
+  .redeem-form .conditional-fields { display: grid; gap: 16px; }
+  .redeem-form .input-row { display: flex; gap: 8px; align-items: stretch; }
+  .redeem-form .input-row .input { flex: 1; min-width: 0; }
+  .redeem-form .field-hint[data-tone='ok'] { color: var(--brand); }
+  .redeem-form .field-hint[data-tone='error'] { color: var(--danger); }
+  .redeem-form .field-hint[data-tone='pending'] { color: var(--ink-3); }
+  .redeem-form .input[readonly] { background: var(--surface-2); }
   .redeem-error { color: var(--danger); font-size: 1rem; }
   .redeem-submit { width: 100%; min-height: 48px; }
 
