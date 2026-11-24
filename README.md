@@ -120,9 +120,12 @@ browser, rather than uploaded as static PDFs. Reports currently exist for May th
 - Monthly variants and their reserve/supply snapshots are defined in
   `src/data/report-monthly.ts`. July 2026 records the 29 July export; November 2026 records the
   18 November import. Carried-forward months use the position they carry from.
-- From the August 2026 report onward, reports do not disclose vintage 2023 or 2024. Older
+- From the August 2026 report onward, reports do not disclose earlier vintage years. Older
   inventory is aggregated into one "Legacy" reserve line. July 2026 and earlier keep their
-  original vintage breakdown.
+  reported vintage breakdown.
+- From November 2026 onward, the reported reserve includes only the current vintage. Earlier
+  vintages are excluded under the pool-freshness policy; the November 2026 report is the first
+  2025-only reconciliation.
 - The shared layout and A4 print styles live in `src/components/pages/ReportPage.astro`.
 - Route files are dynamic `[slug].astro` wrappers in `src/pages/en/reports/` and
   `src/pages/th/reports/`.
