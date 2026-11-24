@@ -225,13 +225,20 @@ export async function ensureChain(chain: WalletChain): Promise<boolean> {
     if (code !== 4902) return false;
 
     try {
+      /*
+       * MetaMask hard-codes 18 decimals for a custom chain's nativeCurrency,
+       * even when the chain's native token uses fewer (ThaiFi pathUSD uses 6).
+       * The wallet only uses this for display; the site reads the real balance
+       * and gas values from the chain with 6 decimals.
+       */
+      const nativeCurrency = { ...chain.native, decimals: 18 };
       await provider.request({
         method: 'wallet_addEthereumChain',
         params: [
           {
             chainId: chain.hexId,
             chainName: chain.name,
-            nativeCurrency: chain.native,
+            nativeCurrency,
             rpcUrls: [chain.rpc],
             blockExplorerUrls: [chain.explorer],
           },

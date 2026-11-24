@@ -105,6 +105,12 @@ const l = (path: string) => getRelativeLocaleUrl(lang, path);
           </div>
         </div>
 
+        <p class="wallet-note">
+          {lang === 'th'
+            ? 'MetaMask แสดงโทเคนหลักเป็น pUSD ด้วยทศนิยม 18 ตำแหน่งตามข้อจำกัดของวอลเล็ต ยอด pathUSD ด้านบนอ่านจากเชนด้วยทศนิยม 6 ตำแหน่ง'
+            : 'MetaMask lists the native token as pUSD with 18 decimals due to its wallet limits. The pathUSD balance above is read from the chain with 6 decimals.'}
+        </p>
+
         <div class="holdings">
           <div class="holdings-head">
             <h3 class="h3">{lang === 'th' ? 'การถือครองรายโครงการ' : 'Project holdings'}</h3>
@@ -193,6 +199,7 @@ const l = (path: string) => getRelativeLocaleUrl(lang, path);
   .wallet-prompt-note svg { color: var(--brand); }
 
   .wallet-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+  .wallet-note { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-3); }
   .wallet-address-line { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
   .wallet-address-line h2 { font-family: var(--font-mono); font-size: 1rem; word-break: break-all; }
   .wallet-head-actions { display: flex; flex-wrap: wrap; gap: 6px; }
