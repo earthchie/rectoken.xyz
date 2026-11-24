@@ -19,6 +19,13 @@ const rows = [
     note: { en: 'Active primary deployment', th: 'สัญญาหลักที่ใช้งานอยู่' },
   },
   {
+    label: { en: 'REC minter', th: 'ตัวออกโทเคน REC' },
+    chain: 'ThaiFi',
+    address: CONTRACTS.recMinter,
+    explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.recMinter}`,
+    note: { en: 'Issuance gateway', th: 'ประตูการออกโทเคน' },
+  },
+  {
     label: { en: 'Retired token', th: 'โทเคนไถ่ถอน' },
     chain: 'ThaiFi',
     address: CONTRACTS.retiredToken,
@@ -68,11 +75,11 @@ const rows = [
           note: { en: 'Kubchain bridge, not a token', th: 'สะพาน Kubchain ไม่ใช่โทเคน' },
         },
         {
-          label: { en: 'Whitepaper reference', th: 'ที่อยู่ในไวท์เปเปอร์' },
+          label: { en: 'Admin multisig', th: 'มัลติซิกผู้ดูแล' },
           chain: 'ThaiFi',
-          address: CONTRACTS.whitepaperThaiFiRef,
-          explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.whitepaperThaiFiRef}`,
-          note: { en: 'Recorded in Whitepaper v1.0 §1.1', th: 'บันทึกในไวท์เปเปอร์ v1.0 §1.1' },
+          address: CONTRACTS.multisig,
+          explorer: `${CHAINS.thaifi.explorer}/address/${CONTRACTS.multisig}`,
+          note: { en: '2-of-3 admin', th: 'ผู้ดูแล 2 จาก 3' },
         },
       ]),
 ];

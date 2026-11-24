@@ -1,6 +1,6 @@
 import snapshot from '@data/projects.json';
 import { CHAINS, CONTRACTS, MARKET, SITE, WALLETS } from '@data/site';
-import { getBalanceOf, getNativeBalance, getTotalSupply, fromUnitsSafe } from './chain';
+import { getBalanceOf, getNativeBalance, getTotalSupply, fromUnitsSafe, rpc } from './chain';
 import { safeEndpoint } from './net';
 
 export type Project = {
@@ -142,6 +142,18 @@ export function snapshotProjects(): Project[] {
   }));
 }
 
+async function readPaused(): Promise<boolean | null> {
+  try {
+    const result = await rpc<string>(RPC, 'eth_call', [
+      { to: CONTRACTS.poolThaiFi, data: '0x5c975abb' },
+      'latest',
+    ]);
+    return BigInt(result) === 1n;
+  } catch {
+    return null;
+  }
+}
+
 async function computeStats() {
   /*
    * "Bridged" is read from the pool token's totalSupply on the destination
@@ -149,12 +161,13 @@ async function computeStats() {
    * ThaiFi chain read 0 even though the Optimism and Kubchain deployments hold
    * live supply, so the destination supply is the truthful on-chain figure.
    */
-  const [pool, retired, bridgeOp, bridgeKub, remaining, projects] = await Promise.allSettled([
+  const [pool, retired, bridgeOp, bridgeKub, remaining, paused, projects] = await Promise.allSettled([
     getTotalSupply(RPC, CONTRACTS.poolThaiFi),
     getTotalSupply(RPC, CONTRACTS.retiredToken),
     getTotalSupply(CHAINS.optimism.rpc, CONTRACTS.poolOptimism),
     readKubchainSupply(),
     getBalanceOf(RPC, CONTRACTS.poolThaiFi, WALLETS.poolCustody),
+    readPaused(),
     loadProjects(),
   ]);
 
@@ -166,6 +179,7 @@ async function computeStats() {
     bridgedOp: bridgeOp.status === 'fulfilled' ? fromUnitsSafe(bridgeOp.value, 18) : null,
     bridgedKub: bridgeKub.status === 'fulfilled' ? bridgeKub.value : null,
     remaining: remaining.status === 'fulfilled' ? fromUnitsSafe(remaining.value, 18) : null,
+    paused: paused.status === 'fulfilled' ? paused.value : null,
     projectSupply: projectList.reduce((sum, p) => sum + p.supply, 0),
     projectCount: projectList.length,
     updatedAt: new Date(),

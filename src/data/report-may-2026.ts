@@ -55,25 +55,25 @@ export const REPORT_MAY_2026 = {
   metrics: [
     {
       label: { en: 'Total REC balance on REHASH', th: 'ยอด REC รวมบน REHASH' },
-      value: '3,235,801.4410',
+      value: '1,453,422.4410',
       unit: 'MWh',
       tone: 'brand',
     },
     {
       label: { en: 'Tokenized REC supply', th: 'จำนวนโทเคน REC ที่ออก' },
-      value: '3,235,779.3310',
+      value: '1,453,422.4410',
       unit: 'REC',
       tone: 'brand',
     },
     {
       label: { en: 'Reserve surplus', th: 'สินทรัพย์สำรองส่วนเกิน' },
-      value: '22.1100',
+      value: '0.0000',
       unit: 'MWh',
       tone: 'info',
     },
     {
       label: { en: 'Reserve coverage ratio', th: 'อัตราความครอบคลุมของสินทรัพย์สำรอง' },
-      value: '100.0007',
+      value: '100.0000',
       unit: '%',
       tone: 'pass',
     },
@@ -92,22 +92,22 @@ export const REPORT_MAY_2026 = {
     rows: [
       {
         label: { en: 'Total REC balance on REHASH', th: 'ยอด REC รวมบน REHASH' },
-        value: '3,235,801.4410',
+        value: '1,453,422.4410',
         unit: 'MWh',
       },
       {
         label: { en: 'Available REC balance on REHASH', th: 'ยอด REC ที่พร้อมใช้งานบน REHASH' },
-        value: '3,235,779.3309',
+        value: '1,453,422.4410',
         unit: 'MWh',
       },
       {
         label: { en: 'REC on retirement on REHASH', th: 'REC ที่อยู่ระหว่างการไถ่ถอนบน REHASH' },
-        value: '22.1101',
+        value: '0.0000',
         unit: 'MWh',
       },
       {
         label: { en: 'Total REC tokenized reported on RECTOKEN.XYZ', th: 'ยอด REC ที่แปลงเป็นโทเคนทั้งหมดตามรายงานบน RECTOKEN.XYZ' },
-        value: '3,235,779.3310',
+        value: '1,453,422.4410',
         unit: 'REC',
         emphasis: true,
       },
@@ -155,18 +155,17 @@ export const REPORT_MAY_2026 = {
       { label: { en: 'REC owner', th: 'เจ้าของ REC' }, value: { en: 'Block Edge Company Limited', th: 'บริษัท บล็อก เอดจ์ จำกัด' } },
       { label: { en: 'Fuel type', th: 'ประเภทเชื้อเพลิง' }, value: { en: 'Hydro', th: 'พลังน้ำ' } },
       { label: { en: 'Country', th: 'ประเทศ' }, value: { en: 'Viet Nam', th: 'เวียดนาม' } },
-      { label: { en: 'Vintage years', th: 'ปีวินเทจ' }, value: { en: '2023 and 2024', th: '2023 และ 2024' } },
-      { label: { en: 'Inventory line items', th: 'รายการสินค้าคงคลัง' }, value: { en: '38', th: '38' } },
-      { label: { en: 'Total REC balance', th: 'ยอด REC รวม' }, value: { en: '3,235,801.4410 MWh', th: '3,235,801.4410 MWh' } },
-      { label: { en: 'Available balance', th: 'ยอดคงเหลือที่พร้อมใช้งาน' }, value: { en: '3,235,779.3309 MWh', th: '3,235,779.3309 MWh' } },
-      { label: { en: 'REC on retirement', th: 'REC ที่อยู่ระหว่างไถ่ถอน' }, value: { en: '22.1101 MWh', th: '22.1101 MWh' } },
+      { label: { en: 'Vintage years', th: 'ปีวินเทจ' }, value: { en: '2024', th: '2024' } },
+      { label: { en: 'Inventory line items', th: 'รายการสินค้าคงคลัง' }, value: { en: '23', th: '23' } },
+      { label: { en: 'Total REC balance', th: 'ยอด REC รวม' }, value: { en: '1,453,422.4410 MWh', th: '1,453,422.4410 MWh' } },
+      { label: { en: 'Available balance', th: 'ยอดคงเหลือที่พร้อมใช้งาน' }, value: { en: '1,453,422.4410 MWh', th: '1,453,422.4410 MWh' } },
+      { label: { en: 'REC on retirement', th: 'REC ที่อยู่ระหว่างไถ่ถอน' }, value: { en: '0.0000 MWh', th: '0.0000 MWh' } },
     ],
     vintageTitle: { en: 'Vintage breakdown', th: 'แยกตามปีวินเทจ' },
     vintages: [
-      { label: '2023', value: '1,782,379.0000', unit: 'MWh', percent: 55.08 },
-      { label: '2024', value: '1,453,422.4410', unit: 'MWh', percent: 44.92 },
+      { label: '2024', value: '1,453,422.4410', unit: 'MWh', percent: 100 },
     ],
-    total: { label: { en: 'Total', th: 'รวม' }, value: '3,235,801.4410', unit: 'MWh' },
+    total: { label: { en: 'Total', th: 'รวม' }, value: '1,453,422.4410', unit: 'MWh' },
   },
   supply: {
     intro: {
@@ -176,23 +175,23 @@ export const REPORT_MAY_2026 = {
     rows: [
       {
         label: { en: 'Total REC tokenized', th: 'ยอด REC ที่แปลงเป็นโทเคนทั้งหมด' },
-        value: '3,235,779.3310',
+        value: '1,453,422.4410',
         unit: 'REC',
         emphasis: true,
       },
       {
         label: { en: 'RECTOKEN pool balance', th: 'ยอดคงเหลือในพูล RECTOKEN' },
-        value: '1,963,679.3310',
+        value: '1,453,422.4410',
         unit: 'REC',
       },
       {
         label: { en: 'Bridged to Optimism', th: 'โอนข้ามเชนไป Optimism' },
-        value: '10,000.0000',
+        value: '0.0000',
         unit: 'REC',
       },
       {
         label: { en: 'Bridged to Kubchain', th: 'โอนข้ามเชนไป Kubchain' },
-        value: '1,262,100.0000',
+        value: '0.0000',
         unit: 'REC',
       },
       {
@@ -207,9 +206,9 @@ export const REPORT_MAY_2026 = {
     ] as ReportRow[],
     compositionTitle: { en: 'Active tokenized supply by venue', th: 'จำนวนโทเคนที่ใช้งานอยู่แยกตามช่องทาง' },
     composition: [
-      { label: { en: 'RECTOKEN pool', th: 'พูล RECTOKEN' }, value: '1,963,679.3310', percent: 60.69 },
-      { label: { en: 'Kubchain', th: 'Kubchain' }, value: '1,262,100.0000', percent: 39.0 },
-      { label: { en: 'Optimism', th: 'Optimism' }, value: '10,000.0000', percent: 0.31 },
+      { label: { en: 'RECTOKEN pool', th: 'พูล RECTOKEN' }, value: '1,453,422.4410', percent: 100 },
+      { label: { en: 'Kubchain', th: 'Kubchain' }, value: '0.0000', percent: 0 },
+      { label: { en: 'Optimism', th: 'Optimism' }, value: '0.0000', percent: 0 },
     ],
     note: {
       en: 'The dashboard describes tokenized supply as individual REC tokens from renewable energy projects before pooling, and separately reports pooled, bridged and retired balances.',
@@ -228,42 +227,42 @@ export const REPORT_MAY_2026 = {
     rows: [
       {
         label: { en: 'Total REC balance on REHASH', th: 'ยอด REC รวมบน REHASH' },
-        value: '3,235,801.4410',
+        value: '1,453,422.4410',
         unit: 'MWh',
       },
       {
         label: { en: 'Total REC tokenized on RECTOKEN', th: 'ยอด REC ที่แปลงเป็นโทเคนบน RECTOKEN' },
-        value: '3,235,779.3310',
+        value: '1,453,422.4410',
         unit: 'REC',
       },
       {
         label: { en: 'Reserve surplus', th: 'สินทรัพย์สำรองส่วนเกิน' },
-        value: '22.1100',
+        value: '0.0000',
         unit: 'MWh',
         emphasis: true,
       },
     ] as ReportRow[],
     result: { en: 'PASS', th: 'ผ่าน' },
     conclusion: {
-      en: 'The reported tokenized REC supply is lower than the total REC balance held on REHASH by approximately 22.110 MWh.',
-      th: 'จำนวนโทเคน REC ที่รายงานต่ำกว่ายอด REC รวมที่ถืออยู่บน REHASH ประมาณ 22.110 MWh',
+      en: 'The reported tokenized REC supply equals the total REC balance held on REHASH.',
+      th: 'จำนวนโทเคน REC ที่รายงานเท่ากับยอด REC รวมที่ถืออยู่บน REHASH',
     },
   },
   coverage: {
     formulaLabel: { en: 'Total REHASH balance / tokenized supply', th: 'ยอดรวมบน REHASH / จำนวนโทเคนที่ออก' },
-    numerator: '3,235,801.4410',
-    denominator: '3,235,779.3310',
-    ratio: '100.0007',
+    numerator: '1,453,422.4410',
+    denominator: '1,453,422.4410',
+    ratio: '100.0000',
     conclusion: {
-      en: 'The reserve balance on REHASH exceeds the reported tokenized REC supply. The project therefore has a reserve coverage ratio of approximately 100.0007%.',
-      th: 'ยอดสำรองบน REHASH สูงกว่าจำนวนโทเคน REC ที่รายงาน โครงการจึงมีอัตราความครอบคลุมของสินทรัพย์สำรองประมาณ 100.0007%',
+      en: 'The reserve balance on REHASH matches the reported tokenized REC supply. The project therefore has a reserve coverage ratio of 100.0000%.',
+      th: 'ยอดสำรองบน REHASH เท่ากับจำนวนโทเคน REC ที่รายงาน โครงการจึงมีอัตราความครอบคลุมของสินทรัพย์สำรอง 100.0000%',
     },
   },
   retirement: {
     paragraphs: [
       {
-        en: 'The REHASH inventory records 22.1101 MWh as "On Retirement." For reserve reconciliation purposes, this amount is treated separately from freely available inventory, but remains part of the total REHASH balance at the reporting date.',
-        th: 'ข้อมูลสินค้าคงคลังของ REHASH บันทึกจำนวน 22.1101 MWh ว่า "อยู่ระหว่างไถ่ถอน" ในการกระทบยอดสินทรัพย์สำรอง จำนวนนี้แยกจากสินค้าคงคลังที่สามารถใช้ได้อย่างอิสระ แต่ยังคงรวมอยู่ในยอดทั้งหมดบน REHASH ณ วันที่รายงาน',
+        en: 'The REHASH inventory records 0.0000 MWh as "On Retirement." For reserve reconciliation purposes, this amount is treated separately from freely available inventory, but remains part of the total REHASH balance at the reporting date.',
+        th: 'ข้อมูลสินค้าคงคลังของ REHASH บันทึกจำนวน 0.0000 MWh ว่า "อยู่ระหว่างไถ่ถอน" ในการกระทบยอดสินทรัพย์สำรอง จำนวนนี้แยกจากสินค้าคงคลังที่สามารถใช้ได้อย่างอิสระ แต่ยังคงรวมอยู่ในยอดทั้งหมดบน REHASH ณ วันที่รายงาน',
       },
       {
         en: 'The RECTOKEN dashboard reports 322.5101 REC as permanently retired. This figure is not circulating supply. It represents REC tokens that have already been removed from active circulation through the retirement process.',
@@ -273,7 +272,7 @@ export const REPORT_MAY_2026 = {
     cards: [
       {
         label: { en: 'On retirement at REHASH', th: 'อยู่ระหว่างไถ่ถอนบน REHASH' },
-        value: '22.1101',
+        value: '0.0000',
         unit: 'MWh',
         note: { en: 'Included in total REHASH balance', th: 'รวมอยู่ในยอด REHASH ทั้งหมด' },
       },
@@ -320,20 +319,20 @@ export const REPORT_MAY_2026 = {
   findings: {
     items: [
       {
-        en: 'The total REHASH REC balance is 3,235,801.441 MWh.',
-        th: 'ยอด REC รวมบน REHASH คือ 3,235,801.441 MWh',
+        en: 'The total REHASH REC balance is 1,453,422.4410 MWh.',
+        th: 'ยอด REC รวมบน REHASH คือ 1,453,422.4410 MWh',
       },
       {
-        en: 'The RECTOKEN dashboard reports total REC tokenized of 3,235,779.331 REC.',
-        th: 'แดชบอร์ด RECTOKEN รายงานยอด REC ที่แปลงเป็นโทเคนรวม 3,235,779.331 REC',
+        en: 'The RECTOKEN dashboard reports total REC tokenized of 1,453,422.4410 REC.',
+        th: 'แดชบอร์ด RECTOKEN รายงานยอด REC ที่แปลงเป็นโทเคนรวม 1,453,422.4410 REC',
       },
       {
-        en: 'The tokenized REC supply is less than the total REC balance held on REHASH.',
-        th: 'จำนวนโทเคน REC ที่ออกต่ำกว่ายอด REC รวมที่ถืออยู่บน REHASH',
+        en: 'The tokenized REC supply equals the total REC balance held on REHASH.',
+        th: 'จำนวนโทเคน REC ที่ออกเท่ากับยอด REC รวมที่ถืออยู่บน REHASH',
       },
       {
-        en: 'The available REHASH balance and tokenized REC supply are effectively matched, with only a minor rounding difference.',
-        th: 'ยอดคงเหลือที่พร้อมใช้งานบน REHASH และจำนวนโทเคน REC ที่ออกมีค่าใกล้เคียงกันมาก โดยต่างกันเพียงเล็กน้อยจากการปัดเศษ',
+        en: 'The available REHASH balance and tokenized REC supply are matched.',
+        th: 'ยอดคงเหลือที่พร้อมใช้งานบน REHASH และจำนวนโทเคน REC ที่ออกมีค่าเท่ากัน',
       },
       {
         en: 'No evidence was identified from the reviewed data that the tokenized REC supply exceeds the reserve balance on REHASH.',
@@ -352,8 +351,8 @@ export const REPORT_MAY_2026 = {
         th: 'จากการตรวจสอบไฟล์ข้อมูลสินค้าคงคลังที่ส่งออกจาก REHASH และแดชบอร์ดสาธารณะของ RECTOKEN พบว่าจำนวนโทเคน REC ที่รายงานมีสินทรัพย์สำรอง REC ที่ถืออยู่บน REHASH รองรับเต็มจำนวน',
       },
       {
-        en: 'The project therefore demonstrates a reserve coverage position of approximately 100.0007% when measured against the total REHASH REC balance.',
-        th: 'โครงการจึงแสดงสถานะความครอบคลุมของสินทรัพย์สำรองประมาณ 100.0007% เมื่อเทียบกับยอด REC รวมบน REHASH',
+        en: 'The project therefore demonstrates a reserve coverage position of approximately 100.0000% when measured against the total REHASH REC balance.',
+        th: 'โครงการจึงแสดงสถานะความครอบคลุมของสินทรัพย์สำรองประมาณ 100.0000% เมื่อเทียบกับยอด REC รวมบน REHASH',
       },
     ],
     tagline: { en: 'Together, we build a greener future.', th: 'ร่วมกันสร้างอนาคตที่เป็นมิตรต่อสิ่งแวดล้อม' },

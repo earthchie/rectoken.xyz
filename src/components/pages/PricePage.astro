@@ -168,36 +168,6 @@ const chains = [
 
   <section class="section-tight">
     <div class="container-page">
-      <SectionHead
-        index="03"
-        eyebrow={lang === 'th' ? 'กราฟราคา' : 'Charts'}
-        title={lang === 'th' ? 'กราฟราคาย้อนหลัง' : 'Historical price charts'}
-        description={lang === 'th' ? 'ภาพต้นฉบับที่เผยแพร่ เปิดภาพเต็มเพื่ออ่านรายละเอียด' : 'The published source images. Open the full image for detail.'}
-      />
-      <div class="chart-grid">
-        {page.charts.map((chart, i) => (
-          <figure class="chart-card">
-            <div class="chart-head">
-              <div>
-                <h3>{chart.title}</h3>
-                <p>{chart.description}</p>
-              </div>
-              <a href={PRICE_PAGE.charts[i].src} target="_blank" rel="noopener noreferrer" class="link-arrow">
-                {lang === 'th' ? 'ภาพเต็ม' : 'Full image'}
-                <ArrowUpRight size={13} stroke-width={2} />
-              </a>
-            </div>
-            <a href={PRICE_PAGE.charts[i].src} target="_blank" rel="noopener noreferrer" class="chart-image-link">
-              <img src={PRICE_PAGE.charts[i].src} alt={lang === 'th' ? `กราฟ${chart.description}` : PRICE_PAGE.charts[i].alt} loading="lazy" width="2048" height="2048" />
-            </a>
-          </figure>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="section-tight">
-    <div class="container-page">
       <div class="cnerng-panel">
         <div>
           <p class="eyebrow">{lang === 'th' ? 'ตลาดเปรียบเทียบ' : 'Market comparison'}</p>

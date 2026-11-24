@@ -20,35 +20,36 @@ type PortfolioSnapshot = {
   vintageTitle: Bi;
   showVintageYearsAttribute: boolean;
   walletSource?: Bi;
+  policyNote?: Bi;
+  reconciliationConclusion?: Bi;
+  coverageConclusion?: Bi;
   retirementNote: Bi;
   retiredNote: Bi;
+  findingBalanced?: Bi;
   findingMatched: Bi;
 };
 
 /**
- * Position after the 29 July 2026 export. The entire 2023 vintage
- * (1,782,356.8899 MWh) left REHASH, leaving the 2024 vintage plus the
- * 22.1101 MWh that was already on retirement.
+ * August-October position. The reserve is the 2024 vintage only; earlier
+ * vintages are not accounted at all. From August onward the public reports no
+ * longer disclose the year and show one legacy reserve line.
  */
-const JULY_POSITION: PortfolioSnapshot = {
-  total: '1,453,444.5511',
+const LEGACY_POSITION: PortfolioSnapshot = {
+  total: '1,453,422.4410',
   tokenized: '1,453,422.4410',
   available: '1,453,422.4410',
-  onRetirement: '22.1101',
-  surplus: '22.1101',
-  coverage: '100.0015',
+  onRetirement: '0.0000',
+  surplus: '0.0000',
+  coverage: '100.0000',
   retiredTokens: '322.5101',
   poolBalance: '1,453,422.4410',
   bridgedOp: '0.0000',
   bridgedKub: '0.0000',
-  lineItems: '24',
-  vintages: [
-    { label: '2024', value: '1,453,422.4410', unit: 'MWh', percent: 99.9985 },
-    { label: '2023', value: '22.1101', unit: 'MWh', percent: 0.0015 },
-  ],
-  vintageLabel: { en: '2023 and 2024', th: '2023 และ 2024' },
-  vintageTitle: { en: 'Vintage breakdown', th: 'แยกตามปีวินเทจ' },
-  showVintageYearsAttribute: true,
+  lineItems: '23',
+  vintages: [{ label: 'Legacy', value: '1,453,422.4410', unit: 'MWh', percent: 100 }],
+  vintageLabel: { en: 'Legacy reserve', th: 'สินทรัพย์สำรองเดิม' },
+  vintageTitle: { en: 'Reserve composition', th: 'องค์ประกอบสินทรัพย์สำรอง' },
+  showVintageYearsAttribute: false,
   retirementNote: {
     en: 'The RECTOKEN dashboard reports 322.5101 REC as permanently retired. This figure is not circulating supply. It represents REC tokens that have already been removed from active circulation through the retirement process.',
     th: 'แดชบอร์ด RECTOKEN รายงานจำนวน 322.5101 REC ว่าไถ่ถอนถาวรแล้ว ตัวเลขนี้ไม่นับเป็นจำนวนโทเคนหมุนเวียน แต่เป็นโทเคน REC ที่นำออกจากการหมุนเวียนผ่านกระบวนการไถ่ถอนแล้ว',
@@ -57,64 +58,79 @@ const JULY_POSITION: PortfolioSnapshot = {
     en: 'The 322.5101 REC retired balance is not part of active circulating supply.',
     th: 'ยอดที่ไถ่ถอนแล้ว 322.5101 REC ไม่นับรวมในจำนวนโทเคนที่ยังหมุนเวียนอยู่',
   },
+  findingBalanced: {
+    en: 'The tokenized REC supply equals the legacy reserve balance.',
+    th: 'จำนวนโทเคน REC ที่ออกเท่ากับยอดสินทรัพย์สำรองเดิม',
+  },
   findingMatched: {
-    en: 'The available REHASH balance and tokenized REC supply are effectively matched, with only a minor difference.',
-    th: 'ยอดคงเหลือที่พร้อมใช้งานบน REHASH และจำนวนโทเคน REC ที่ออกมีค่าใกล้เคียงกันมาก โดยต่างกันเพียงเล็กน้อย',
+    en: 'The available REHASH balance and tokenized REC supply are matched.',
+    th: 'ยอดคงเหลือที่พร้อมใช้งานบน REHASH และจำนวนโทเคน REC ที่ออกมีค่าเท่ากัน',
+  },
+  reconciliationConclusion: {
+    en: 'The reported tokenized REC supply equals the legacy reserve balance held on REHASH.',
+    th: 'จำนวนโทเคน REC ที่รายงานเท่ากับยอดสินทรัพย์สำรองเดิมที่ถืออยู่บน REHASH',
+  },
+  coverageConclusion: {
+    en: 'The legacy reserve balance on REHASH matches the reported tokenized REC supply. The reserve coverage ratio is 100.0000%.',
+    th: 'ยอดสินทรัพย์สำรองเดิมบน REHASH เท่ากับจำนวนโทเคน REC ที่รายงาน อัตราความครอบคลุมของสินทรัพย์สำรองคือ 100.0000%',
   },
 };
 
 /**
- * August-October position. The reserve itself did not change after 29 July, but
- * from the August report onward the public reports no longer disclose the
- * 2023 or 2024 vintage years. The balance is shown as one legacy reserve line.
- */
-const LEGACY_POSITION: PortfolioSnapshot = {
-  ...JULY_POSITION,
-  vintages: [{ label: 'Legacy', value: '1,453,444.5511', unit: 'MWh', percent: 100 }],
-  vintageLabel: { en: 'Legacy reserve', th: 'สินทรัพย์สำรองเดิม' },
-  vintageTitle: { en: 'Reserve composition', th: 'องค์ประกอบสินทรัพย์สำรอง' },
-  showVintageYearsAttribute: false,
-};
-
-/**
- * Position after the 18 November 2026 import. The 2025 vintage
- * (1,453,422.44 MWh) is tokenised; the remaining balances stay as
- * un-tokenised legacy reserve.
+ * November 2026 onward. Only the current vintage (2025) is accounted. The
+ * earlier-vintage balances are still in the REHASH account but are excluded
+ * from the reported reserve under the pool-freshness policy.
+ *
+ * Reuse this snapshot for later months until the next vintage swap, replacing
+ * 2025 with the then-current vintage.
  */
 const NOVEMBER_POSITION: PortfolioSnapshot = {
-  total: '2,906,866.9911',
+  total: '1,453,422.4400',
   tokenized: '1,453,422.4400',
-  available: '2,906,866.9911',
+  available: '1,453,422.4400',
   onRetirement: '0.0000',
-  surplus: '1,453,444.5511',
-  coverage: '200.0015',
+  surplus: '0.0000',
+  coverage: '100.0000',
   retiredTokens: '0.0000',
   poolBalance: '0.3300',
   bridgedOp: '10,000.0000',
   bridgedKub: '1,443,422.1100',
-  lineItems: '34',
-  vintages: [
-    { label: '2025', value: '1,453,422.4400', unit: 'MWh', percent: 49.9996 },
-    { label: 'Legacy', value: '1,453,444.5511', unit: 'MWh', percent: 50.0004 },
-  ],
-  vintageLabel: { en: '2025 and legacy reserve', th: '2025 และสินทรัพย์สำรองเดิม' },
+  lineItems: '10',
+  vintages: [{ label: '2025', value: '1,453,422.4400', unit: 'MWh', percent: 100 }],
+  vintageLabel: { en: '2025', th: '2025' },
   vintageTitle: { en: 'Reserve composition', th: 'องค์ประกอบสินทรัพย์สำรอง' },
   showVintageYearsAttribute: true,
   walletSource: {
     en: 'ThaiFi pool token balance held at 0x5266Dfa5ae013674f8FdC832b7c601B838D94eE6, read from ThaiFi.',
     th: 'ยอดคงเหลือโทเคนพูลบน ThaiFi ที่ 0x5266Dfa5ae013674f8FdC832b7c601B838D94eE6 อ่านจาก ThaiFi',
   },
+  policyNote: {
+    en: 'From November 2026 onward, the reported reserve is measured on the current vintage only. All RECs from earlier vintages are excluded from this report under the project’s pool-freshness policy.',
+    th: 'ตั้งแต่เดือนพฤศจิกายน 2026 เป็นต้นไป สินทรัพย์สำรองที่รายงานจะวัดจากวินเทจปัจจุบันเท่านั้น REC จากวินเทจก่อนหน้าทั้งหมดถูกตัดออกจากรายงานฉบับนี้ตามนโยบายรักษาความสดใหม่ของพูล',
+  },
+  reconciliationConclusion: {
+    en: 'The reported tokenized REC supply equals the 2025-vintage REC balance held on REHASH.',
+    th: 'จำนวนโทเคน REC ที่รายงานเท่ากับยอด REC วินเทจ 2025 ที่ถืออยู่บน REHASH',
+  },
+  coverageConclusion: {
+    en: 'The 2025-vintage reserve balance on REHASH matches the reported tokenized REC supply. The reserve coverage ratio is 100.0000%.',
+    th: 'ยอดสำรองบน REHASH วินเทจ 2025 เท่ากับจำนวนโทเคน REC ที่รายงาน อัตราความครอบคลุมของสินทรัพย์สำรองคือ 100.0000%',
+  },
   retirementNote: {
-    en: 'The current retired-token contract reports 0 REC permanently retired. The 322.5101 REC reported in prior periods is not reflected in the current contract.',
-    th: 'สัญญาโทเคนที่ไถ่ถอนแล้วฉบับปัจจุบันรายงานว่าไถ่ถอนถาวร 0 REC จำนวน 322.5101 REC ที่รายงานในงวดก่อนหน้าไม่ได้สะท้อนอยู่ในสัญญาฉบับปัจจุบัน',
+    en: 'The current retired-token contract reports 0 REC permanently retired. Prior-period retirements relate to earlier vintages and are outside the 2025-vintage reserve presented here.',
+    th: 'สัญญาโทเคนที่ไถ่ถอนแล้วฉบับปัจจุบันรายงานว่าไถ่ถอนถาวร 0 REC รายการไถ่ถอนในงวดก่อนหน้าเกี่ยวข้องกับวินเทจก่อนหน้าและอยู่นอกเหนือจากสินทรัพย์สำรองวินเทจ 2025 ที่รายงานในฉบับนี้',
   },
   retiredNote: {
     en: 'No REC is currently reported as retired on the active retired-token contract.',
     th: 'ปัจจุบันไม่มี REC ที่ถูกรายงานว่าไถ่ถอนแล้วบนสัญญาโทเคนที่ไถ่ถอนแล้วฉบับที่ใช้งานอยู่',
   },
+  findingBalanced: {
+    en: 'The tokenized REC supply equals the 2025-vintage REHASH balance.',
+    th: 'จำนวนโทเคน REC ที่ออกเท่ากับยอดคงเหลือบน REHASH วินเทจ 2025',
+  },
   findingMatched: {
-    en: 'The REHASH balance exceeds the tokenized REC supply by 1,453,444.5511 MWh, reflecting legacy inventory that is held in reserve but not tokenised.',
-    th: 'ยอดคงเหลือบน REHASH สูงกว่าจำนวนโทเคน REC ที่ออกอยู่ 1,453,444.5511 MWh ซึ่งสะท้อนสินค้าคงคลังเดิมที่ถือเป็นสินทรัพย์สำรองแต่ยังไม่ได้แปลงเป็นโทเคน',
+    en: 'Of the tokenized supply, 0.33 REC remains on ThaiFi, 10,000.00 REC is on Optimism and 1,443,422.11 REC is on Kubchain.',
+    th: 'ในจำนวนโทเคนที่ออก 0.33 REC อยู่บน ThaiFi, 10,000.00 REC อยู่บน Optimism และ 1,443,422.11 REC อยู่บน Kubchain',
   },
 };
 
@@ -139,8 +155,8 @@ const MONTHS: MonthConfig[] = [
     published: '2026-11-24',
     dataCutoff: { en: 'Data as of 24 November 2026', th: 'ข้อมูล ณ วันที่ 24 พฤศจิกายน 2026' },
     movementNote: {
-      en: 'On 18 November 2026, 1,453,422.44 MWh of 2025-vintage RECs were imported. The REHASH balance is 2,906,866.9911 MWh at the reporting date. The tokenised supply is held mainly on Kubchain (1,443,422.11 REC) and Optimism (10,000.00 REC), with 0.33 REC remaining on ThaiFi.',
-      th: 'เมื่อวันที่ 18 พฤศจิกายน 2026 มีการนำเข้า REC วินเทจ 2025 จำนวน 1,453,422.44 MWh ยอดคงเหลือบน REHASH ณ วันที่รายงานคือ 2,906,866.9911 MWh โดยจำนวนโทเคนที่ออกถืออยู่บน Kubchain 1,443,422.11 REC และ Optimism 10,000.00 REC ส่วนที่เหลือ 0.33 REC อยู่บน ThaiFi',
+      en: 'On 18 November 2026, 1,453,422.44 MWh of 2025-vintage RECs were imported. From this report onward, only the current vintage is accounted; all earlier vintages are excluded under the pool-freshness policy. The tokenised supply is held mainly on Kubchain (1,443,422.11 REC) and Optimism (10,000.00 REC), with 0.33 REC remaining on ThaiFi.',
+      th: 'เมื่อวันที่ 18 พฤศจิกายน 2026 มีการนำเข้า REC วินเทจ 2025 จำนวน 1,453,422.44 MWh ตั้งแต่รายงานฉบับนี้เป็นต้นไป จะนับเฉพาะวินเทจปัจจุบันเท่านั้น โดยวินเทจก่อนหน้าทั้งหมดถูกตัดออกตามนโยบายรักษาความสดใหม่ของพูล จำนวนโทเคนที่ออกถืออยู่บน Kubchain 1,443,422.11 REC และ Optimism 10,000.00 REC ส่วนที่เหลือ 0.33 REC อยู่บน ThaiFi',
     },
     sourceNote: {
       en: 'REHASH inventory data as of 24 November 2026.',
@@ -207,14 +223,13 @@ const MONTHS: MonthConfig[] = [
     published: '2026-07-31',
     dataCutoff: { en: 'Data as of 31 July 2026', th: 'ข้อมูล ณ วันที่ 31 กรกฎาคม 2026' },
     movementNote: {
-      en: 'On 29 July 2026, 1,782,356.8899 MWh of 2023-vintage RECs were exported, reducing the REHASH balance to 1,453,444.5511 MWh. No other reserve movement occurred during July 2026.',
-      th: 'เมื่อวันที่ 29 กรกฎาคม 2026 มีการส่งออก REC วินเทจ 2023 จำนวน 1,782,356.8899 MWh ทำให้ยอดคงเหลือบน REHASH ลดลงเหลือ 1,453,444.5511 MWh ไม่มีการเคลื่อนไหวของสินทรัพย์สำรองอื่นในเดือนกรกฎาคม 2026',
+      en: 'On 29 July 2026, the prior vintage was exported; the 2024 vintage is the pool backing at the reporting date. The REHASH balance is 1,453,422.4410 MWh. No other reserve movement occurred during July 2026.',
+      th: 'เมื่อวันที่ 29 กรกฎาคม 2026 มีการส่งออกวินเทจก่อนหน้า โดยวินเทจ 2024 เป็นสินทรัพย์รองรับพูล ณ วันที่รายงาน ยอดคงเหลือบน REHASH คือ 1,453,422.4410 MWh ไม่มีการเคลื่อนไหวของสินทรัพย์สำรองอื่นในเดือนกรกฎาคม 2026',
     },
     sourceNote: {
       en: 'REHASH inventory data as of 31 July 2026, after the 29 July 2026 export.',
       th: 'ข้อมูลสินค้าคงคลังจาก REHASH ณ วันที่ 31 กรกฎาคม 2026 หลังการส่งออกเมื่อวันที่ 29 กรกฎาคม 2026',
     },
-    snapshot: JULY_POSITION,
   },
   {
     slug: 'june-2026',
@@ -269,71 +284,17 @@ function replaceMonth<T>(value: T, monthEn: string, monthTh: string, year: strin
   return value;
 }
 
-function deepReplace<T>(value: T, pairs: Array<[string, string]>): T {
-  /*
-   * Two passes with unique markers. A single pass would corrupt values such as
-   * 22.1101 when the shorter source 22.110 is replaced afterwards, because the
-   * replacement text itself contains the shorter source.
-   */
-  const markers = pairs.map((_, index) => `\u0001${index}\u0001`);
-
-  const walk = (input: unknown, map: (text: string) => string): unknown => {
-    if (typeof input === 'string') return map(input);
-    if (Array.isArray(input)) return input.map((item) => walk(item, map));
-    if (input && typeof input === 'object') {
-      for (const key of Object.keys(input)) {
-        (input as Record<string, unknown>)[key] = walk(
-          (input as Record<string, unknown>)[key],
-          map
-        );
-      }
-    }
-    return input;
-  };
-
-  walk(value, (text) => {
-    let next = text;
-    pairs.forEach(([from], index) => {
-      next = next.split(from).join(markers[index]);
-    });
-    return next;
-  });
-
-  return walk(value, (text) => {
-    let next = text;
-    markers.forEach((marker, index) => {
-      next = next.split(marker).join(pairs[index][1]);
-    });
-    return next;
-  }) as T;
-}
-
 function applySnapshot(report: ReportData, snapshot: PortfolioSnapshot): void {
-  /* Longest source string first so 1,453,422.4410 is replaced before 1,453,422.441. */
-  const pairs = (
-    [
-      ['3,235,801.4410', snapshot.total],
-      ['3,235,779.3310', snapshot.tokenized],
-      ['3,235,779.3309', snapshot.available],
-      ['1,963,679.3310', snapshot.poolBalance],
-      ['1,262,100.0000', snapshot.bridgedKub],
-      ['10,000.0000', snapshot.bridgedOp],
-      ['3,235,801.441', snapshot.total],
-      ['3,235,779.331', snapshot.tokenized],
-      ['322.5101', snapshot.retiredTokens],
-      ['100.0007', snapshot.coverage],
-      ['22.1101', snapshot.onRetirement],
-      ['22.1100', snapshot.surplus],
-      ['22.110', snapshot.surplus],
-      ['38', snapshot.lineItems],
-    ] as Array<[string, string]>
-  ).sort((a, b) => b[0].length - a[0].length);
+  report.metrics[0].value = snapshot.total;
+  report.metrics[1].value = snapshot.tokenized;
+  report.metrics[2].value = snapshot.surplus;
+  report.metrics[3].value = snapshot.coverage;
 
-  deepReplace(report, pairs);
-
-  report.reserve.vintages = snapshot.vintages;
-  report.reserve.vintageTitle = snapshot.vintageTitle;
-  report.reserve.total.value = snapshot.total;
+  report.summary.rows[0].value = snapshot.total;
+  report.summary.rows[1].value = snapshot.available;
+  report.summary.rows[2].value = snapshot.onRetirement;
+  report.summary.rows[3].value = snapshot.tokenized;
+  report.summary.rows[4].value = snapshot.retiredTokens;
 
   const setAttribute = (label: string, value: Bi) => {
     const row = report.reserve.attributes.find((attribute) => attribute.label.en === label);
@@ -351,6 +312,16 @@ function applySnapshot(report: ReportData, snapshot: PortfolioSnapshot): void {
   setAttribute('Available balance', { en: `${snapshot.available} MWh`, th: `${snapshot.available} MWh` });
   setAttribute('REC on retirement', { en: `${snapshot.onRetirement} MWh`, th: `${snapshot.onRetirement} MWh` });
 
+  report.reserve.vintages = snapshot.vintages;
+  report.reserve.vintageTitle = snapshot.vintageTitle;
+  report.reserve.total.value = snapshot.total;
+
+  report.supply.rows[0].value = snapshot.tokenized;
+  report.supply.rows[1].value = snapshot.poolBalance;
+  report.supply.rows[2].value = snapshot.bridgedOp;
+  report.supply.rows[3].value = snapshot.bridgedKub;
+  report.supply.rows[4].value = snapshot.retiredTokens;
+
   const compositionTotal = Number(snapshot.tokenized.replace(/,/g, '')) || 0;
   const share = (value: string) => {
     const amount = Number(value.replace(/,/g, ''));
@@ -362,9 +333,52 @@ function applySnapshot(report: ReportData, snapshot: PortfolioSnapshot): void {
     { label: { en: 'Optimism', th: 'Optimism' }, value: snapshot.bridgedOp, percent: share(snapshot.bridgedOp) },
   ];
   report.supply.retiredNote = snapshot.retiredNote;
+
+  report.reconciliation.rows[0].value = snapshot.total;
+  report.reconciliation.rows[1].value = snapshot.tokenized;
+  report.reconciliation.rows[2].value = snapshot.surplus;
+  if (snapshot.reconciliationConclusion) {
+    report.reconciliation.conclusion = snapshot.reconciliationConclusion;
+  }
+
+  report.coverage.numerator = snapshot.total;
+  report.coverage.denominator = snapshot.tokenized;
+  report.coverage.ratio = snapshot.coverage;
+  if (snapshot.coverageConclusion) {
+    report.coverage.conclusion = snapshot.coverageConclusion;
+  }
+
+  report.retirement.paragraphs[0] = {
+    en: `The REHASH inventory records ${snapshot.onRetirement} MWh as "On Retirement." For reserve reconciliation purposes, this amount is treated separately from freely available inventory, but remains part of the total REHASH balance at the reporting date.`,
+    th: `ข้อมูลสินค้าคงคลังของ REHASH บันทึกจำนวน ${snapshot.onRetirement} MWh ว่า "อยู่ระหว่างการไถ่ถอน" ในการกระทบยอดสินทรัพย์สำรอง จำนวนนี้แยกจากสินค้าคงคลังที่สามารถใช้ได้อย่างอิสระ แต่ยังคงรวมอยู่ในยอดทั้งหมดบน REHASH ณ วันที่รายงาน`,
+  };
   report.retirement.paragraphs[1] = snapshot.retirementNote;
+  report.retirement.cards[0].value = snapshot.onRetirement;
+  report.retirement.cards[1].value = snapshot.retiredTokens;
+
+  report.findings.items[0] = {
+    en: `The total REHASH REC balance is ${snapshot.total} MWh.`,
+    th: `ยอด REC รวมบน REHASH คือ ${snapshot.total} MWh`,
+  };
+  report.findings.items[1] = {
+    en: `The RECTOKEN dashboard reports total REC tokenized of ${snapshot.tokenized} REC.`,
+    th: `แดชบอร์ด RECTOKEN รายงานยอด REC ที่แปลงเป็นโทเคนรวม ${snapshot.tokenized} REC`,
+  };
+  if (snapshot.findingBalanced) report.findings.items[2] = snapshot.findingBalanced;
   report.findings.items[3] = snapshot.findingMatched;
+
+  report.conclusion.paragraphs[2] = {
+    en: `The project therefore demonstrates a reserve coverage position of ${snapshot.coverage}% when measured against the total REHASH REC balance.`,
+    th: `โครงการจึงแสดงสถานะความครอบคลุมของสินทรัพย์สำรอง ${snapshot.coverage}% เมื่อเทียบกับยอด REC รวมบน REHASH`,
+  };
+
   if (snapshot.walletSource) report.scope.sources.push(snapshot.walletSource);
+  if (snapshot.policyNote) {
+    report.reserve.intro = {
+      en: `${report.reserve.intro.en} ${snapshot.policyNote.en}`,
+      th: `${report.reserve.intro.th} ${snapshot.policyNote.th}`,
+    };
+  }
 }
 
 function buildReport(config: MonthConfig): ReportData {

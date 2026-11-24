@@ -120,9 +120,12 @@ browser, rather than uploaded as static PDFs. Reports currently exist for May th
 - Monthly variants and their reserve/supply snapshots are defined in
   `src/data/report-monthly.ts`. July 2026 records the 29 July export; November 2026 records the
   18 November import. Carried-forward months use the position they carry from.
-- From the August 2026 report onward, reports do not disclose vintage 2023 or 2024. Older
+- From the August 2026 report onward, reports do not disclose earlier vintage years. Older
   inventory is aggregated into one "Legacy" reserve line. July 2026 and earlier keep their
-  original vintage breakdown.
+  reported vintage breakdown.
+- From November 2026 onward, the reported reserve includes only the current vintage. Earlier
+  vintages are excluded under the pool-freshness policy; the November 2026 report is the first
+  2025-only reconciliation.
 - The shared layout and A4 print styles live in `src/components/pages/ReportPage.astro`.
 - Route files are dynamic `[slug].astro` wrappers in `src/pages/en/reports/` and
   `src/pages/th/reports/`.
@@ -193,7 +196,7 @@ npx wrangler dev --port 8788
 
 Every material statement is traceable to one of:
 
-- Whitepaper v1.0 (48 pages), `https://asset.blockedge.co/rec-project/rec-whitepaper-v1.0.pdf`
+- Whitepaper v1.1 (48 pages), `https://asset.blockedge.co/rec-project/rec-whitepaper-v1.1.pdf`
 - The issuer liability announcement
 - The May 2026 portfolio report
 - On-chain reads shown on `/data`
@@ -203,8 +206,8 @@ Every material statement is traceable to one of:
 - “CO2E Chain” → **ThaiFi** (chain 17) is the live deployment; the legacy CO2e chain is labelled
   as retired.
 - The legacy CO2e contract `0x578f…` is separated from the live ThaiFi pool token `0x7269…`.
-- The whitepaper-recorded ThaiFi address `0x18c8…` is shown as a published reference; the active
-  address is verified on-chain.
+- The Kubchain bridge lock `0x18c8…` is a bridge contract, not a pool-token reference. The
+  earlier site mislabelled it as a “whitepaper address”; the registry now labels it correctly.
 - The old `/check` balance card was unreachable; it now works.
 - The privacy policy placeholder `[insert email / contact channel]` is replaced with a real address.
 - Native ThaiFi balance uses 6 decimals (pathUSD), not 18.

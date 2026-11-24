@@ -60,5 +60,3 @@ All hashes can be checked at `https://exp.thaifi.com/tx/<hash>`.
 | **Total** | | **1,453,422.440** | |
 
 The 2025 tokens were then registered in the pool and deposited 1:1, followed by the two bridge re-locks above.
-The 2023 vintage was redeemed and burned before the chain migration; those transactions are not recoverable
-from the current explorer.

@@ -210,8 +210,8 @@ export const USER_STEPS = {
 export const CTA = {
   title: { en: 'Start with the source document.', th: 'เริ่มจากเอกสารต้นฉบับ' },
   body: {
-    en: 'Every material claim on this site is traceable to Whitepaper v1.0, the monthly reports, or on-chain data. If a number matters, check the source.',
-    th: 'ตรวจสอบข้อมูลสำคัญบนเว็บไซต์นี้ได้จากไวท์เปเปอร์ v1.0 รายงานรายเดือน และข้อมูลบนเชน รวมถึงตรวจสอบตัวเลขจากแหล่งข้อมูลต้นฉบับได้โดยตรง',
+    en: 'Every material claim on this site is traceable to Whitepaper v1.1, the monthly reports, or on-chain data. If a number matters, check the source.',
+    th: 'ตรวจสอบข้อมูลสำคัญบนเว็บไซต์นี้ได้จากไวท์เปเปอร์ v1.1 รายงานรายเดือน และข้อมูลบนเชน รวมถึงตรวจสอบตัวเลขจากแหล่งข้อมูลต้นฉบับได้โดยตรง',
   },
 };
 

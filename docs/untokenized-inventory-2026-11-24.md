@@ -7,11 +7,9 @@ This is an internal reconciliation note, not a page published on the website.
 
 | Item | Balance |
 |---|---:|
-| Total I-REC balance on REHash | 2,906,866.9911 MWh |
+| Total I-REC balance on REHash (2025 + 2024) | 2,906,844.8810 MWh |
 | Tokenised (2025 vintage, 10 projects) | 1,453,422.4400 MWh |
-| Untokenised inventory | 1,453,444.5511 MWh |
-| - 2024 vintage | 1,453,422.4410 MWh |
-| - 2023 vintage | 22.1101 MWh |
+| Untokenised inventory (2024 vintage) | 1,453,422.4410 MWh |
 
 The 2024 project token contracts report `totalSupply() = 0` on ThaiFi. The balances below are
 therefore inventory held in REHash, not tokenised supply. The 2025 vintage is tokenised and is the
@@ -31,12 +29,11 @@ Balances are the sum of every REHash line item for that device and vintage.
 | VN-HYDRO-07182011-6371924978 | SESAHYDR002 | Sesan 4A | Gia Lai | 2024 | 194,740.082 | Yes |
 | VN-HYDRO-06212015-0071019968 | HATAHYDR001 | Ha Tay | Gia Lai | 2024 | 19,002.398 | Yes |
 | VN-HYDRO-07032010-9621112354 | SREPHYDR001 | Srepok 4 | Đắk Lắk | 2024 | 228,272.742 | Yes |
-| VN-HYDRO-07032010-9621112354 | SREPHYDR001 | Srepok 4 | Đắk Lắk | 2023 | 22.1101 | Yes (2025 vintage) |
 | VN-HYDRO-09302019-2830920567 | SONTES30001 | Son Tay | Quảng Ngãi | 2024 | 54,409.078 | Yes |
 | VN-HYDRO-04072018-0918365711 | MINHES30001 | Minh Luong | Lào Cai | 2024 | 79,979.663 | Yes |
 | VN-HYDRO-06302012-6844209282 | BACHES30001 | Bac Ha | Lào Cai | 2024 | 39,662.462 | Yes |
 | VN-HYDRO-02092018-8350452407 | DADAHYDR001 | Da Dang 3 | Lâm Đồng | 2024 | 40,333.819 | Yes |
-| **Total** | | | | | **1,453,444.5511** | |
+| **Total** | | | | | **1,453,422.4410** | |
 
 ## Missing from the tokenised set
 
@@ -76,5 +73,4 @@ The 24 untokenised lines behind the totals above:
 | VN-HYDRO-04072018-0918365711 | 2024 | 58,028.570 |
 | VN-HYDRO-02092018-8350452407 | 2024 | 18,837.439 |
 | VN-HYDRO-02092018-8350452407 | 2024 | 21,496.380 |
-| VN-HYDRO-07032010-9621112354 | 2023 | 22.1101 |
-| **Total** | | **1,453,444.5511** |
+| **Total** | | **1,453,422.4410** |

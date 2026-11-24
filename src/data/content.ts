@@ -67,7 +67,7 @@ export type PageDoc = {
 const t = (en: string, th: string): Bi => ({ en, th });
 
 const legalIndex = [
-  { label: t('Whitepaper v1.0', 'ไวท์เปเปอร์ v1.0'), value: t('48 pages, PDF', '48 หน้า, PDF'), note: t('Primary source document', 'เอกสารต้นฉบับหลัก') },
+  { label: t('Whitepaper v1.1', 'ไวท์เปเปอร์ v1.1'), value: t('48 pages, PDF', '48 หน้า, PDF'), note: t('Primary source document', 'เอกสารต้นฉบับหลัก') },
   { label: t('Monthly reports', 'รายงานรายเดือน'), value: t('Monthly, PDF', 'รายเดือน, PDF'), note: t('Portfolio and reconciliation', 'พอร์ตและการกระทบยอด') },
   { label: t('Issuer liability announcement', 'ประกาศความรับผิดของผู้ออก'), value: t('Statement', 'แถลงการณ์'), note: t('Legal disclosure', 'การเปิดเผยทางกฎหมาย') },
   { label: t('Terms of service', 'ข้อกำหนดการให้บริการ'), value: t('Policy', 'นโยบาย'), note: t('Governing law: Thailand', 'กฎหมายที่ใช้บังคับ: ไทย') },
@@ -298,8 +298,8 @@ export const CONTENT_PAGES: Record<string, PageDoc> = {
       {
         type: 'callout',
         kind: 'info',
-        title: t('Whitepaper address reference', 'ที่อยู่สัญญาในไวท์เปเปอร์'),
-        body: t('Whitepaper v1.0 §1.1 records a ThaiFi project pool contract at 0x18c8F43c456e3947C37D3604d891De914d592776. The active ThaiFi deployment verified on-chain is 0x7269992Ea88ec64fF65f9B03F8D6Ea4AADb5EAE9. Always verify the active address on the explorer before sending tokens.', 'ไวท์เปเปอร์ v1.0 §1.1 บันทึกสัญญาพูลบน ThaiFi ที่ 0x18c8F43c456e3947C37D3604d891De914d592776 ส่วนการติดตั้งบน ThaiFi ที่ตรวจสอบบนเชนและใช้งานอยู่คือ 0x7269992Ea88ec64fF65f9B03F8D6Ea4AADb5EAE9 ตรวจสอบที่อยู่ที่ใช้งานบน explorer ก่อนส่งโทเคนทุกครั้ง'),
+        title: t('Contract address verification', 'ตรวจสอบที่อยู่สัญญา'),
+        body: t('The active ThaiFi pool contract is 0x7269992Ea88ec64fF65f9B03F8D6Ea4AADb5EAE9. The Kubchain bridge lock is a separate contract at 0x18c8F43c456e3947C37D3604d891De914d592776. Always verify the active address on the explorer before sending tokens.', 'สัญญาพูลบน ThaiFi ที่ใช้งานอยู่คือ 0x7269992Ea88ec64fF65f9B03F8D6Ea4AADb5EAE9 ส่วนสัญญาล็อกสะพาน Kubchain คือ 0x18c8F43c456e3947C37D3604d891De914d592776 ซึ่งเป็นคนละสัญญา ตรวจสอบที่อยู่ที่ใช้งานบน explorer ก่อนส่งโทเคนทุกครั้ง'),
       },
     ],
   },
@@ -684,8 +684,8 @@ export const CONTENT_PAGES: Record<string, PageDoc> = {
       eyebrow: t('Risk factors', 'ปัจจัยความเสี่ยง'),
       title: t('Read this before you buy.', 'อ่านก่อนซื้อ'),
       description: t(
-        'Digital tokens involve risk, including total loss of funds. The risks below are drawn from Chapter 07 of Whitepaper v1.0 and are not exhaustive.',
-        'โทเคนดิจิทัลมีความเสี่ยง รวมถึงการสูญเสียเงินทั้งหมด ความเสี่ยงด้านล่างมาจากบทที่ 07 ของไวท์เปเปอร์ v1.0 และไม่ได้ครอบคลุมความเสี่ยงทั้งหมด'
+        'Digital tokens involve risk, including total loss of funds. The risks below are drawn from Chapter 07 of Whitepaper v1.1 and are not exhaustive.',
+        'โทเคนดิจิทัลมีความเสี่ยง รวมถึงการสูญเสียเงินทั้งหมด ความเสี่ยงด้านล่างมาจากบทที่ 07 ของไวท์เปเปอร์ v1.1 และไม่ได้ครอบคลุมความเสี่ยงทั้งหมด'
       ),
       chips: [t('Regulatory', 'กฎระเบียบ'), t('Technology', 'เทคโนโลยี'), t('Market', 'ตลาด'), t('Operational', 'การดำเนินงาน')],
       warning: t('You may lose all funds used for purchase.', 'คุณอาจสูญเสียเงินทั้งหมดที่ใช้ซื้อ'),
@@ -770,7 +770,7 @@ export const CONTENT_PAGES: Record<string, PageDoc> = {
         'The whitepaper, monthly reports, official announcements, regulatory evidence and legal policies in one index.',
         'ไวท์เปเปอร์ รายงานรายเดือน ประกาศอย่างเป็นทางการ หลักฐานการกำกับดูแล และนโยบายทางกฎหมายในที่เดียว'
       ),
-      chips: [t('Whitepaper v1.0', 'ไวท์เปเปอร์ v1.0'), t('Monthly reports', 'รายงานรายเดือน'), t('Legal', 'กฎหมาย')],
+      chips: [t('Whitepaper v1.1', 'ไวท์เปเปอร์ v1.1'), t('Monthly reports', 'รายงานรายเดือน'), t('Legal', 'กฎหมาย')],
     },
     blocks: [
       {
@@ -778,7 +778,7 @@ export const CONTENT_PAGES: Record<string, PageDoc> = {
         id: 'core',
         title: t('Core disclosure', 'การเปิดเผยหลัก'),
         items: [
-          { title: t('Whitepaper v1.0', 'ไวท์เปเปอร์ v1.0'), body: t('48 pages: tokenomics, governance, risk, redemption and glossary.', '48 หน้า: tokenomics การกำกับดูแล ความเสี่ยง การแลกคืน และอภิธานศัพท์'), href: 'whitepaper', meta: t('Version 1.0', 'เวอร์ชัน 1.0') },
+          { title: t('Whitepaper v1.1', 'ไวท์เปเปอร์ v1.1'), body: t('48 pages: tokenomics, governance, risk, redemption and glossary.', '48 หน้า: tokenomics การกำกับดูแล ความเสี่ยง การแลกคืน และอภิธานศัพท์'), href: 'whitepaper', meta: t('Version 1.1', 'เวอร์ชัน 1.1') },
           { title: t('Issuer liability announcement', 'ประกาศความรับผิดของผู้ออก'), body: t('The official statement on issuer responsibility and the Adverse Incident definition.', 'แถลงการณ์อย่างเป็นทางการเกี่ยวกับความรับผิดของผู้ออกและคำนิยามเหตุการณ์ไม่พึงประสงค์'), href: 'announcement', meta: t('Statement', 'แถลงการณ์') },
           { title: t('Monthly reports', 'รายงานรายเดือน'), body: t('Portfolio, asset composition, retirement and reconciliation status.', 'พอร์ต องค์ประกอบสินทรัพย์ การไถ่ถอน และสถานะการกระทบยอด'), href: 'reports', meta: t('Monthly', 'รายเดือน') },
           { title: t('Live data', 'ข้อมูลสด'), body: t('Supply, retirements and contract registry read from chain.', 'จำนวนโทเคน การไถ่ถอน และทะเบียนสัญญาที่อ่านจากเชน'), href: 'data', meta: t('Live', 'สด') },
@@ -801,7 +801,7 @@ export const CONTENT_PAGES: Record<string, PageDoc> = {
         title: t('Register', 'ทะเบียนเอกสาร'),
         columns: [t('Document', 'เอกสาร'), t('Type', 'ประเภท'), t('Status', 'สถานะ')],
         rows: [
-          [t('Whitepaper v1.0', 'ไวท์เปเปอร์ v1.0'), t('PDF, 48 pages', 'PDF, 48 หน้า'), t('Published 2026', 'เผยแพร่ 2026')],
+          [t('Whitepaper v1.1', 'ไวท์เปเปอร์ v1.1'), t('PDF, 48 pages', 'PDF, 48 หน้า'), t('Published 2026', 'เผยแพร่ 2026')],
           [t('REC Portfolio Report - May 2026', 'รายงานพอร์ต REC - พฤษภาคม 2026'), t('Web report', 'รายงานเว็บ'), t('Published 31 May 2026', 'เผยแพร่ 31 พ.ค. 2026')],
           [t('Issuer liability announcement', 'ประกาศความรับผิดของผู้ออก'), t('Web statement', 'แถลงการณ์บนเว็บ'), t('Published', 'เผยแพร่')],
           [t('Privacy policy', 'นโยบายความเป็นส่วนตัว'), t('Policy', 'นโยบาย'), t('Version 1.0', 'เวอร์ชัน 1.0')],
@@ -826,12 +826,12 @@ export const CONTENT_PAGES: Record<string, PageDoc> = {
     slug: 'whitepaper',
     hero: {
       eyebrow: t('Primary source', 'ต้นฉบับหลัก'),
-      title: t('Whitepaper v1.0', 'ไวท์เปเปอร์ v1.0'),
+      title: t('Whitepaper v1.1', 'ไวท์เปเปอร์ v1.1'),
       description: t(
         'Comprehensive documentation of the REC Token ecosystem by BlockEdge: token design, governance, operating model, risk factors and glossary.',
         'เอกสารฉบับสมบูรณ์ของระบบนิเวศ REC Token โดย BlockEdge: การออกแบบโทเคน การกำกับดูแล โมเดลการดำเนินงาน ปัจจัยความเสี่ยง และอภิธานศัพท์'
       ),
-      chips: [t('48 pages', '48 หน้า'), t('Version 1.0', 'เวอร์ชัน 1.0'), t('Updated 2026', 'อัปเดต 2026')],
+      chips: [t('48 pages', '48 หน้า'), t('Version 1.1', 'เวอร์ชัน 1.1'), t('Updated 2026', 'อัปเดต 2026')],
     },
     actions: [
       { label: t('Download PDF', 'ดาวน์โหลด PDF'), href: SITE.whitepaper.url, variant: 'primary', external: true },
