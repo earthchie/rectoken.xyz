@@ -1,7 +1,12 @@
 import { MONTHLY_REPORTS } from './report-monthly';
 
 export const REPORTS = MONTHLY_REPORTS.map((report) => {
-  const carried = Boolean(report.movementNote.en);
+  /*
+   * A month is a carry-forward only when its own movement note says there was
+   * no change. July 2026 and November 2026 both contain a real movement and
+   * must not be labelled "No movement".
+   */
+  const carried = /^no change/i.test(report.movementNote.en.trim());
   return {
     id: report.slug,
     period: report.period,
@@ -9,11 +14,11 @@ export const REPORTS = MONTHLY_REPORTS.map((report) => {
     year: report.period.en.split(' ')[1],
     title: `REC Portfolio Report - ${report.period.en}`,
     titleTh: `รายงานพอร์ต REC - ${report.period.th}`,
-    description: carried
-      ? `Monthly portfolio report for ${report.period.en}. No reserve movement; figures are carried forward from the May 2026 reconciliation.`
+    description: report.movementNote.en
+      ? `Monthly portfolio report for ${report.period.en}. ${report.movementNote.en}`
       : 'Monthly portfolio report covering REC token metrics, asset composition and redemption activities for May 2026.',
-    descriptionTh: carried
-      ? `รายงานพอร์ตประจำเดือน${report.period.th} ไม่มีการเคลื่อนไหวของสินทรัพย์สำรอง โดยตัวเลขยกมาจากการกระทบยอดเดือนพฤษภาคม 2026`
+    descriptionTh: report.movementNote.th
+      ? `รายงานพอร์ตประจำเดือน${report.period.th} ${report.movementNote.th}`
       : 'รายงานพอร์ตประจำเดือนพฤษภาคม 2026 ครอบคลุมตัวชี้วัดโทเคน REC องค์ประกอบของสินทรัพย์ และกิจกรรมการแลกคืน',
     href: `reports/${report.slug}`,
     sections: 10,

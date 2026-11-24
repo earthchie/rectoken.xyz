@@ -4,7 +4,7 @@ import { Search, ArrowRight, ExternalLink, X, MapPin, ShieldCheck } from '@lucid
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PageHero from '@components/PageHero.astro';
 import Icon from '@components/Icon.astro';
-import snapshot from '@data/projects.json';
+import { loadProjects } from '@scripts/data';
 import { CHAINS } from '@data/site';
 import { t, type Locale } from '@i18n/utils';
 import { formatNumber } from '@utils/format';
@@ -15,10 +15,17 @@ interface Props {
 const { lang } = Astro.props;
 const l = (path: string) => getRelativeLocaleUrl(lang, path);
 
-const projects = snapshot.projects;
-const totalSupply = projects.reduce((sum, p) => sum + Number(p.supplySnapshot || 0), 0);
+/*
+ * The project registry is the live JSON published by BlockEdge
+ * (asset.blockedge.co/rec-hydro.json) plus each project's metadata and
+ * on-chain supply. There is no hand-maintained project list here: add or
+ * remove an address in that JSON and the page follows on the next build.
+ */
+const projects = await loadProjects();
+const totalSupply = projects.reduce((sum, p) => sum + p.supply, 0);
 const provinces = [...new Set(projects.map((p) => p.province))];
-const vintages = [...new Set(projects.map((p) => p.vintage))];
+const vintages = [...new Set(projects.map((p) => p.vintage))].sort();
+const vintageLabel = vintages.join(' · ');
 const countryLabel = (country: string) => lang === 'th' && country === 'Vietnam' ? 'เวียดนาม' : country;
 const technologyLabel = (technology: string) => lang === 'th' && technology === 'Hydro-electric' ? 'พลังน้ำ' : technology;
 
@@ -37,7 +44,7 @@ const labels = {
     title={labels.title}
     description={labels.lede}
     locale={lang}
-    chips={[`${projects.length} ${lang === 'th' ? 'โครงการ' : 'projects'}`, countryLabel('Vietnam'), technologyLabel('Hydro-electric'), lang === 'th' ? 'วินเทจ 2024' : 'Vintage 2024']}
+    chips={[`${projects.length} ${lang === 'th' ? 'โครงการ' : 'projects'}`, countryLabel('Vietnam'), technologyLabel('Hydro-electric'), `${lang === 'th' ? 'วินเทจ' : 'Vintage'} ${vintageLabel}`]}
     actions={[
       { label: lang === 'th' ? 'แดชบอร์ดเรียลไทม์' : 'Live dashboard', href: l('data'), variant: 'primary' },
       { label: lang === 'th' ? 'รายงานรายเดือน' : 'Monthly reports', href: l('reports') },
@@ -115,7 +122,7 @@ const labels = {
             <div class="project-card-foot">
               <div>
                 <span class="project-supply">
-                  <span data-project-supply={project.address}>{formatNumber(Number(project.supplySnapshot), lang, { maximumFractionDigits: 2 })}</span>
+                  <span data-project-supply={project.address}>{formatNumber(project.supply, lang, { maximumFractionDigits: 2 })}</span>
                   <small>REC · {lang === 'th' ? 'จำนวนโทเคนรวม' : 'total supply'}</small>
                 </span>
               </div>
@@ -136,8 +143,8 @@ const labels = {
       <p class="project-source">
         <Icon name="Info" size={14} />
         {lang === 'th'
-          ? 'ข้อมูลโครงการมาจากเมทาดาทาสาธารณะ ส่วนจำนวนโทเคนอ่านจาก ThaiFi ค่า ณ วันที่ 16 พ.ย. 2026 อาจเปลี่ยนแปลงได้'
-          : 'Project metadata is public; supply is read from ThaiFi. Snapshot values dated 16 Nov 2026 may change.'}
+          ? 'รายการโครงการอ่านจาก rec-hydro.json และเมทาดาทาสาธารณะ ส่วนจำนวนโทเคนอ่านจาก ThaiFi ขณะสร้างหน้าและรีเฟรชสดบนเบราว์เซอร์'
+          : 'The project list is read from rec-hydro.json and public metadata; supply is read from ThaiFi at build and refreshed live in the browser.'}
       </p>
     </div>
   </section>

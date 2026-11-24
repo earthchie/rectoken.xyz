@@ -543,7 +543,10 @@ async function initLiveStats(): Promise<void> {
   try {
     const { loadStats } = await import('./data');
     const stats = await loadStats();
-    const bridged = (stats.bridgedOp ?? 0) + (stats.bridgedKub ?? 0);
+    const bridged =
+      stats.bridgedOp === null || stats.bridgedKub === null
+        ? null
+        : stats.bridgedOp + stats.bridgedKub;
     const values: Record<string, number | null> = {
       pool: stats.poolSupply,
       retired: stats.retired,
@@ -552,6 +555,7 @@ async function initLiveStats(): Promise<void> {
       'bridged-op': stats.bridgedOp,
       'bridged-kub': stats.bridgedKub,
       'bridged-total': bridged,
+      remaining: stats.remaining,
     };
 
     document.querySelectorAll<HTMLElement>('[data-stat]').forEach((el) => {
@@ -577,8 +581,11 @@ async function initLiveStats(): Promise<void> {
     });
 
     document.querySelectorAll<HTMLElement>('[data-bar="pool"]').forEach((el) => {
-      const pct = Math.min(100, ((stats.poolSupply ?? 0) / 100_000_000) * 100);
-      el.style.width = `${Math.max(0.4, pct)}%`;
+      const pct =
+        stats.poolSupply === null
+          ? 0
+          : Math.min(100, (stats.poolSupply / 100_000_000) * 100);
+      el.style.width = `${pct > 0 ? Math.max(0.4, pct) : 0}%`;
     });
 
     roots.forEach((root) => root.setAttribute('data-live-state', 'ok'));
