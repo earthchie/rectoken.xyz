@@ -107,9 +107,34 @@ const l = (path: string) => getRelativeLocaleUrl(lang, path);
 
         <p class="wallet-note">
           {lang === 'th'
-            ? 'MetaMask แสดงโทเคนหลักเป็น pUSD ด้วยทศนิยม 18 ตำแหน่งตามข้อจำกัดของวอลเล็ต ยอด pathUSD ด้านบนอ่านจากเชนด้วยทศนิยม 6 ตำแหน่ง'
-            : 'MetaMask lists the native token as pUSD with 18 decimals due to its wallet limits. The pathUSD balance above is read from the chain with 6 decimals.'}
+            ? 'ทะเบียนเชนของ MetaMask กำหนดให้เชน 17 ใช้สัญลักษณ์ TFI ทศนิยม 18 ตำแหน่ง ส่วนโทเคนค่าธรรมเนียมจริงของ ThaiFi คือ pathUSD ทศนิยม 6 ตำแหน่ง ยอด pathUSD ด้านบนอ่านจากเชนและเป็นยอดที่ถูกต้อง'
+            : 'MetaMask’s chain registry expects TFI with 18 decimals for chain 17. ThaiFi’s actual fee token is pathUSD with 6 decimals; the pathUSD balance above is read from the chain and is the accurate one.'}
         </p>
+
+        <details class="wallet-manual">
+          <summary>{lang === 'th' ? 'รายละเอียดเครือข่ายสำหรับเพิ่มด้วยตนเอง' : 'Network details for manual add'}</summary>
+          <dl>
+            <div><dt>{lang === 'th' ? 'ชื่อเครือข่าย' : 'Network name'}</dt><dd>ThaiFi</dd></div>
+            <div>
+              <dt>RPC URL</dt>
+              <dd>
+                <span>{CHAINS.thaifi.rpc}</span>
+                <button type="button" class="copy-btn" data-copy={CHAINS.thaifi.rpc} aria-label={lang === 'th' ? 'คัดลอก RPC URL' : 'Copy RPC URL'} title={lang === 'th' ? 'คัดลอก' : 'Copy'}><Copy size={12} /></button>
+              </dd>
+            </div>
+            <div><dt>Chain ID</dt><dd>{CHAINS.thaifi.id} ({CHAINS.thaifi.hexId})</dd></div>
+            <div><dt>{lang === 'th' ? 'สัญลักษณ์' : 'Symbol'}</dt><dd>TFI</dd></div>
+            <div>
+              <dt>Block explorer</dt>
+              <dd><a href={CHAINS.thaifi.explorer} target="_blank" rel="noopener noreferrer">{CHAINS.thaifi.explorer}</a></dd>
+            </div>
+          </dl>
+          <p>
+            {lang === 'th'
+              ? 'MetaMask กำหนดให้เชน 17 ใช้ TFI ทศนิยม 18 ตำแหน่งตามทะเบียนเชนของวอลเล็ต ส่วนโทเคนค่าธรรมเนียมจริงคือ pathUSD ทศนิยม 6 ตำแหน่ง หาก MetaMask แจ้ง “Unexpected native token symbol” ให้เปิด Edit network details แล้วตั้งสัญลักษณ์เป็น TFI หรือลบเครือข่ายเดิมที่เป็น pUSD แล้วเพิ่มใหม่จากหน้านี้ เว็บไซต์นี้อ่านยอด pathUSD จริงด้วยทศนิยม 6 ตำแหน่ง'
+              : 'MetaMask’s registry requires TFI with 18 decimals for chain 17; the actual fee token is pathUSD with 6 decimals. If MetaMask shows “Unexpected native token symbol”, open Edit network details and set the symbol to TFI, or remove an existing pUSD network and add it again from this page. This site reads the real pathUSD balance with 6 decimals.'}
+          </p>
+        </details>
 
         <div class="holdings">
           <div class="holdings-head">
@@ -200,6 +225,13 @@ const l = (path: string) => getRelativeLocaleUrl(lang, path);
 
   .wallet-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
   .wallet-note { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-3); }
+  .wallet-manual { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+  .wallet-manual summary { cursor: pointer; font-weight: 600; }
+  .wallet-manual dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; margin: 12px 0 0; }
+  .wallet-manual dt { font-size: 14px; color: var(--ink-3); }
+  .wallet-manual dd { display: flex; align-items: center; gap: 4px; margin: 0; font-family: var(--font-mono); font-size: 14px; overflow-wrap: anywhere; }
+  .wallet-manual p { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-3); }
+  @media (max-width: 600px) { .wallet-manual dl { grid-template-columns: 1fr; } }
   .wallet-address-line { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
   .wallet-address-line h2 { font-family: var(--font-mono); font-size: 1rem; word-break: break-all; }
   .wallet-head-actions { display: flex; flex-wrap: wrap; gap: 6px; }

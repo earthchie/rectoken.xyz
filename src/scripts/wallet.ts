@@ -16,6 +16,8 @@ export type WalletChain = {
   rpc: string;
   explorer: string;
   native: { name: string; symbol: string; decimals: number };
+  /** MetaMask-specific native currency; its registry may differ from the chain. */
+  walletNative?: { name: string; symbol: string; decimals: number };
 };
 
 export type WalletState = {
@@ -227,11 +229,12 @@ export async function ensureChain(chain: WalletChain): Promise<boolean> {
     try {
       /*
        * MetaMask hard-codes 18 decimals for a custom chain's nativeCurrency,
-       * even when the chain's native token uses fewer (ThaiFi pathUSD uses 6).
-       * The wallet only uses this for display; the site reads the real balance
-       * and gas values from the chain with 6 decimals.
+       * and its public registry for chain 17 expects the symbol TFI. The live
+       * ThaiFi fee token is pathUSD with 6 decimals, so walletNative carries
+       * the values MetaMask needs while the site keeps reading the real chain
+       * values from `native`.
        */
-      const nativeCurrency = { ...chain.native, decimals: 18 };
+      const nativeCurrency = chain.walletNative ?? { ...chain.native, decimals: 18 };
       await provider.request({
         method: 'wallet_addEthereumChain',
         params: [

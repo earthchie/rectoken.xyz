@@ -160,7 +160,9 @@ export function initWalletPage(lang: string): void {
       if (!ok) throw new Error('CHAIN_NOT_ADDED');
       toast?.(
         lang === 'th' ? 'เพิ่ม ThaiFi แล้ว' : 'ThaiFi added',
-        lang === 'th' ? 'ขณะนี้คุณสามารถสลับไปยังเชน 17 ใน MetaMask ได้' : 'You can now switch to chain 17 in MetaMask.',
+        lang === 'th'
+          ? 'หาก MetaMask แจ้งเตือนสัญลักษณ์ ให้เปิด Edit network details แล้วตั้งสัญลักษณ์เป็น TFI'
+          : 'If MetaMask warns about the native symbol, set it to TFI in Edit network details.',
         'success'
       );
     } catch (error) {

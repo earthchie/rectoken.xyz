@@ -110,12 +110,14 @@ export const CHAINS = {
     name: 'ThaiFi',
     rpc: 'https://rpc.thaifi.com',
     explorer: 'https://exp.thaifi.com',
+    native: { name: 'pathUSD', symbol: 'pathUSD', decimals: 6 },
     /*
-     * MetaMask's wallet_addEthereumChain accepts a nativeCurrency.symbol of
-     * only 2-6 characters. The network currency is pathUSD (7 characters), so
-     * the wallet request uses pUSD while the site keeps displaying pathUSD.
+     * MetaMask's public registry for chain 17 ("ThaiChain 2.0 ThaiFi") expects
+     * the native symbol TFI with 18 decimals. The live ThaiFi fee token is
+     * pathUSD with 6 decimals. walletNative is used only for the MetaMask add
+     * request; native is what this site reads and displays.
      */
-    native: { name: 'pathUSD', symbol: 'pUSD', decimals: 6 },
+    walletNative: { name: 'ThaiFi', symbol: 'TFI', decimals: 18 },
   },
   optimism: {
     id: 10,
