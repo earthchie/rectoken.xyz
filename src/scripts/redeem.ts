@@ -132,7 +132,7 @@ export function initRedeem(lang: string): void {
   const draft = root.querySelector<HTMLElement>('[data-redeem-draft]');
   const errorEl = root.querySelector<HTMLElement>('[data-redeem-error]');
   const submit = root.querySelector<HTMLButtonElement>('[data-redeem-submit]');
-  const mailto = root.querySelector<HTMLAnchorElement>('[data-redeem-mailto]');
+  const reference = root.querySelector<HTMLElement>('[data-redeem-reference]');
 
   const nameInput = root.querySelector<HTMLInputElement>('[data-redeem-name]');
   const emailInput = root.querySelector<HTMLInputElement>('[data-redeem-email]');
@@ -147,6 +147,7 @@ export function initRedeem(lang: string): void {
   const hashInput = root.querySelector<HTMLInputElement>('[data-redeem-hash]');
   const optionInput = root.querySelector<HTMLSelectElement>('[data-redeem-option]');
   const notesInput = root.querySelector<HTMLTextAreaElement>('[data-redeem-notes]');
+  const companyInput = root.querySelector<HTMLInputElement>('[data-redeem-company]');
   const txStatus = root.querySelector<HTMLElement>('[data-redeem-tx-status]');
   const checkButton = root.querySelector<HTMLButtonElement>('[data-redeem-check]');
 
@@ -179,19 +180,6 @@ export function initRedeem(lang: string): void {
   const hash = () => hashInput?.value.trim() || '';
   const option = () => optionInput?.value || 'rehash';
   const notes = () => notesInput?.value.trim() || '';
-
-  const supportEmail = (mailto?.getAttribute('href') || 'mailto:info@blockedge.earth')
-    .replace(/^mailto:/, '')
-    .split('?')[0];
-
-  const optionLabel = () =>
-    option() === 'rehash'
-      ? lang === 'th'
-        ? 'รับ I-REC บน REHASH'
-        : 'Receive I-REC on REHASH'
-      : lang === 'th'
-        ? 'ไถ่ถอนในนามบุคคลธรรมดา'
-        : 'Retire on behalf of an individual';
 
   const syncOptionFields = () => {
     const isRehash = option() === 'rehash';
@@ -367,43 +355,87 @@ export function initRedeem(lang: string): void {
       return;
     }
 
-    const bodyLines = [
-      `Contact name: ${name()}`,
-      `Email: ${email()}`,
-      `Phone: ${phone()}`,
-      `Option: ${optionLabel()}`,
-    ];
+    const payload = {
+      contactName: name(),
+      email: email(),
+      phone: phone(),
+      option: option(),
+      rehashAccount: option() === 'rehash' ? rehashAccount() : '',
+      beneficialName: option() === 'retire-individual' ? beneficialName() : '',
+      retirementReason: option() === 'retire-individual' ? retirementReason() : '',
+      amount: Number(amount()),
+      network: network(),
+      transactionHash: hash(),
+      notes: notes(),
+      locale: lang,
+      company: companyInput?.value || '',
+    };
 
-    if (option() === 'rehash') {
-      bodyLines.push(`REHASH account: ${rehashAccount()}`);
-    } else {
-      bodyLines.push(`Beneficial name: ${beneficialName()}`);
-      bodyLines.push(`Reason for retirement: ${retirementReason()}`);
+    const originalLabel = submit?.textContent || '';
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = lang === 'th' ? 'กำลังส่ง…' : 'Sending…';
     }
 
-    bodyLines.push(
-      `Amount: ${amount()} REC`,
-      `Network: ${network() === 'optimism' ? 'Optimism' : 'Kubchain'}`,
-      `Transaction hash: ${hash()}`,
-      `Sender: ${verifiedTransfer.from || '-'}`,
-      `Vault: ${verifiedTransfer.to || '-'}`,
-      `Notes: ${notes()}`
-    );
+    try {
+      const response = await fetch('/api/redemptions', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = (await response.json().catch(() => ({}))) as { id?: string; error?: string };
+      if (!response.ok) {
+        const messages: Record<string, string> = {
+          TRANSACTION_ALREADY_USED:
+            lang === 'th'
+              ? 'ธุรกรรมนี้ถูกส่งเป็นคำขอแล้ว'
+              : 'This transaction has already been submitted.',
+          BELOW_MINIMUM:
+            lang === 'th' ? `จำนวนขั้นต่ำคือ ${MIN_REC} REC` : `The minimum amount is ${MIN_REC} REC.`,
+          RATE_LIMITED:
+            lang === 'th'
+              ? 'มีคำขอมากเกินไป กรุณาลองใหม่ภายหลัง'
+              : 'Too many requests. Try again later.',
+          NO_VAULT_TRANSFER:
+            lang === 'th'
+              ? 'ไม่พบการโอน REC Token เข้าห้องนิรภัยของ BlockEdge'
+              : 'No REC Token transfer to the BlockEdge vault was found.',
+          TX_NOT_FOUND:
+            lang === 'th'
+              ? 'ไม่พบธุรกรรมบนเครือข่ายที่เลือก'
+              : 'Transaction not found on the selected network.',
+          TX_FAILED: lang === 'th' ? 'ธุรกรรมล้มเหลวบนเชน' : 'The transaction failed on-chain.',
+        };
+        throw new Error(
+          messages[data.error || ''] ||
+            (lang === 'th'
+              ? 'ส่งคำขอไม่สำเร็จ กรุณาลองใหม่หรืออีเมลหาเรา'
+              : 'Could not submit the request. Try again or email us.')
+        );
+      }
 
-    const body = bodyLines.join('\n');
-    const subject = lang === 'th' ? 'คำขอแลกคืน REC Token' : 'REC Token redemption request';
-    const href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    if (mailto) mailto.href = href;
-    if (formWrap) formWrap.hidden = true;
-    if (draft) draft.hidden = false;
-    if (submit) submit.blur();
-    window.location.href = href;
+      if (reference) reference.textContent = data.id || '-';
+      if (formWrap) formWrap.hidden = true;
+      if (draft) draft.hidden = false;
+      if (submit) submit.blur();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : lang === 'th' ? 'ส่งคำขอไม่สำเร็จ' : 'Could not submit the request.');
+    } finally {
+      if (submit) {
+        submit.disabled = false;
+        submit.textContent = originalLabel;
+      }
+    }
   });
 
   root.querySelector('[data-redeem-another]')?.addEventListener('click', () => {
     if (draft) draft.hidden = true;
     if (formWrap) formWrap.hidden = false;
+    form?.reset();
+    resetVerification();
+    setStatus(statusHint, '');
+    syncOptionFields();
+    if (reference) reference.textContent = '-';
     setError('');
   });
 

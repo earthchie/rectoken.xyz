@@ -1,7 +1,8 @@
 # Redemption backend plan
 
-Status: draft, not implemented. The public site is static and prepares an email draft. This document
-scopes the separate service that will replace that with a recorded request.
+Status: implemented in `src/worker.ts` on a Cloudflare Worker with D1. Requests are stored and the
+form receives a reference ID. Notification hooks (webhook and Resend) exist but no channel is
+configured yet, so requests are currently read from D1 by the team.
 
 ## Purpose
 
@@ -14,10 +15,11 @@ never moves funds; settlement stays a manual, reviewed operation.
 In scope:
 
 - Accept and validate a redemption request over HTTPS.
-- Verify the referenced transaction on ThaiFi and Optimism.
+- Verify the referenced transaction on Optimism or Kubchain.
 - Detect duplicates and reject already-used transaction hashes.
 - Store the request, its state and an audit trail.
-- Send a confirmation to the requester and a notification to operations.
+- Notify operations when a notification channel is configured. Requester acknowledgement is not
+  sent yet.
 - Expose status to the requester and a triage view to staff.
 
 Out of scope:
@@ -29,13 +31,14 @@ Out of scope:
 
 ## API
 
-All endpoints JSON over HTTPS, versioned under `/v1`.
+All endpoints JSON over HTTPS. The implemented surface is:
 
 | Method | Path | Purpose |
 |---|---|---|
-| `POST` | `/v1/redemptions` | Create a request |
-| `GET` | `/v1/redemptions/{id}` | Status for the requester (id plus email match) |
-| `GET` | `/v1/health` | Liveness for the platform |
+| `POST` | `/api/redemptions` | Create a request |
+| `GET` | `/api/health` | Liveness for the platform |
+
+A requester-facing status lookup (`GET /api/redemptions/{id}`) is not implemented yet.
 
 `POST /v1/redemptions` body:
 
@@ -167,14 +170,14 @@ full audit/migrations toolchain and independent hosting more than low ops.
 
 ## Frontend integration
 
-When the backend exists:
+Implemented:
 
-1. Replace the mailto submit in `src/scripts/redeem.ts` with `POST` to the API origin.
-2. Keep the mailto draft as the fallback when the request fails or the service is unreachable.
-3. Add the API origin to `connect-src` in `public/_headers`.
-4. Render the returned reference ID and status instead of the current "email ready" panel.
-5. Add Turnstile back to the form only if the backend verifies it; keep the site key in the build
-   environment.
+1. `src/scripts/redeem.ts` posts to the same-origin `/api/redemptions`.
+2. The success panel shows the returned reference ID.
+3. The browser verifies the transfer for immediate feedback; the Worker re-verifies it independently.
+4. There is no mailto fallback: a request counts as received only after the Worker returns 201.
+5. Turnstile is not implemented. The Worker uses a honeypot, a same-origin check and a per-email rate
+   limit; add Turnstile before high-traffic launch if needed.
 
 ## Delivery phases
 

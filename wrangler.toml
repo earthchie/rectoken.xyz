@@ -1,8 +1,14 @@
 name = "rectoken-xyz"
+main = "src/worker.ts"
 compatibility_date = "2026-11-16"
 
-# Static site only. There is no Worker script in this repository; the redemption
-# backend will live in a separate service.
 [assets]
 directory = "./dist"
+binding = "ASSETS"
 not_found_handling = "404-page"
+run_worker_first = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rectoken-redemptions"
+database_id = "bfbc9816-904c-4858-be5d-9f681502bbd8"

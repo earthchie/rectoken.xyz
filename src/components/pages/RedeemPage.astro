@@ -225,21 +225,32 @@ const steps = [
                 </div>
               </div>
 
+              <div class="hp-field" aria-hidden="true">
+                <label for="redeem-company">Company</label>
+                <input id="redeem-company" name="company" type="text" tabindex="-1" autocomplete="off" data-redeem-company />
+              </div>
+
               <p class="redeem-error" data-redeem-error hidden></p>
 
               <button type="submit" class="btn btn-primary redeem-submit" data-redeem-submit>
-                {lang === 'th' ? 'เปิดอีเมลคำขอ' : 'Open request email'}
+                {lang === 'th' ? 'ส่งคำขอ' : 'Submit request'}
               </button>
             </form>
           </div>
 
           <div class="redeem-success" data-redeem-draft hidden>
             <div class="redeem-success-icon"><Mail size={26} stroke-width={1.8} /></div>
-            <h2 class="h3">{lang === 'th' ? 'อีเมลคำขอพร้อมส่ง' : 'Request email ready'}</h2>
-            <p>{lang === 'th' ? 'เราเปิดแอปอีเมลของคุณพร้อมรายละเอียดคำขอแล้ว กรุณากดส่งจากแอปอีเมล คำขอจะถือว่าได้รับเมื่อทีมงานตอบกลับ' : 'Your mail app should open with the request details. Send it from there. The request counts as received when our team replies.'}</p>
+            <h2 class="h3">{lang === 'th' ? 'ได้รับคำขอแล้ว' : 'Request received'}</h2>
+            <p>
+              {lang === 'th' ? 'หมายเลขอ้างอิงของคุณคือ ' : 'Your reference is '}
+              <strong data-redeem-reference>-</strong>
+              {lang === 'th'
+                ? ' ทีมงานจะตรวจสอบคำขอของคุณ กรุณาเก็บหมายเลขนี้ไว้ติดตาม'
+                : '. Our team will review your request. Keep this reference for follow-up.'}
+            </p>
             <div class="redeem-success-actions">
-              <a class="btn btn-primary" data-redeem-mailto href={`mailto:${SITE.supportEmail}`}>{lang === 'th' ? 'เปิดอีเมลอีกครั้ง' : 'Open the email again'}</a>
-              <button type="button" class="btn btn-secondary" data-redeem-another>{lang === 'th' ? 'แก้ไขรายละเอียด' : 'Edit details'}</button>
+              <a class="btn btn-secondary" href={`mailto:${SITE.supportEmail}`}>{lang === 'th' ? 'ติดต่อฝ่ายช่วยเหลือ' : 'Contact support'}</a>
+              <button type="button" class="btn btn-secondary" data-redeem-another>{lang === 'th' ? 'ส่งคำขอใหม่' : 'New request'}</button>
             </div>
           </div>
         </div>
@@ -318,6 +329,7 @@ const steps = [
   .redeem-form .field-hint[data-tone='error'] { color: var(--danger); }
   .redeem-form .field-hint[data-tone='pending'] { color: var(--ink-3); }
   .redeem-form .input[readonly] { background: var(--surface-2); }
+  .hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .redeem-error { color: var(--danger); font-size: 1rem; }
   .redeem-submit { width: 100%; min-height: 48px; }
 
